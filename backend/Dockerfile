@@ -6,10 +6,10 @@ WORKDIR /app
 RUN pip install uv --no-cache-dir
 
 # Bağımlılık dosyalarını kopyala
-COPY pyproject.toml uv.lock* ./
+COPY pyproject.toml ./
 
-# Bağımlılıkları kur (venv olmadan, system Python'a)
-RUN uv sync --no-dev --system
+# Bağımlılıkları kur
+RUN uv pip install --system -e .
 
 # Playwright browser kur
 RUN python -m playwright install chromium --with-deps
