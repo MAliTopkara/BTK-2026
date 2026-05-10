@@ -26,8 +26,8 @@ Bir e-ticaret ürün linkini yapıştırıyorsunuz, TrustLens AI 7 paralel yapay
 
 ## 🚀 Canlı Demo
 
-- **Frontend:** _Deploy edilince eklenecek_
-- **Backend API:** _Deploy edilince eklenecek_
+- **Frontend:** https://btk-2026.vercel.app
+- **Backend API:** https://btk-2026-production.up.railway.app/health
 
 ---
 
