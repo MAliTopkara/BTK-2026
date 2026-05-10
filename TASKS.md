@@ -8,7 +8,7 @@
 
 ## 🔄 Aktif Görev
 
-**#05** — Deploy: Vercel + Railway + Supabase + Upstash _(3-4 saat)_
+**#06** — Mock Data 3 Senaryo _(2-3 saat)_
 
 ---
 
@@ -20,7 +20,9 @@
 - [x] **#02** Backend scaffold (FastAPI + uv) _(Tamamlandı: 11 Mayıs 2026)_
 - [x] **#03** Frontend scaffold (Next.js + Tailwind) _(Tamamlandı: 11 Mayıs 2026)_
 - [x] **#04** Pydantic Modeller + Klasör Yapısı _(Tamamlandı: 11 Mayıs 2026)_
-- [ ] **#05** Deploy: Vercel + Railway + Supabase + Upstash _(3-4 saat)_
+- [x] **#05** Deploy: Vercel + Railway + Supabase + Upstash _(Tamamlandı: 11 Mayıs 2026)_
+  - Frontend: https://btk-2026.vercel.app
+  - Backend: https://btk-2026-production.up.railway.app
 
 ### FAZ 1.A — Backend Çekirdek
 
