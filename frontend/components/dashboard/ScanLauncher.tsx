@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
+import { toast } from "sonner";
 
 import {
   ApiError,
@@ -167,6 +168,12 @@ export function ScanLauncher() {
       setResult(r);
       setPhase("complete");
 
+      if (r.cached_at) {
+        toast.success("Önbellekten yüklendi", {
+          description: `${(r.duration_ms / 1000).toFixed(2)}s — taze tarama için yenile`,
+        });
+      }
+
       // Kısa "complete" süresi sonra detay sayfasına yönlendir
       setTimeout(() => {
         router.push(`/scan/${r.scan_id}`);
@@ -184,6 +191,7 @@ export function ScanLauncher() {
             : "Bilinmeyen hata.";
       setError(msg);
       setPhase("error");
+      toast.error("Tarama başarısız", { description: msg });
     }
   }
 

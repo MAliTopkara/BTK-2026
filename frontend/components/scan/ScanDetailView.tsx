@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 
-import type { LayerResult, ScanResult, Verdict } from "@/lib/api";
+import type { Alternative, LayerResult, ScanResult, Verdict } from "@/lib/api";
 import { ScoreRing } from "@/components/ui/ScoreRing";
 import { LayerCard } from "./LayerCard";
 import { ReasoningPanel } from "./ReasoningPanel";
@@ -40,7 +40,11 @@ export function ScanDetailView({ scan }: Props) {
     <div className="space-y-16 lg:space-y-20">
       {/* ───────────────── HERO — verdict moment ───────────────── */}
       <section className="relative">
-        <Eyebrow scanId={scan.scan_id} createdAt={scan.created_at} />
+        <Eyebrow
+          scanId={scan.scan_id}
+          createdAt={scan.created_at}
+          cachedAt={scan.cached_at}
+        />
 
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 items-start mt-8 lg:mt-12">
           {/* Left: Product info */}
@@ -204,6 +208,11 @@ export function ScanDetailView({ scan }: Props) {
         </div>
       </section>
 
+      {/* ───────────────── ALTERNATIVE ───────────────── */}
+      {scan.alternative && (
+        <AlternativeCard alternative={scan.alternative} />
+      )}
+
       {/* ───────────────── ACTION STRIP ───────────────── */}
       <section className="border-t border-[var(--border-strong)] pt-10">
         <div className="font-mono text-[10px] tracking-[0.28em] uppercase text-[var(--muted-2)] mb-5">
@@ -260,19 +269,36 @@ export function ScanDetailView({ scan }: Props) {
 // Sub-components
 // ─────────────────────────────────────────────────────────────────────────
 
-function Eyebrow({ scanId, createdAt }: { scanId: string; createdAt: string }) {
+function Eyebrow({
+  scanId,
+  createdAt,
+  cachedAt,
+}: {
+  scanId: string;
+  createdAt: string;
+  cachedAt: string | null;
+}) {
   const shortId = scanId.slice(0, 8);
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
-      className="font-mono text-[10px] tracking-[0.32em] uppercase text-[var(--muted)] flex items-center gap-3"
+      className="font-mono text-[10px] tracking-[0.32em] uppercase text-[var(--muted)] flex items-center gap-3 flex-wrap"
     >
       <span className="h-px w-8 bg-[var(--accent)]" />
       <span>tarama · {shortId}</span>
       <span className="text-[var(--muted-2)]">·</span>
       <span>{formatRelative(createdAt)}</span>
+      {cachedAt && (
+        <>
+          <span className="text-[var(--muted-2)]">·</span>
+          <span className="inline-flex items-center gap-1.5 text-[var(--accent-dim)]">
+            <span className="status-dot status-dot-info" />
+            <span>cached</span>
+          </span>
+        </>
+      )}
     </motion.div>
   );
 }
@@ -343,6 +369,91 @@ function CountStat({
         </div>
       </div>
     </div>
+  );
+}
+
+function AlternativeCard({ alternative }: { alternative: Alternative }) {
+  const savings = Math.round(alternative.savings);
+  const savingsPct =
+    alternative.price > 0 && alternative.savings > 0
+      ? Math.round((alternative.savings / (alternative.price + alternative.savings)) * 100)
+      : 0;
+
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 12 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <div className="font-mono text-[10px] tracking-[0.32em] uppercase text-[var(--muted)] mb-5 flex items-center gap-3">
+        <span className="h-px w-8 bg-[var(--accent)]" />
+        <span>alternatif_öneri · daha_iyi_seçenek</span>
+      </div>
+
+      <div className="corner-frame relative border border-[var(--accent)]/40 bg-[var(--accent)]/[0.04]">
+        <span className="c-tr" />
+        <span className="c-bl" />
+
+        <div className="flex items-center justify-between px-4 h-9 border-b border-[var(--accent)]/30 bg-black/30 font-mono text-[10px] tracking-[0.22em] uppercase">
+          <div className="flex items-center gap-2.5 text-[var(--accent)]">
+            <span className="status-dot status-dot-ok" />
+            <span>BETTER_DEAL</span>
+          </div>
+          <span className="text-[var(--muted-2)]">{alternative.platform}</span>
+        </div>
+
+        <div className="p-5 lg:p-6 grid lg:grid-cols-[1fr_auto] gap-6 items-center">
+          <div className="space-y-3 min-w-0">
+            <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-[var(--muted-2)]">
+              {alternative.seller_name}
+              {alternative.rating > 0 && (
+                <>
+                  <span className="mx-2 text-[var(--muted-2)]">·</span>
+                  <span className="tabular-nums">
+                    ★ {alternative.rating.toFixed(1)}
+                  </span>
+                </>
+              )}
+            </div>
+            <p className="font-serif italic text-[clamp(1.2rem,2.2vw,1.6rem)] text-[var(--foreground)] leading-snug">
+              Aynı ürün{" "}
+              <span className="text-[var(--accent)] not-italic tabular-nums">
+                {savings.toLocaleString("tr-TR")} TL
+              </span>{" "}
+              daha ucuza var
+              {savingsPct > 0 && (
+                <span className="text-[var(--muted)] text-[0.7em] ml-2 not-italic">
+                  (%{savingsPct} tasarruf)
+                </span>
+              )}
+              .
+            </p>
+            <a
+              href={alternative.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.22em] uppercase text-[var(--accent)] hover:text-[var(--accent-dim)] transition-colors"
+            >
+              <span>Karşılaştırmaya_git</span>
+              <span className="font-sans">↗</span>
+            </a>
+          </div>
+
+          <div className="text-right shrink-0 border-l border-[var(--accent)]/20 pl-6 hidden lg:block">
+            <div className="font-mono text-[9px] tracking-[0.22em] uppercase text-[var(--muted-2)] mb-1">
+              alternatif fiyat
+            </div>
+            <div className="font-serif italic tabular-nums text-[var(--accent)] text-[36px] leading-none">
+              {alternative.price.toLocaleString("tr-TR")}
+            </div>
+            <div className="font-mono text-[10px] text-[var(--muted-2)] mt-1">
+              TL
+            </div>
+          </div>
+        </div>
+      </div>
+    </motion.section>
   );
 }
 

@@ -49,6 +49,15 @@ export type ProductData = {
 
 export type ReasoningStep = { step: number; content: string };
 
+export type Alternative = {
+  platform: string;
+  seller_name: string;
+  price: number;
+  savings: number;
+  rating: number;
+  url: string;
+};
+
 export type ScanResult = {
   scan_id: string;
   url: string;
@@ -58,9 +67,10 @@ export type ScanResult = {
   layer_results: Record<string, LayerResult>;
   reasoning_steps: ReasoningStep[];
   final_explanation: string;
-  alternative: unknown | null;
+  alternative: Alternative | null;
   duration_ms: number;
   created_at: string;
+  cached_at: string | null;
 };
 
 // ---------------------------------------------------------------------------
@@ -83,6 +93,20 @@ export class ApiError extends Error {
 // Endpoints
 // ---------------------------------------------------------------------------
 
+async function parseErrorDetail(res: Response): Promise<string> {
+  try {
+    const body = await res.json();
+    if (typeof body?.detail === "string") return body.detail;
+    if (Array.isArray(body?.detail)) {
+      // FastAPI 422 validation errors
+      return body.detail.map((e: { msg?: string }) => e.msg).filter(Boolean).join("; ");
+    }
+  } catch {
+    // not JSON
+  }
+  return `HTTP ${res.status}`;
+}
+
 export async function postScan(
   url: string,
   options: { signal?: AbortSignal; force_refresh?: boolean } = {},
@@ -95,17 +119,111 @@ export async function postScan(
   });
 
   if (!res.ok) {
-    let detail = `HTTP ${res.status}`;
-    try {
-      const body = await res.json();
-      detail = body?.detail ?? detail;
-    } catch {
-      // ignore json parse
-    }
-    throw new ApiError(res.status, detail);
+    throw new ApiError(res.status, await parseErrorDetail(res));
   }
 
   return res.json();
+}
+
+/**
+ * Phishing SMS/e-posta görsel taraması (TASK-23 backend, TASK-31 frontend).
+ * Multipart upload → tek LayerResult döner (phishing agent çıktısı).
+ */
+export async function scanPhishing(
+  file: File,
+  options: { signal?: AbortSignal } = {},
+): Promise<LayerResult> {
+  const form = new FormData();
+  form.append("file", file);
+
+  const res = await fetch(`${API_URL}/api/scan/phishing`, {
+    method: "POST",
+    body: form,
+    signal: options.signal,
+  });
+
+  if (!res.ok) {
+    throw new ApiError(res.status, await parseErrorDetail(res));
+  }
+
+  return res.json();
+}
+
+/**
+ * Geçmiş taramaları listele (TASK-30 sonrası aktif).
+ * Şu an backend 501 dönüyor — caller graceful handle etmeli.
+ */
+export async function getScanHistory(
+  options: { signal?: AbortSignal } = {},
+): Promise<ScanResult[]> {
+  const res = await fetch(`${API_URL}/api/history`, {
+    method: "GET",
+    signal: options.signal,
+  });
+
+  if (!res.ok) {
+    throw new ApiError(res.status, await parseErrorDetail(res));
+  }
+
+  const body = await res.json();
+  // Backend {scans: [...]} formatı veya doğrudan dizi dönebilir
+  if (Array.isArray(body)) return body;
+  if (Array.isArray(body?.scans)) return body.scans;
+  return [];
+}
+
+/**
+ * Tek tarama detayı (TASK-30 sonrası — Supabase'ten).
+ * Şu an backend bu endpoint'i sağlamıyor; frontend sessionStorage cache'i
+ * kullanıyor (lib/scan-cache.ts).
+ */
+export async function getScanById(
+  id: string,
+  options: { signal?: AbortSignal } = {},
+): Promise<ScanResult> {
+  const res = await fetch(`${API_URL}/api/scan/${encodeURIComponent(id)}`, {
+    method: "GET",
+    signal: options.signal,
+  });
+
+  if (!res.ok) {
+    throw new ApiError(res.status, await parseErrorDetail(res));
+  }
+
+  return res.json();
+}
+
+export type PetitionUserInfo = {
+  full_name: string;
+  tc_no: string;
+  address: string;
+  phone: string;
+};
+
+/**
+ * Tüketici Hakem Heyeti dilekçesi PDF üretir (TASK-32 sonrası aktif).
+ * Şu an backend 501 dönüyor.
+ */
+export async function generatePetition(
+  scanId: string,
+  userInfo: PetitionUserInfo,
+  options: { signal?: AbortSignal } = {},
+): Promise<Blob> {
+  const res = await fetch(
+    `${API_URL}/api/petition/${encodeURIComponent(scanId)}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(userInfo),
+      signal: options.signal,
+    },
+  );
+
+  if (!res.ok) {
+    throw new ApiError(res.status, await parseErrorDetail(res));
+  }
+
+  return res.blob();
 }
 
 // ---------------------------------------------------------------------------

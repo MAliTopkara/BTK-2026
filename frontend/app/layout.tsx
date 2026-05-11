@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Instrument_Serif, JetBrains_Mono } from "next/font/google";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const instrumentSerif = Instrument_Serif({
@@ -35,6 +36,21 @@ export default function RootLayout({
     <html lang="tr" className={`${instrumentSerif.variable} ${jetbrainsMono.variable}`}>
       <body className="min-h-screen bg-[#0a0a0a] text-white antialiased">
         {children}
+        <Toaster
+          theme="dark"
+          position="bottom-right"
+          toastOptions={{
+            style: {
+              background: "var(--surface)",
+              border: "1px solid var(--border-strong)",
+              borderRadius: "0",
+              color: "var(--foreground)",
+              fontFamily: "var(--font-mono), monospace",
+              fontSize: "12px",
+              letterSpacing: "0.02em",
+            },
+          }}
+        />
       </body>
     </html>
   );
