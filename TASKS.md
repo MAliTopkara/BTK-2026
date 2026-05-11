@@ -8,7 +8,7 @@
 
 ## 🔄 Aktif Görev
 
-**#17** — ScoreRing Component (Framer Motion) _(3-4 saat)_
+**#18** — LayerCard Component (7 Katman Görüntüleme) _(3-4 saat)_
 
 ---
 
@@ -40,7 +40,7 @@
 - [x] **#14** Landing Page (HTML demo'dan port) _(Tamamlandı: 11 Mayıs 2026 — MehdiSndg)_
 - [x] **#15** Auth: Login + Register + Supabase _(Tamamlandı: 11 Mayıs 2026 — MehdiSndg)_
 - [x] **#16** Dashboard Sayfası (URL Input + Loading State) _(Tamamlandı: 11 Mayıs 2026 — MehdiSndg)_
-- [ ] **#17** ScoreRing Component (Framer Motion) _(3-4 saat)_
+- [x] **#17** ScoreRing Component (Framer Motion) _(Tamamlandı: 11 Mayıs 2026 — MehdiSndg)_
 - [ ] **#18** LayerCard Component (7 Katman Görüntüleme) _(3-4 saat)_
 - [ ] **#19** ReasoningPanel Component _(3 saat)_
 - [ ] **#20** Scan Detail Sayfası (Tüm Bileşenler Bir Arada) _(4-5 saat)_
