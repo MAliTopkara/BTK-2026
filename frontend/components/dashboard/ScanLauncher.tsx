@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 
@@ -9,8 +10,13 @@ import {
   postScan,
   type LayerStatus,
   type ScanResult,
+  type Verdict,
 } from "@/lib/api";
-import { saveScanToCache } from "@/lib/scan-cache";
+import {
+  getRecentScans,
+  saveScanToCache,
+  type RecentScanEntry,
+} from "@/lib/scan-cache";
 
 type Phase = "idle" | "scanning" | "complete" | "error";
 
@@ -18,24 +24,28 @@ type LayerSlot = {
   id: string;
   code: string;
   name: string;
-  status: LayerStatus | "QUEUED" | "ANALYZING";
+  status: LayerStatus | "QUEUED" | "ANALYZING" | "PENDING_BUILD";
   score: number | null;
   finding: string;
+  task?: string;
 };
 
+// PENDING_BUILD = backend agent'ı henüz yazılmadı (TASK-21..23). Ticker bunlara
+// dokunmaz, completed sayacına dahil etmez; gerçek scan dönerse override edilir.
 const INITIAL_LAYERS: LayerSlot[] = [
   { id: "review", code: "01", name: "Sahte Yorum Tespiti", status: "QUEUED", score: null, finding: "" },
   { id: "discount", code: "02", name: "Sahte İndirim", status: "QUEUED", score: null, finding: "" },
   { id: "manipulation", code: "03", name: "Manipülatif Tasarım", status: "QUEUED", score: null, finding: "" },
   { id: "seller", code: "04", name: "Satıcı Profili", status: "QUEUED", score: null, finding: "" },
-  { id: "visual", code: "05", name: "Görsel Doğrulama", status: "QUEUED", score: null, finding: "" },
-  { id: "crossplatform", code: "06", name: "Çapraz Platform", status: "QUEUED", score: null, finding: "" },
-  { id: "phishing", code: "07", name: "Phishing Tarama", status: "QUEUED", score: null, finding: "" },
+  { id: "visual", code: "05", name: "Görsel Doğrulama", status: "PENDING_BUILD", score: null, finding: "Vision agent yapım aşamasında", task: "TASK-21" },
+  { id: "crossplatform", code: "06", name: "Çapraz Platform", status: "PENDING_BUILD", score: null, finding: "Çapraz platform sorgusu yapım aşamasında", task: "TASK-22" },
+  { id: "phishing", code: "07", name: "Phishing Tarama", status: "PENDING_BUILD", score: null, finding: "Phishing tarayıcısı yapım aşamasında", task: "TASK-23" },
 ];
 
 const STATUS_TEXT: Record<LayerSlot["status"], string> = {
   QUEUED: "QUEUED",
   ANALYZING: "ANALYZING",
+  PENDING_BUILD: "PENDING",
   RISK: "RISK",
   WARN: "WARN",
   OK: "OK",
@@ -45,6 +55,7 @@ const STATUS_TEXT: Record<LayerSlot["status"], string> = {
 const STATUS_DOT: Record<LayerSlot["status"], string> = {
   QUEUED: "status-dot-info",
   ANALYZING: "status-dot-warn",
+  PENDING_BUILD: "status-dot-info",
   RISK: "status-dot-risk",
   WARN: "status-dot-warn",
   OK: "status-dot-ok",
@@ -54,10 +65,29 @@ const STATUS_DOT: Record<LayerSlot["status"], string> = {
 const STATUS_TEXT_COLOR: Record<LayerSlot["status"], string> = {
   QUEUED: "text-[var(--muted-2)]",
   ANALYZING: "text-[var(--yellow)]",
+  PENDING_BUILD: "text-[var(--muted-2)]",
   RISK: "text-[var(--red)]",
   WARN: "text-[var(--yellow)]",
   OK: "text-[var(--accent)]",
   INFO: "text-[var(--muted)]",
+};
+
+const VERDICT_TR: Record<Verdict, string> = {
+  BUY: "AL",
+  CAUTION: "DİKKATLİ OL",
+  AVOID: "ALMA",
+};
+
+const VERDICT_DOT: Record<Verdict, string> = {
+  BUY: "status-dot-ok",
+  CAUTION: "status-dot-warn",
+  AVOID: "status-dot-risk",
+};
+
+const VERDICT_TONE: Record<Verdict, string> = {
+  BUY: "text-[var(--accent)]",
+  CAUTION: "text-[var(--yellow)]",
+  AVOID: "text-[var(--red)]",
 };
 
 export function ScanLauncher() {
@@ -70,9 +100,15 @@ export function ScanLauncher() {
   const [elapsed, setElapsed] = useState(0);
   const [result, setResult] = useState<ScanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [recentScans, setRecentScans] = useState<RecentScanEntry[]>([]);
 
   const tickerRef = useRef<NodeJS.Timeout | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+
+  // Son taramalar — sessionStorage'tan (TASK-30'da DB'den gelecek)
+  useEffect(() => {
+    setRecentScans(getRecentScans(3));
+  }, [phase]);
 
   // Elapsed timer + progressive layer reveal during scan
   useEffect(() => {
@@ -82,7 +118,8 @@ export function ScanLauncher() {
       const ms = Date.now() - start;
       setElapsed(ms);
 
-      // Her 900ms'de bir sıradaki QUEUED layer'ı ANALYZING yap
+      // Her 900ms'de bir sıradaki QUEUED layer'ı ANALYZING yap.
+      // PENDING_BUILD layer'ları (TASK-21..23) atlanır.
       const tick = Math.floor(ms / 900);
       setLayers((prev) =>
         prev.map((l, i) =>
@@ -340,6 +377,59 @@ export function ScanLauncher() {
           })}
         </div>
       </div>
+
+      {/* Recent scans — sessionStorage tabanlı, TASK-30'da DB'ye taşınacak */}
+      {recentScans.length > 0 && (
+        <div>
+          <div className="flex items-baseline justify-between mb-4">
+            <div className="font-mono text-[10px] tracking-[0.28em] uppercase text-[var(--muted-2)]">
+              Son_taramalar
+            </div>
+            <div className="font-mono text-[10px] tracking-[0.18em] uppercase text-[var(--muted-2)]">
+              {recentScans.length} · session
+            </div>
+          </div>
+
+          <ul className="border-t border-[var(--border)]">
+            {recentScans.map((s) => (
+              <li key={s.scan_id} className="border-b border-[var(--border)]">
+                <Link
+                  href={`/scan/${s.scan_id}`}
+                  className="group flex items-center gap-3 sm:gap-4 py-3 px-1 hover:bg-[var(--surface)]/30 transition-colors"
+                >
+                  <span
+                    className={`status-dot ${VERDICT_DOT[s.verdict]} shrink-0`}
+                  />
+                  <span
+                    className={`font-mono text-[10px] tracking-[0.22em] uppercase w-16 shrink-0 ${VERDICT_TONE[s.verdict]}`}
+                  >
+                    {VERDICT_TR[s.verdict]}
+                  </span>
+                  <span className="flex-1 min-w-0">
+                    <span className="block font-serif italic text-[15px] text-[var(--foreground)] truncate">
+                      {s.title || "—"}
+                    </span>
+                    <span className="block font-mono text-[10px] text-[var(--muted-2)] truncate">
+                      {s.url}
+                    </span>
+                  </span>
+                  <span
+                    className={`font-mono tabular-nums text-[14px] shrink-0 ${VERDICT_TONE[s.verdict]}`}
+                  >
+                    {s.overall_score}
+                    <span className="text-[var(--muted-2)] text-[10px] ml-0.5">
+                      /100
+                    </span>
+                  </span>
+                  <span className="font-mono text-[10px] text-[var(--muted-2)] hidden sm:inline shrink-0 group-hover:text-[var(--accent)] transition-colors">
+                    →
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
@@ -361,7 +451,10 @@ function ScanProgress({
   result: ScanResult | null;
   onCancel: () => void;
 }) {
-  const completed = layers.filter((l) => l.status !== "QUEUED" && l.status !== "ANALYZING").length;
+  const activeLayers = layers.filter((l) => l.status !== "PENDING_BUILD");
+  const completed = activeLayers.filter(
+    (l) => l.status !== "QUEUED" && l.status !== "ANALYZING",
+  ).length;
   const progressPct = result
     ? 100
     : Math.min(95, (elapsed / 8000) * 100);
@@ -403,7 +496,7 @@ function ScanProgress({
           </div>
           <div className="flex items-center gap-3 text-[10px] tracking-[0.18em] uppercase text-[var(--muted-2)] tabular-nums">
             <span>{(elapsed / 1000).toFixed(1)}s</span>
-            <span>· {completed}/7 done</span>
+            <span>· {completed}/{activeLayers.length} done</span>
           </div>
         </div>
 
@@ -448,7 +541,14 @@ function ScanProgress({
             >
               <span className="text-[var(--muted-2)] text-[10px] tabular-nums">{l.code}</span>
               <span className="text-[var(--foreground)] text-[12px]">
-                {l.name}
+                <span className="inline-flex items-center gap-2">
+                  <span>{l.name}</span>
+                  {l.task && (
+                    <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-[var(--accent-dim)] border border-[var(--border-strong)] px-1.5 py-0.5">
+                      {l.task}
+                    </span>
+                  )}
+                </span>
                 {l.finding && (
                   <span className="block text-[10.5px] text-[var(--muted)] mt-0.5">
                     {l.finding}

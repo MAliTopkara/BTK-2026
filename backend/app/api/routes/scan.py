@@ -27,5 +27,8 @@ async def scan_product(request: ScanRequest) -> ScanResult:
 
 @router.post("/scan/phishing")
 async def scan_phishing() -> dict:
-    # TASK-23: Phishing endpoint implementasyonu
-    return {"message": "Yakında aktif olacak"}
+    # TASK-23: Phishing endpoint (Gemini Vision OCR + URL blacklist)
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="Phishing taraması TASK-23 ile aktif olacak",
+    )

@@ -411,7 +411,9 @@ print(result)
   - ScanResult döner (henüz Decision Agent yok, basit gerçeklik)
 - `backend/app/api/routes/__init__.py` ve `main.py`'a route'u kaydet
 
-**Test:** `curl -X POST <railway>/api/scan -d '{"url":"trendyol.com/airpods-fake"}'` → 4 katmanlı JSON
+**Test:** `curl -X POST <railway>/api/scan -H 'Content-Type: application/json' -d '{"url":"https://www.trendyol.com/apple-airpods-pro-2nd-gen-p-123456"}'` → 4 katmanlı JSON
+
+> URL `http://` veya `https://` prefix'i zorunlu (scan.py:14 — 422 döner). Eşleşen mock anahtar kelime gerekli: `airpods`, `casio`, `xiaomi` (mock_data/loader.py).
 
 **🎯 CP-2 BİTTİ:** Backend çekirdek hazır. 4 katman çalışıyor, mock akış canlıda.
 

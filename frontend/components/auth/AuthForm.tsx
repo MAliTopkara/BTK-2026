@@ -36,6 +36,7 @@ export function AuthForm({ mode }: Props) {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [oauthLoading, setOauthLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
@@ -84,6 +85,26 @@ export function AuthForm({ mode }: Props) {
     }
   }
 
+  async function handleGoogle() {
+    setOauthLoading(true);
+    setError(null);
+    const supabase = createClient();
+    try {
+      const { error: err } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (err) throw err;
+      // Tarayıcı Google'a yönlendirilir; callback /dashboard'a düşer
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Bilinmeyen hata.";
+      setError(translateError(msg));
+      setOauthLoading(false);
+    }
+  }
+
   const lbl = labels[mode];
   const emailFilled = email.length > 3 && email.includes("@");
   const passwordFilled = password.length >= (mode === "register" ? 8 : 1);
@@ -110,6 +131,38 @@ export function AuthForm({ mode }: Props) {
 
       {/* Body */}
       <div className="p-6 sm:p-8 space-y-6">
+        {/* Google OAuth */}
+        <button
+          type="button"
+          onClick={handleGoogle}
+          disabled={loading || success || oauthLoading}
+          className="group w-full border border-[var(--border-strong)] hover:border-[var(--accent)] bg-black/30 hover:bg-black/50 transition-colors px-5 py-3 flex items-center justify-between font-mono text-[11px] tracking-[0.22em] uppercase disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <span className="flex items-center gap-3">
+            <GoogleGlyph />
+            <span className="text-[var(--foreground)]/85">
+              {oauthLoading
+                ? "Yönlendiriliyor"
+                : mode === "login"
+                  ? "Google_ile_giriş"
+                  : "Google_ile_kayıt"}
+            </span>
+            {oauthLoading && <span className="cursor" />}
+          </span>
+          <span className="font-sans text-[var(--muted-2)] group-hover:text-[var(--accent)] group-hover:translate-x-0.5 transition-all">
+            →
+          </span>
+        </button>
+
+        {/* Divider */}
+        <div className="flex items-center gap-3">
+          <span className="flex-1 h-px bg-[var(--border)]" />
+          <span className="font-mono text-[9px] tracking-[0.32em] uppercase text-[var(--muted-2)]">
+            veya
+          </span>
+          <span className="flex-1 h-px bg-[var(--border)]" />
+        </div>
+
         {/* Error banner */}
         {error && (
           <div className="border border-[var(--red)]/50 bg-[var(--red)]/[0.08] px-4 py-3 flex items-start gap-3 animate-[slide-down_0.25s_ease-out]">
@@ -221,6 +274,39 @@ export function AuthForm({ mode }: Props) {
         }
       `}</style>
     </form>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Google glyph (multi-color G)
+// ---------------------------------------------------------------------------
+
+function GoogleGlyph() {
+  return (
+    <svg
+      viewBox="0 0 18 18"
+      width="14"
+      height="14"
+      aria-hidden
+      className="shrink-0"
+    >
+      <path
+        fill="#4285F4"
+        d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.79 2.72v2.26h2.9c1.7-1.56 2.69-3.86 2.69-6.62z"
+      />
+      <path
+        fill="#34A853"
+        d="M9 18c2.43 0 4.46-.8 5.95-2.18l-2.9-2.26c-.8.54-1.83.86-3.05.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.32A9 9 0 0 0 9 18z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M3.97 10.72A5.4 5.4 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.96H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.04l3.01-2.32z"
+      />
+      <path
+        fill="#EA4335"
+        d="M9 3.58c1.32 0 2.5.45 3.44 1.34l2.58-2.58A9 9 0 0 0 9 0 9 9 0 0 0 .96 4.96l3.01 2.32C4.68 5.16 6.66 3.58 9 3.58z"
+      />
+    </svg>
   );
 }
 

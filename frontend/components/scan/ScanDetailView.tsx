@@ -186,7 +186,7 @@ export function ScanDetailView({ scan }: Props) {
           eyebrow="Katmanlar"
           title={
             <>
-              7 ayrı{" "}
+              {sortedLayers.length} ayrı{" "}
               <span className={`italic ${verdictTone}`}>kanıt</span>, ayrı ayrı.
             </>
           }
