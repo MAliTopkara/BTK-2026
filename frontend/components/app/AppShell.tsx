@@ -4,10 +4,10 @@ import type { User } from "@supabase/supabase-js";
 import { SignOutButton } from "./SignOutButton";
 
 const NAV = [
-  { href: "/dashboard", label: "Tarama", code: "01", active: true },
-  { href: "/history", label: "Geçmiş", code: "02", active: false },
-  { href: "/phishing", label: "Phishing", code: "03", active: false },
-  { href: "/settings", label: "Ayarlar", code: "04", active: false },
+  { href: "/dashboard", label: "Tarama", code: "01", active: true, soon: false },
+  { href: "/history", label: "Geçmiş", code: "02", active: false, soon: true },
+  { href: "/phishing", label: "Phishing", code: "03", active: false, soon: true },
+  { href: "/settings", label: "Ayarlar", code: "04", active: false, soon: true },
 ] as const;
 
 type Props = {
@@ -47,25 +47,53 @@ export function AppShell({ user, breadcrumb, children }: Props) {
             <div className="px-3 mb-3 font-mono text-[9px] tracking-[0.28em] uppercase text-[var(--muted-2)]">
               Menü
             </div>
-            {NAV.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`group flex items-center gap-3 px-3 py-2 font-mono text-[11px] tracking-[0.18em] uppercase transition-colors ${
-                  item.active
-                    ? "bg-[var(--accent)]/[0.07] text-[var(--accent)] border-l border-[var(--accent)]"
-                    : "text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--surface)]/50 border-l border-transparent"
-                }`}
-              >
-                <span className="text-[var(--muted-2)] tabular-nums w-6">
-                  {item.code}
-                </span>
-                <span className="flex-1">{item.label}</span>
-                {item.active && (
-                  <span className="status-dot status-dot-ok" />
-                )}
-              </Link>
-            ))}
+            {NAV.map((item) => {
+              const isDisabled = item.soon;
+              const baseClasses =
+                "group flex items-center gap-3 px-3 py-2 font-mono text-[11px] tracking-[0.18em] uppercase transition-colors border-l";
+              const stateClasses = item.active
+                ? "bg-[var(--accent)]/[0.07] text-[var(--accent)] border-[var(--accent)]"
+                : isDisabled
+                  ? "text-[var(--muted-2)] border-transparent cursor-not-allowed"
+                  : "text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--surface)]/50 border-transparent";
+
+              const content = (
+                <>
+                  <span className="text-[var(--muted-2)] tabular-nums w-6">
+                    {item.code}
+                  </span>
+                  <span className="flex-1">{item.label}</span>
+                  {item.active && <span className="status-dot status-dot-ok" />}
+                  {isDisabled && (
+                    <span className="text-[9px] tracking-[0.22em] text-[var(--muted-2)]/70">
+                      yakında
+                    </span>
+                  )}
+                </>
+              );
+
+              if (isDisabled) {
+                return (
+                  <div
+                    key={item.href}
+                    aria-disabled
+                    className={`${baseClasses} ${stateClasses}`}
+                  >
+                    {content}
+                  </div>
+                );
+              }
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`${baseClasses} ${stateClasses}`}
+                >
+                  {content}
+                </Link>
+              );
+            })}
           </nav>
 
           {/* User card */}

@@ -61,10 +61,11 @@ export function Footer() {
                   dashboard
                 </a>
               </li>
-              <li>
-                <a href="/phishing" className="hover:text-[var(--accent)] transition-colors">
-                  phishing_tarayıcı
-                </a>
+              <li className="text-[var(--muted-2)] cursor-not-allowed">
+                phishing_tarayıcı
+                <span className="ml-2 text-[9px] tracking-[0.22em] text-[var(--muted-2)]/70">
+                  yakında
+                </span>
               </li>
             </ul>
           </div>
