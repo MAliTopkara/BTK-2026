@@ -1,27 +1,40 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 
 import { SignOutButton } from "./SignOutButton";
 
-const NAV = [
-  { href: "/dashboard", label: "Tarama", code: "01", active: true, soon: false },
-  { href: "/history", label: "Geçmiş", code: "02", active: false, soon: true },
-  { href: "/phishing", label: "Phishing", code: "03", active: false, soon: true },
-  { href: "/settings", label: "Ayarlar", code: "04", active: false, soon: true },
+type NavItem = {
+  href: string;
+  label: string;
+  code: string;
+  soon?: boolean;
+};
+
+const NAV: readonly NavItem[] = [
+  { href: "/dashboard", label: "Tarama", code: "01" },
+  { href: "/history", label: "Geçmiş", code: "02" },
+  { href: "/phishing", label: "Phishing", code: "03", soon: true },
+  { href: "/settings", label: "Ayarlar", code: "04", soon: true },
 ] as const;
 
 type Props = {
   user: User;
-  breadcrumb: string;
   children: React.ReactNode;
 };
 
-export function AppShell({ user, breadcrumb, children }: Props) {
+export function AppShell({ user, children }: Props) {
+  const pathname = usePathname();
   const initial = (user.email ?? "?").slice(0, 1).toUpperCase();
   const shortEmail =
     user.email && user.email.length > 22
       ? `${user.email.slice(0, 19)}…`
       : user.email ?? "—";
+
+  const activeItem = NAV.find((n) => pathname?.startsWith(n.href)) ?? NAV[0];
+  const breadcrumb = activeItem.label.toLowerCase();
 
   return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--foreground)]">
@@ -48,10 +61,12 @@ export function AppShell({ user, breadcrumb, children }: Props) {
               Menü
             </div>
             {NAV.map((item) => {
-              const isDisabled = item.soon;
+              const isActive = item.href === activeItem.href && !item.soon;
+              const isDisabled = !!item.soon;
+
               const baseClasses =
                 "group flex items-center gap-3 px-3 py-2 font-mono text-[11px] tracking-[0.18em] uppercase transition-colors border-l";
-              const stateClasses = item.active
+              const stateClasses = isActive
                 ? "bg-[var(--accent)]/[0.07] text-[var(--accent)] border-[var(--accent)]"
                 : isDisabled
                   ? "text-[var(--muted-2)] border-transparent cursor-not-allowed"
@@ -63,7 +78,7 @@ export function AppShell({ user, breadcrumb, children }: Props) {
                     {item.code}
                   </span>
                   <span className="flex-1">{item.label}</span>
-                  {item.active && <span className="status-dot status-dot-ok" />}
+                  {isActive && <span className="status-dot status-dot-ok" />}
                   {isDisabled && (
                     <span className="text-[9px] tracking-[0.22em] text-[var(--muted-2)]/70">
                       yakında

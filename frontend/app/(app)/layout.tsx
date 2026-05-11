@@ -17,9 +17,5 @@ export default async function AppLayout({
     redirect("/login");
   }
 
-  return (
-    <AppShell user={user} breadcrumb="dashboard">
-      {children}
-    </AppShell>
-  );
+  return <AppShell user={user}>{children}</AppShell>;
 }

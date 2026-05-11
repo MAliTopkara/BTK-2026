@@ -8,7 +8,7 @@ import type { ScanResult, Verdict } from "./api";
 
 const KEY_PREFIX = "trustlens:scan:";
 const INDEX_KEY = "trustlens:scans:index";
-const INDEX_LIMIT = 10;
+const INDEX_LIMIT = 100;   // History sayfası max 100 tarama gösterir
 
 export type RecentScanEntry = {
   scan_id: string;
@@ -53,6 +53,34 @@ export function getRecentScans(limit = 3): RecentScanEntry[] {
     return all.slice(0, limit);
   } catch {
     return [];
+  }
+}
+
+export function getAllScans(): RecentScanEntry[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = sessionStorage.getItem(INDEX_KEY);
+    if (!raw) return [];
+    return JSON.parse(raw) as RecentScanEntry[];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Bir taramayı index'ten ve full cache'ten siler (History "sil" butonu için).
+ */
+export function removeScan(id: string): void {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.removeItem(getCacheKey(id));
+    const raw = sessionStorage.getItem(INDEX_KEY);
+    if (!raw) return;
+    const list = JSON.parse(raw) as RecentScanEntry[];
+    const next = list.filter((e) => e.scan_id !== id);
+    sessionStorage.setItem(INDEX_KEY, JSON.stringify(next));
+  } catch {
+    // sessizce yut
   }
 }
 

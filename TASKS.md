@@ -8,7 +8,7 @@
 
 ## 🔄 Aktif Görev
 
-**#29** — Akakçe Fiyat Geçmişi (Gerçek Scraping) _(4-5 saat)_
+**#30** — History Sayfası _(3-4 saat)_
 
 ---
 
@@ -59,7 +59,7 @@
 
 - [x] **#27** Frontend ↔ Backend Tam Bağlantı _(Tamamlandı: 12 Mayıs 2026 — Claude/enesbildirir)_
 - [x] **#28** Trendyol Scraper (Gerçek Playwright) _(Tamamlandı MVP: 12 Mayıs 2026 — Claude/enesbildirir; reviews+seller detayları next pass)_
-- [ ] **#29** Akakçe Fiyat Geçmişi _(4-5 saat)_
+- [x] **#29** Akakçe Fiyat Geçmişi _(Tamamlandı MVP: 12 Mayıs 2026 — Claude/enesbildirir; Cimri fallback next pass)_
 - [ ] **#30** History Sayfası _(3-4 saat)_
 - [ ] **#31** Phishing Sayfası (Frontend) _(3 saat)_
 
