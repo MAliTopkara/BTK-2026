@@ -8,7 +8,7 @@
 
 ## 🔄 Aktif Görev
 
-**#08** — BaseAgent Abstract Class _(1 saat)_
+**#09** — Katman 1: Review Agent _(4-5 saat)_
 
 ---
 
@@ -28,7 +28,7 @@
 
 - [x] **#06** Mock Data 3 Senaryo _(Tamamlandı: 11 Mayıs 2026 — GitHub Copilot)_
 - [x] **#07** Gemini Service Wrapper + Prompts İskeleti _(Tamamlandı: 11 Mayıs 2026 — GitHub Copilot)_
-- [ ] **#08** BaseAgent Abstract Class _(1 saat)_
+- [x] **#08** BaseAgent Abstract Class _(Tamamlandı: 11 Mayıs 2026 — MehdiSndg)_
 - [ ] **#09** Katman 1: Review Agent _(4-5 saat)_
 - [ ] **#10** Katman 4: Seller Agent (Rule-based) _(1-2 saat)_
 - [ ] **#11** Katman 2: Discount Agent + price_history Service _(4 saat)_
