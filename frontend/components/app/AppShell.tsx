@@ -16,7 +16,7 @@ type NavItem = {
 const NAV: readonly NavItem[] = [
   { href: "/dashboard", label: "Tarama", code: "01" },
   { href: "/history", label: "Geçmiş", code: "02" },
-  { href: "/phishing", label: "Phishing", code: "03", soon: true },
+  { href: "/phishing", label: "Phishing", code: "03" },
   { href: "/settings", label: "Ayarlar", code: "04", soon: true },
 ] as const;
 
