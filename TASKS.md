@@ -8,7 +8,7 @@
 
 ## 🔄 Aktif Görev
 
-**#12** — Katman 3: Manipulation Agent _(2-3 saat)_
+**#13** — POST /api/scan Endpoint (Mock İlk Versiyon) _(3 saat)_
 
 ---
 
@@ -32,7 +32,7 @@
 - [x] **#09** Katman 1: Review Agent _(Tamamlandı: 11 Mayıs 2026 — MehdiSndg)_
 - [x] **#10** Katman 4: Seller Agent (Rule-based) _(Tamamlandı: 11 Mayıs 2026 — MehdiSndg)_
 - [x] **#11** Katman 2: Discount Agent + price_history Service _(Tamamlandı: 11 Mayıs 2026 — MehdiSndg)_
-- [ ] **#12** Katman 3: Manipulation Agent _(2-3 saat)_
+- [x] **#12** Katman 3: Manipulation Agent _(Tamamlandı: 11 Mayıs 2026 — MehdiSndg)_
 - [ ] **#13** POST /api/scan Endpoint (Mock İlk Versiyon) _(3 saat)_
 
 ### FAZ 1.B — Frontend Çekirdek
