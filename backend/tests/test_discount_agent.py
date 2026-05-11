@@ -149,8 +149,10 @@ def test_match_mock_unknown_returns_none() -> None:
     assert match_url_to_mock("trendyol.com/bilinmeyen-urun") is None
 
 
-def test_get_price_history_returns_sorted() -> None:
-    history = get_price_history("trendyol.com/apple-airpods")
+async def test_get_price_history_returns_sorted() -> None:
+    # TASK-29: artık async + cache/Akakçe/mock zinciri.
+    # Demo URL → mock fallback'a düşer (Akakçe arama Chromium gerektirir).
+    history = await get_price_history("trendyol.com/apple-airpods")
     assert history is not None
     assert len(history) > 0
     # Eskiden yeniye sıralı

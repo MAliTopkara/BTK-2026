@@ -8,7 +8,7 @@
 
 ## 🔄 Aktif Görev
 
-**#28** — Trendyol Scraper (Gerçek Playwright) _(6-8 saat)_
+**#29** — Akakçe Fiyat Geçmişi (Gerçek Scraping) _(4-5 saat)_
 
 ---
 
@@ -58,7 +58,7 @@
 ### FAZ 1.D — Tam Entegrasyon
 
 - [x] **#27** Frontend ↔ Backend Tam Bağlantı _(Tamamlandı: 12 Mayıs 2026 — Claude/enesbildirir)_
-- [ ] **#28** Trendyol Scraper (Gerçek Playwright) _(6-8 saat)_
+- [x] **#28** Trendyol Scraper (Gerçek Playwright) _(Tamamlandı MVP: 12 Mayıs 2026 — Claude/enesbildirir; reviews+seller detayları next pass)_
 - [ ] **#29** Akakçe Fiyat Geçmişi _(4-5 saat)_
 - [ ] **#30** History Sayfası _(3-4 saat)_
 - [ ] **#31** Phishing Sayfası (Frontend) _(3 saat)_

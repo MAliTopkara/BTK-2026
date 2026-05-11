@@ -32,7 +32,11 @@ class DiscountAgent(BaseAgent):
                 finding="Üründe indirim iddiası yok, analiz atlandı",
             )
 
-        history = get_price_history(product.url)
+        history = await get_price_history(
+            url=product.url,
+            title=product.title,
+            current_price=product.price_current,
+        )
         if not history:
             return LayerResult(
                 layer_id=self.layer_id,
