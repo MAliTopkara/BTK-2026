@@ -8,7 +8,7 @@
 
 ## 🔄 Aktif Görev
 
-**#15** — Auth: Login + Register + Supabase _(5-6 saat)_
+**#16** — Dashboard Sayfası (URL Input + Loading State) _(3 saat)_
 
 ---
 
@@ -38,7 +38,7 @@
 ### FAZ 1.B — Frontend Çekirdek
 
 - [x] **#14** Landing Page (HTML demo'dan port) _(Tamamlandı: 11 Mayıs 2026 — MehdiSndg)_
-- [ ] **#15** Auth: Login + Register + Supabase _(5-6 saat)_
+- [x] **#15** Auth: Login + Register + Supabase _(Tamamlandı: 11 Mayıs 2026 — MehdiSndg)_
 - [ ] **#16** Dashboard Sayfası (URL Input + Loading State) _(3 saat)_
 - [ ] **#17** ScoreRing Component (Framer Motion) _(3-4 saat)_
 - [ ] **#18** LayerCard Component (7 Katman Görüntüleme) _(3-4 saat)_
