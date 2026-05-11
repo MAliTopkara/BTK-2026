@@ -1,23 +1,23 @@
 """
 Mock Scan Runner — TrustLens AI
-TASK-13: LangGraph (#25) gelene kadar 4 agent'ı asyncio.gather ile çalıştırır.
-"""
+TASK-13: LangGraph (#25) gelene kadar agent'ları asyncio.gather ile çalıştırır.
+TASK-24: Decision Agent entegre edildi."""
 
 from __future__ import annotations
 
 import asyncio
 import logging
 from datetime import UTC, datetime
-from typing import Literal
 from uuid import uuid4
 
 from app.agents.crossplatform_agent import CrossPlatformAgent
+from app.agents.decision_agent import run_decision
 from app.agents.discount_agent import DiscountAgent
 from app.agents.manipulation_agent import ManipulationAgent
 from app.agents.review_agent import ReviewAgent
 from app.agents.seller_agent import SellerAgent
 from app.agents.visual_agent import VisualAgent
-from app.models.scan import LayerResult, ScanResult
+from app.models.scan import Alternative, LayerResult, ScanResult
 from mock_data.loader import match_url_to_mock
 
 logger = logging.getLogger(__name__)
@@ -72,8 +72,14 @@ async def run_mock_scan(url: str) -> ScanResult:
 
     duration_ms = int((time.monotonic() - start) * 1000)
     layer_results = {r.layer_id: r for r in layer_results_list}
-    overall_score = _compute_overall_score(layer_results)
-    verdict = _score_to_verdict(overall_score)
+
+    # TASK-24: Decision Agent — ağırlıklı skor + Gemini reasoning
+    overall_score, verdict, reasoning_steps, final_explanation = await run_decision(
+        layer_results
+    )
+
+    # Crossplatform katmanından alternatif önerisi çıkar
+    alternative = _extract_alternative(layer_results)
 
     return ScanResult(
         scan_id=uuid4(),
@@ -82,49 +88,23 @@ async def run_mock_scan(url: str) -> ScanResult:
         overall_score=overall_score,
         verdict=verdict,
         layer_results=layer_results,
-        final_explanation=_build_explanation(overall_score, verdict, layer_results),
+        reasoning_steps=reasoning_steps,
+        final_explanation=final_explanation,
+        alternative=alternative,
         duration_ms=duration_ms,
         created_at=datetime.now(UTC),
     )
 
 
-def _compute_overall_score(layer_results: dict[str, LayerResult]) -> int:
-    """Mevcut katmanların ağırlıklı ortalamasını hesaplar (None skorlar hariç)."""
-    weighted_sum = 0.0
-    total_weight = 0.0
-    for layer_id, result in layer_results.items():
-        if result.score is None:
-            continue
-        weight = _WEIGHTS.get(layer_id, 0.0)
-        weighted_sum += result.score * weight
-        total_weight += weight
-    if total_weight == 0:
-        return 50
-    return round(weighted_sum / total_weight)
-
-
-def _score_to_verdict(score: int) -> Literal["BUY", "CAUTION", "AVOID"]:
-    if score >= 70:
-        return "BUY"
-    if score >= 40:
-        return "CAUTION"
-    return "AVOID"
-
-
-def _build_explanation(
-    score: int,
-    verdict: str,
-    layer_results: dict[str, LayerResult],
-) -> str:
-    verdict_tr = {"BUY": "AL", "CAUTION": "DİKKATLİ OL", "AVOID": "ALMA"}.get(verdict, verdict)
-    risk_layers = [r.name for r in layer_results.values() if r.status == "RISK"]
-    warn_layers = [r.name for r in layer_results.values() if r.status == "WARN"]
-
-    parts = [f"Genel skor: {score}/100 — Karar: {verdict_tr}."]
-    if risk_layers:
-        parts.append(f"Yüksek risk: {', '.join(risk_layers)}.")
-    if warn_layers:
-        parts.append(f"Dikkat: {', '.join(warn_layers)}.")
-    if not risk_layers and not warn_layers:
-        parts.append("Analiz edilen katmanlarda belirgin sorun tespit edilmedi.")
-    return " ".join(parts)
+def _extract_alternative(layer_results: dict[str, LayerResult]) -> Alternative | None:
+    """Crossplatform katmanı details'inden Alternative objesi çıkarır."""
+    cp = layer_results.get("crossplatform")
+    if cp is None or cp.status != "INFO":
+        return None
+    alt_data = cp.details.get("alternative")
+    if not isinstance(alt_data, dict):
+        return None
+    try:
+        return Alternative(**alt_data)
+    except Exception:
+        return None
