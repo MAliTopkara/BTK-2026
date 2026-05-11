@@ -27,6 +27,25 @@ MODEL_FLASH = "gemini-2.5-flash"
 # Retry ayarları
 _MAX_RETRIES = 3
 _RETRY_BASE_DELAY = 1.5  # saniye (exponential backoff: 1.5, 3, 6)
+_REQUEST_TIMEOUT = 30.0  # saniye (her tek deneme için maksimum)
+
+
+def _log_usage(model: str, response: genai_types.GenerateContentResponse) -> None:
+    """
+    Gemini response'undan token kullanımını loglar.
+    usage_metadata bazen yok olabilir, defensive koru.
+    """
+    usage = getattr(response, "usage_metadata", None)
+    if not usage:
+        return
+    logger.info(
+        "Gemini[%s] tokens — prompt=%s output=%s thinking=%s total=%s",
+        model,
+        getattr(usage, "prompt_token_count", "?"),
+        getattr(usage, "candidates_token_count", "?"),
+        getattr(usage, "thoughts_token_count", "?"),
+        getattr(usage, "total_token_count", "?"),
+    )
 
 
 def _get_client() -> genai.Client:
@@ -60,25 +79,44 @@ async def _call_with_retry(
     model: str,
     contents: Any,
     config: genai_types.GenerateContentConfig,
+    timeout: float = _REQUEST_TIMEOUT,
 ) -> genai_types.GenerateContentResponse:
     """
-    generate_content'i asyncio executor'da çalıştırır, hata durumunda
-    exponential backoff ile 3 kez retry atar.
+    generate_content'i asyncio executor'da çalıştırır.
+    Her deneme için `timeout` saniye sınırı vardır (asyncio.wait_for).
+    Hata durumunda exponential backoff ile 3 kez retry atar.
+    Başarılı çağrıdan sonra token kullanımını loglar.
     """
     loop = asyncio.get_event_loop()
     last_exc: Exception | None = None
 
     for attempt in range(_MAX_RETRIES):
         try:
-            return await loop.run_in_executor(
-                None,
-                lambda: client.models.generate_content(
-                    model=model,
-                    contents=contents,
-                    config=config,
+            response = await asyncio.wait_for(
+                loop.run_in_executor(
+                    None,
+                    lambda: client.models.generate_content(
+                        model=model,
+                        contents=contents,
+                        config=config,
+                    ),
                 ),
+                timeout=timeout,
             )
-        except Exception as exc:
+            _log_usage(model, response)
+            return response
+        except TimeoutError as exc:
+            last_exc = exc
+            wait = _RETRY_BASE_DELAY * (2**attempt)
+            logger.warning(
+                "Gemini API timeout (>%ds, deneme %d/%d) — %.1f saniye beklenecek",
+                int(timeout),
+                attempt + 1,
+                _MAX_RETRIES,
+                wait,
+            )
+            await asyncio.sleep(wait)
+        except Exception as exc:  # noqa: BLE001 — Gemini SDK çeşitli exception fırlatır
             last_exc = exc
             wait = _RETRY_BASE_DELAY * (2**attempt)
             logger.warning(

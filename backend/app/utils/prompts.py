@@ -227,3 +227,84 @@ Sadece JSON döndür:
   ],
   "final_explanation": "Bu ürünü [alma/al/dikkatlı ol] diyorum çünkü..."
 }}"""
+
+
+# ---------------------------------------------------------------------------
+# Bonus 1 — Tüketici Hakem Heyeti Dilekçesi (TASK-32)
+# ---------------------------------------------------------------------------
+
+def petition_generation_prompt(
+    user_info: dict[str, str],
+    product_info: dict[str, Any],
+    scan_summary: dict[str, Any],
+    evidence_findings: list[str],
+) -> str:
+    """
+    Tüketici Hakem Heyeti'ne sunulacak resmi dilekçe metnini üretir.
+    PDF üretici (ReportLab) her bölümü ayrı render edebilir.
+
+    Args:
+        user_info: {"full_name", "tc_no", "address", "phone"}
+        product_info: {"title", "url", "price_current", "platform", "seller_name", "purchase_date"}
+        scan_summary: {"overall_score", "verdict", "scan_id", "scan_date"}
+        evidence_findings: Katmanlardan çıkan kanıt cümleleri (örn. "Akakçe verisine göre
+                          'indirim öncesi' fiyat son 90 günde hiç görülmemiş")
+
+    Returns JSON:
+        {
+          "petition_title", "complainant_block", "defendant_block",
+          "subject", "incident_paragraphs", "evidence_list",
+          "demand", "closing", "annexes"
+        }
+    """
+    user_json = json.dumps(user_info, ensure_ascii=False, indent=2)
+    product_json = json.dumps(product_info, ensure_ascii=False, indent=2)
+    scan_json = json.dumps(scan_summary, ensure_ascii=False, indent=2)
+    evidence_text = "\n".join(f"- {e}" for e in evidence_findings) if evidence_findings else "(yok)"
+
+    return f"""Sen Türk tüketici hukuku alanında uzman bir avukatsın. Tüketici Hakem Heyeti \
+Başkanlığı'na sunulacak resmi bir dilekçe taslağı hazırla. Dilekçe TÜBİS (Tüketici Bilgi Sistemi) \
+formatına uygun, ölçülü ve ispatlı bir dille yazılmalı.
+
+ŞİKAYET EDEN (TÜKETİCİ):
+{user_json}
+
+ŞİKAYET KONUSU ÜRÜN:
+{product_json}
+
+TRUSTLENS ANALİZ ÖZETİ:
+{scan_json}
+
+KATMANLARDAN ÇIKAN KANITLAR:
+{evidence_text}
+
+DİLEKÇE KURALLARI:
+1. Resmi ton: "Sayın Başkanlığa", "şikayetçi sıfatıyla", "tarafımdan satın alınmıştır"
+2. 6502 sayılı Tüketici Korunması Hakkında Kanun'a atıfta bulun
+3. Sahte indirim varsa: "yanıltıcı fiyat uygulaması" (md. 56)
+4. Sahte yorum/aldatma varsa: "haksız ticari uygulama" (md. 62)
+5. Talep nettir: bedel iadesi, ayıplı mal değişimi veya tazminat
+6. Duygusal değil, kanıtlara dayalı dil kullan
+7. Türkçe karakter (ç,ğ,ı,ö,ş,ü) kullanmaya dikkat et
+
+Sadece JSON döndür, başka açıklama ekleme:
+{{
+  "petition_title": "T.C. ... TÜKETİCİ HAKEM HEYETİ BAŞKANLIĞINA",
+  "complainant_block": "Şikayet eden bilgilerinin formatlı bloğu (ad, TC, adres, telefon)",
+  "defendant_block": "Şikayet edilen satıcı/platform bilgileri",
+  "subject": "Şikayet konusunun 1-2 cümlelik özeti (örn: 'Trendyol üzerinden alınan ürünün yanıltıcı indirim uygulaması nedeniyle bedel iadesi talebidir')",
+  "incident_paragraphs": [
+    "İlk paragraf: Olayın kronolojik özeti, alış tarihi, ürün, fiyat",
+    "İkinci paragraf: TrustLens analiz bulgularının somut anlatımı, hangi maddeleri ihlal ettiği",
+    "Üçüncü paragraf: Bu ihlalin tüketici üzerindeki maddi/manevi etkisi"
+  ],
+  "evidence_list": [
+    "Trendyol ürün linki: <url>",
+    "TrustLens tarama raporu (Tarama ID: <scan_id>)",
+    "Akakçe fiyat geçmişi ekran görüntüsü",
+    "Diğer somut kanıtlar"
+  ],
+  "demand": "Talep paragrafı: ne istiyorsunuz? (bedel iadesi / ayıplı mal değişimi / cezai işlem)",
+  "closing": "Saygılarımla arz ederim. — Tarih: <gün ay yıl>",
+  "annexes": ["Ek-1: ...", "Ek-2: ..."]
+}}"""
