@@ -30,16 +30,17 @@ type LayerSlot = {
   task?: string;
 };
 
-// PENDING_BUILD = backend agent'ı henüz yazılmadı (TASK-21..23). Ticker bunlara
-// dokunmaz, completed sayacına dahil etmez; gerçek scan dönerse override edilir.
+// PENDING_BUILD = backend agent'ı normal scan'de çalışmıyor.
+// Phishing ayrı endpoint (/api/scan/phishing) — görsel yükleme gerekiyor,
+// /phishing sayfasında (TASK-31) aktif olacak. Burada placeholder olarak gösterilir.
 const INITIAL_LAYERS: LayerSlot[] = [
   { id: "review", code: "01", name: "Sahte Yorum Tespiti", status: "QUEUED", score: null, finding: "" },
   { id: "discount", code: "02", name: "Sahte İndirim", status: "QUEUED", score: null, finding: "" },
   { id: "manipulation", code: "03", name: "Manipülatif Tasarım", status: "QUEUED", score: null, finding: "" },
   { id: "seller", code: "04", name: "Satıcı Profili", status: "QUEUED", score: null, finding: "" },
-  { id: "visual", code: "05", name: "Görsel Doğrulama", status: "PENDING_BUILD", score: null, finding: "Vision agent yapım aşamasında", task: "TASK-21" },
-  { id: "crossplatform", code: "06", name: "Çapraz Platform", status: "PENDING_BUILD", score: null, finding: "Çapraz platform sorgusu yapım aşamasında", task: "TASK-22" },
-  { id: "phishing", code: "07", name: "Phishing Tarama", status: "PENDING_BUILD", score: null, finding: "Phishing tarayıcısı yapım aşamasında", task: "TASK-23" },
+  { id: "visual", code: "05", name: "Görsel Doğrulama", status: "QUEUED", score: null, finding: "" },
+  { id: "crossplatform", code: "06", name: "Çapraz Platform", status: "QUEUED", score: null, finding: "" },
+  { id: "phishing", code: "07", name: "Phishing Tarama", status: "PENDING_BUILD", score: null, finding: "Görsel yükleme ile aktif (/phishing sayfası)", task: "TASK-31" },
 ];
 
 const STATUS_TEXT: Record<LayerSlot["status"], string> = {

@@ -11,10 +11,12 @@ from datetime import UTC, datetime
 from typing import Literal
 from uuid import uuid4
 
+from app.agents.crossplatform_agent import CrossPlatformAgent
 from app.agents.discount_agent import DiscountAgent
 from app.agents.manipulation_agent import ManipulationAgent
 from app.agents.review_agent import ReviewAgent
 from app.agents.seller_agent import SellerAgent
+from app.agents.visual_agent import VisualAgent
 from app.models.scan import LayerResult, ScanResult
 from mock_data.loader import match_url_to_mock
 
@@ -31,7 +33,16 @@ _WEIGHTS: dict[str, float] = {
     "phishing": 0.10,
 }
 
-_AGENTS = [ReviewAgent(), DiscountAgent(), ManipulationAgent(), SellerAgent()]
+# Phishing agent normal scan'de pasif (POST /api/scan/phishing ayrı endpoint).
+# Diğer 6 katman ağırlıklı skora dahil edilir.
+_AGENTS = [
+    ReviewAgent(),
+    DiscountAgent(),
+    ManipulationAgent(),
+    SellerAgent(),
+    VisualAgent(),
+    CrossPlatformAgent(),
+]
 
 
 async def run_mock_scan(url: str) -> ScanResult:
