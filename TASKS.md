@@ -8,7 +8,7 @@
 
 ## 🔄 Aktif Görev
 
-**#07** — Gemini Service Wrapper + Prompts İskeleti _(3 saat)_
+**#08** — BaseAgent Abstract Class _(1 saat)_
 
 ---
 
@@ -27,7 +27,7 @@
 ### FAZ 1.A — Backend Çekirdek
 
 - [x] **#06** Mock Data 3 Senaryo _(Tamamlandı: 11 Mayıs 2026 — GitHub Copilot)_
-- [ ] **#07** Gemini Service Wrapper + Prompts İskeleti _(3 saat)_
+- [x] **#07** Gemini Service Wrapper + Prompts İskeleti _(Tamamlandı: 11 Mayıs 2026 — GitHub Copilot)_
 - [ ] **#08** BaseAgent Abstract Class _(1 saat)_
 - [ ] **#09** Katman 1: Review Agent _(4-5 saat)_
 - [ ] **#10** Katman 4: Seller Agent (Rule-based) _(1-2 saat)_
