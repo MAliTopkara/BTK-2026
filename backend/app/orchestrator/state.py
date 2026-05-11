@@ -28,3 +28,6 @@ class ScanState(TypedDict, total=False):
     alternative: Alternative | None
     duration_ms: int
     error: str | None
+    cache_hit: bool
+    scan_id: str  # UUID as string — cache_save_node veya cache_check_node tarafından set edilir
+    created_at_iso: str  # ISO datetime string

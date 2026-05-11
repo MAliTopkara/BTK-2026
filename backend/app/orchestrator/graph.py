@@ -1,12 +1,15 @@
 """
 LangGraph Workflow — TrustLens AI
 TASK-25: scrape → analyze → decide pipeline.
+TASK-26: cache_check → (hit? END : scrape → analyze → decide → cache_save → END)
 """
 
 from __future__ import annotations
 
 import asyncio
 import logging
+from datetime import UTC, datetime
+from uuid import uuid4
 
 from langgraph.graph import END, StateGraph
 
@@ -19,6 +22,7 @@ from app.agents.seller_agent import SellerAgent
 from app.agents.visual_agent import VisualAgent
 from app.models.scan import Alternative
 from app.orchestrator.state import ScanState
+from app.services import cache
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +35,46 @@ _AGENTS = [
     VisualAgent(),
     CrossPlatformAgent(),
 ]
+
+
+# ---------------------------------------------------------------------------
+# Node: cache_check (entry point)
+# ---------------------------------------------------------------------------
+
+async def cache_check_node(state: ScanState) -> ScanState:
+    """
+    URL için cache kontrolü yapar.
+    Hit: tüm sonuçları state'e yükler, cache_hit=True.
+    Miss: cache_hit=False, normal akış devam eder.
+    """
+    url = state["url"]
+    cached = await cache.get_scan(url)
+
+    if cached is None:
+        logger.info("Cache miss: %s", url)
+        return {**state, "cache_hit": False}
+
+    logger.info("Cache hit: %s", url)
+    return {
+        **state,
+        "cache_hit": True,
+        "product": cached.product,
+        "layer_results": cached.layer_results,
+        "overall_score": cached.overall_score,
+        "verdict": cached.verdict,
+        "reasoning_steps": cached.reasoning_steps,
+        "final_explanation": cached.final_explanation,
+        "alternative": cached.alternative,
+        "scan_id": str(cached.scan_id),
+        "created_at_iso": cached.created_at.isoformat(),
+    }
+
+
+def _route_after_cache(state: ScanState) -> str:
+    """Cache hit ise 'end', miss ise 'scrape' döner."""
+    if state.get("cache_hit"):
+        return "end"
+    return "scrape"
 
 
 # ---------------------------------------------------------------------------
@@ -111,25 +155,75 @@ async def decide_node(state: ScanState) -> ScanState:
 
 
 # ---------------------------------------------------------------------------
+# Node: cache_save (decide sonrası)
+# ---------------------------------------------------------------------------
+
+async def cache_save_node(state: ScanState) -> ScanState:
+    """
+    Scan sonucunu Redis cache'e yazar.
+    scan_id ve created_at üretir, state'e ekler.
+    Hata olursa sessizce geçer (graceful degradation).
+    """
+    from app.models.scan import ScanResult  # noqa: PLC0415
+
+    if state.get("error") or not state.get("layer_results"):
+        return state
+
+    scan_id_str = str(uuid4())
+    created_at = datetime.now(UTC)
+
+    try:
+        scan_result = ScanResult(
+            scan_id=scan_id_str,
+            url=state["url"],
+            product=state["product"],
+            overall_score=state.get("overall_score", 50),
+            verdict=state.get("verdict", "CAUTION"),
+            layer_results=state.get("layer_results", {}),
+            reasoning_steps=state.get("reasoning_steps", []),
+            final_explanation=state.get("final_explanation", ""),
+            alternative=state.get("alternative"),
+            duration_ms=0,  # Gerçek süre mock_runner'da ölçülür
+            created_at=created_at,
+        )
+        await cache.set_scan(state["url"], scan_result)
+    except Exception as exc:
+        logger.warning("Cache save node hatası: %s", exc)
+
+    return {
+        **state,
+        "scan_id": scan_id_str,
+        "created_at_iso": created_at.isoformat(),
+    }
+
+
+# ---------------------------------------------------------------------------
 # Graph builder
 # ---------------------------------------------------------------------------
 
 def build_graph() -> StateGraph:
     """
-    3 node'lu LangGraph workflow oluşturur ve compile eder.
-
-    scrape → analyze → decide → END
+    cache_check → (hit? END : scrape → analyze → decide → cache_save → END)
+    LangGraph conditional edges ile cache bypass akışı.
     """
     workflow: StateGraph = StateGraph(ScanState)
 
+    workflow.add_node("cache_check", cache_check_node)
     workflow.add_node("scrape", scrape_node)
     workflow.add_node("analyze", analyze_node)
     workflow.add_node("decide", decide_node)
+    workflow.add_node("cache_save", cache_save_node)
 
-    workflow.set_entry_point("scrape")
+    workflow.set_entry_point("cache_check")
+    workflow.add_conditional_edges(
+        "cache_check",
+        _route_after_cache,
+        {"scrape": "scrape", "end": END},
+    )
     workflow.add_edge("scrape", "analyze")
     workflow.add_edge("analyze", "decide")
-    workflow.add_edge("decide", END)
+    workflow.add_edge("decide", "cache_save")
+    workflow.add_edge("cache_save", END)
 
     return workflow.compile()
 

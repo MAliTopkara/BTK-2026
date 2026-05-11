@@ -92,3 +92,4 @@ class ScanResult(BaseModel):
     alternative: Alternative | None = None
     duration_ms: int
     created_at: datetime
+    cached_at: datetime | None = None  # TASK-26: cache hit ise set edilir

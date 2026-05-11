@@ -20,7 +20,7 @@ async def scan_product(request: ScanRequest) -> ScanResult:
             detail="Geçersiz URL — http:// veya https:// ile başlamalı",
         )
     try:
-        return await run_mock_scan(request.url)
+        return await run_mock_scan(request.url, force_refresh=request.force_refresh)
     except ValueError as exc:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

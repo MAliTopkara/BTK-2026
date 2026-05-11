@@ -73,6 +73,26 @@ def test_scan_endpoint_valid_url() -> None:
 
 
 # ---------------------------------------------------------------------------
+# Test 1b — force_refresh=True parametresi geçilir
+# ---------------------------------------------------------------------------
+
+def test_scan_endpoint_force_refresh() -> None:
+    mock_result = _dummy_scan_result()
+    with patch(
+        "app.api.routes.scan.run_mock_scan", new_callable=AsyncMock, return_value=mock_result
+    ) as mock_scan:
+        resp = client.post(
+            "/api/scan",
+            json={"url": "https://www.trendyol.com/apple-airpods", "force_refresh": True},
+        )
+
+    assert resp.status_code == 200
+    mock_scan.assert_called_once_with(
+        "https://www.trendyol.com/apple-airpods", force_refresh=True
+    )
+
+
+# ---------------------------------------------------------------------------
 # Test 2 — Error: geçersiz URL → 422
 # ---------------------------------------------------------------------------
 
