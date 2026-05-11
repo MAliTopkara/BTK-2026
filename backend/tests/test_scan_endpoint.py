@@ -11,13 +11,17 @@ from uuid import uuid4
 
 from fastapi.testclient import TestClient
 
-from app.main import app
-from app.models.scan import LayerResult, ProductData, ScanResult, SellerData
 from app.agents.decision_agent import (
     build_fallback_explanation as _build_explanation,
+)
+from app.agents.decision_agent import (
     compute_overall_score as _compute_overall_score,
+)
+from app.agents.decision_agent import (
     score_to_verdict as _score_to_verdict,
 )
+from app.main import app
+from app.models.scan import LayerResult, ProductData, ScanResult, SellerData
 from mock_data.loader import match_url_to_mock
 
 client = TestClient(app)
