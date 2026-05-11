@@ -108,3 +108,6 @@ playwright-report/
 *.bak
 *.tmp
 .pytest_tmp/
+
+# Scraper debug dumps
+backend/scripts/_*.html

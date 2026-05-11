@@ -29,18 +29,43 @@ from app.scrapers.base import BaseScraper, ScraperError
 
 logger = logging.getLogger(__name__)
 
-# Trendyol DOM seçicileri — sayfa düzeni değişirse buradan güncellenir
-_SEL_TITLE = "h1.pr-new-br, h1.product-name, [data-testid='product-detail-title']"
+# Trendyol DOM seçicileri — Mayıs 2026 itibariyle yapı.
+# NOT: Trendyol CSS Modules hash'leri kullanıyor (_carouselImage_abb7111),
+# bu yüzden stable attribute selectorlara öncelik veriyoruz (data-testid,
+# class içerme [class*='...']).
+_SEL_TITLE = (
+    "h1.pr-new-br, h1.product-name, "
+    "[data-testid='product-detail-title'], "
+    "h1"  # generic fallback — Trendyol ürün sayfasında genelde tek h1 var
+)
 _SEL_PRICE_CURRENT = (
+    "p.new-price, "
+    "[class*='price-current-price'], "
     "span.prc-dsc, "
-    "span.product-price-container .prc-dsc, "
     "[data-testid='price-current-price']"
 )
-_SEL_PRICE_ORIGINAL = "span.prc-org, span.prc-slg, [data-testid='price-original-price']"
-_SEL_PRICE_FALLBACK = "div.product-price-container"
-_SEL_IMAGES = "img.detail-section-img, div.gallery-modal-content img, picture.product-image source"
-_SEL_DESCRIPTION = "ul.detail-attr-container, div.product-description, div.detail-desc-list"
-_SEL_SELLER_NAME = "a.pb-merchant-link, a.merchant-link, [data-testid='seller-name']"
+_SEL_PRICE_ORIGINAL = (
+    "p.old-price, "
+    "[class*='price-original'], "
+    "span.prc-org, span.prc-slg, "
+    "[data-testid='price-original-price']"
+)
+_SEL_PRICE_FALLBACK = "div.product-price-container, [class*='product-price']"
+_SEL_IMAGES = (
+    "img[data-testid='image'], "
+    "img[class*='carouselImage' i], "
+    "img.detail-section-img"
+)
+_SEL_DESCRIPTION = (
+    "ul.detail-attr-container, "
+    "[class*='product-description'], "
+    "[class*='detail-desc']"
+)
+_SEL_SELLER_NAME = (
+    "[class*='merchant-name'], "
+    "a.pb-merchant-link, a.merchant-link, "
+    "[data-testid='seller-name']"
+)
 
 
 class TrendyolScraper(BaseScraper):
