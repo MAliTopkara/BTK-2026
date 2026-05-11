@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Literal
 from uuid import uuid4
 
@@ -15,7 +15,7 @@ from app.agents.discount_agent import DiscountAgent
 from app.agents.manipulation_agent import ManipulationAgent
 from app.agents.review_agent import ReviewAgent
 from app.agents.seller_agent import SellerAgent
-from app.models.scan import LayerResult, ProductData, ScanResult
+from app.models.scan import LayerResult, ScanResult
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +83,7 @@ async def run_mock_scan(url: str) -> ScanResult:
         layer_results=layer_results,
         final_explanation=_build_explanation(overall_score, verdict, layer_results),
         duration_ms=duration_ms,
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
     )
 
 
