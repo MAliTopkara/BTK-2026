@@ -1,0 +1,60 @@
+{
+  "airpods_fake": {
+    "product_id": "trendyol_123456789",
+    "title": "Apple AirPods Pro 2. Nesil USB-C",
+    "currency": "TRY",
+    "history": [
+      {"date": "2026-02-10", "price": 3299.00},
+      {"date": "2026-02-17", "price": 3299.00},
+      {"date": "2026-02-24", "price": 3299.00},
+      {"date": "2026-03-03", "price": 3599.00},
+      {"date": "2026-03-10", "price": 3899.00},
+      {"date": "2026-03-17", "price": 4199.00},
+      {"date": "2026-03-24", "price": 4499.00},
+      {"date": "2026-03-31", "price": 4799.00},
+      {"date": "2026-04-07", "price": 4999.00},
+      {"date": "2026-04-14", "price": 4999.00},
+      {"date": "2026-04-21", "price": 4999.00},
+      {"date": "2026-04-28", "price": 4999.00},
+      {"date": "2026-05-05", "price": 4999.00},
+      {"date": "2026-05-08", "price": 2499.00},
+      {"date": "2026-05-09", "price": 1999.00},
+      {"date": "2026-05-10", "price": 1899.00},
+      {"date": "2026-05-11", "price": 1899.00}
+    ],
+    "notes": "SAHTE İNDİRİM: Fiyat yapay olarak 3299 TL'den 4999 TL'ye çıkarıldı (8 haftada +51%), sonra 1899 TL'ye düşürüldü. Gerçek piyasa fiyatı ~3299 TL."
+  },
+  "watch_genuine": {
+    "product_id": "trendyol_98765432",
+    "title": "Casio G-Shock GA-2100-1AER",
+    "currency": "TRY",
+    "history": [
+      {"date": "2026-02-10", "price": 3650.00},
+      {"date": "2026-02-24", "price": 3650.00},
+      {"date": "2026-03-10", "price": 3650.00},
+      {"date": "2026-03-24", "price": 3650.00},
+      {"date": "2026-04-07", "price": 3500.00},
+      {"date": "2026-04-21", "price": 3400.00},
+      {"date": "2026-05-05", "price": 3300.00},
+      {"date": "2026-05-11", "price": 3250.00}
+    ],
+    "notes": "GERÇEK İNDİRİM: Fiyat stabil kalmış, zaman içinde düzenli küçük düşüşler yaşanmış. Manipülasyon işareti yok."
+  },
+  "laptop_suspicious": {
+    "product_id": "hepsiburada_HBCV0000XXXXX",
+    "title": "Xiaomi RedmiBook Pro 15",
+    "currency": "TRY",
+    "history": [
+      {"date": "2026-04-20", "price": 26990.00},
+      {"date": "2026-04-21", "price": 29990.00},
+      {"date": "2026-04-22", "price": 29990.00},
+      {"date": "2026-04-25", "price": 29990.00},
+      {"date": "2026-04-28", "price": 29990.00},
+      {"date": "2026-05-01", "price": 27500.00},
+      {"date": "2026-05-05", "price": 25990.00},
+      {"date": "2026-05-08", "price": 24990.00},
+      {"date": "2026-05-11", "price": 24990.00}
+    ],
+    "notes": "ŞÜPHELI PATTERN: Satıcı açılışının hemen ertesi günü fiyat 3000 TL artırılmış (26990 → 29990), sonra kademeli düşüş. Referans fiyat manipülasyonu şüphesi."
+  }
+}

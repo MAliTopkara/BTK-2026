@@ -1,0 +1,27 @@
+# TrustLens Phishing Domain Test Listesi
+# Format: alan-adi.tld [TAB] kategori [TAB] açıklama
+
+# Banka/Finans Temalı
+garantibankasi-giris.net	banka	Garanti Bankası kimliğine bürünen alan adı
+isbank-musteri-hizmetleri.com	banka	İşbank müşteri hizmetleri taklidi
+akbank-guvenli-giris.xyz	banka	Akbank güvenli giriş taklidi
+enpara-hesap-dogrulama.info	banka	Enpara kimlik doğrulama phishing
+
+# Kargo/Teslimat Temalı
+pttkargo-takip-sorgula.com	kargo	PTT Kargo takip sayfası taklidi
+aras-kargo-teslim-bekliyor.net	kargo	Aras Kargo teslimat bildirimi phishing
+yurtici-paket-bilgilendirme.xyz	kargo	Yurtiçi Kargo paket bilgilendirme taklidi
+mng-kargo-adres-guncelleme.info	kargo	MNG Kargo adres güncelleme taklidi
+fedex-tr-gumruk-odeme.com	kargo	FedEx Türkiye gümrük ödeme phishing
+dhl-express-turkey-teslimat.net	kargo	DHL Express teslimat bildirimi taklidi
+
+# E-Ticaret/Alışveriş Temalı
+trendyol-kampanya-kazan.com	eticaret	Trendyol kampanya kazanma taklidi
+hepsiburada-bonus-puan.net	eticaret	Hepsiburada bonus puan phishing
+amazon-tr-hesap-dogrula.xyz	eticaret	Amazon Türkiye hesap doğrulama phishing
+n11-magaza-odeme-iade.info	eticaret	N11 mağaza ödeme iade taklidi
+
+# Devlet/Resmi Kurum Temalı
+e-devlet-vatandas-giris.com	devlet	e-Devlet kapısı taklidi
+gib-vergi-iadesi-basvuru.net	devlet	GİB vergi iadesi başvuru phishing
+sgk-emeklilik-sorgula.xyz	devlet	SGK emeklilik sorgulama taklidi

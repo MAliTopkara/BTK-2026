@@ -8,7 +8,7 @@
 
 ## 🔄 Aktif Görev
 
-**#06** — Mock Data 3 Senaryo _(2-3 saat)_
+**#07** — Gemini Service Wrapper + Prompts İskeleti _(3 saat)_
 
 ---
 
@@ -26,7 +26,7 @@
 
 ### FAZ 1.A — Backend Çekirdek
 
-- [ ] **#06** Mock Data 3 Senaryo _(2-3 saat)_
+- [x] **#06** Mock Data 3 Senaryo _(Tamamlandı: 11 Mayıs 2026 — GitHub Copilot)_
 - [ ] **#07** Gemini Service Wrapper + Prompts İskeleti _(3 saat)_
 - [ ] **#08** BaseAgent Abstract Class _(1 saat)_
 - [ ] **#09** Katman 1: Review Agent _(4-5 saat)_

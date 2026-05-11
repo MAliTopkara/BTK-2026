@@ -1,0 +1,151 @@
+{
+  "url": "https://www.hepsiburada.com/xiaomi-redmibook-pro-15-r7-7735h-16gb-512ssd-p-HBCV0000XXXXX",
+  "platform": "hepsiburada",
+  "title": "Xiaomi RedmiBook Pro 15 AMD Ryzen 7 7735H 16GB 512GB SSD FreeDOS 15.6\" OLED Laptop",
+  "price_current": 24990.00,
+  "price_original": 29990.00,
+  "discount_pct": 16.7,
+  "images": [
+    "https://cdn.dummyimage.com/redmibook_1.jpg",
+    "https://cdn.dummyimage.com/redmibook_2.jpg"
+  ],
+  "description": "Xiaomi RedmiBook Pro 15 — AMD Ryzen 7 7735H işlemci, 16GB DDR5 RAM, 512GB PCIe NVMe SSD, 15.6 inç 3.2K OLED ekran, 72Wh pil, USB-C PD 100W hızlı şarj. FreeDOS ile birlikte gelir.",
+  "seller": {
+    "name": "MegaTeknoMarket",
+    "age_days": 22,
+    "total_products": 14,
+    "rating": 3.9,
+    "rating_count": 41,
+    "is_verified": false
+  },
+  "reviews": [
+    {
+      "text": "Laptop geldi, kutu biraz ezikti ama içi sağlam görünüyor. Ekran gerçekten çok güzel, OLED olduğu belli. Windows kurmak zorunda kaldım çünkü FreeDOS ile geliyor. İlk açılışta herhangi bir sorun olmadı.",
+      "rating": 4,
+      "author_name": "Koray Demirtaş",
+      "date": "2026-04-18T12:10:00",
+      "has_image": false,
+      "verified_purchase": true
+    },
+    {
+      "text": "İyi bir laptop ancak satıcıya güvenmekte zorluk çektim çünkü bu kadar az değerlendirmesi var. Ürün geldi sorunsuz ama 2 gün gecikmeli geldi. Şimdilik sorun yok.",
+      "rating": 3,
+      "author_name": "Berna Ünal",
+      "date": "2026-04-25T09:30:00",
+      "has_image": false,
+      "verified_purchase": true
+    },
+    {
+      "text": "Xiaomi redmibook gerçekten çok iyi bir laptop fiyatına gore performans harika kesinlikle tavsiye ederim",
+      "rating": 5,
+      "author_name": "Tuncay B.",
+      "date": "2026-05-02T18:00:00",
+      "has_image": false,
+      "verified_purchase": false
+    },
+    {
+      "text": "Güzel laptop iyi performans tavsiye ederim fiyat uygun hızlı kargo geldi",
+      "rating": 5,
+      "author_name": "Didem K.",
+      "date": "2026-05-02T18:30:00",
+      "has_image": false,
+      "verified_purchase": false
+    },
+    {
+      "text": "Laptopun soğutması biraz gürültülü, render ve oyun sırasında fan sesi rahatsız edici seviyeye çıkıyor. Ürün ilanında bu belirtilmemiş. Genel olarak memnunum ama bunu bilmek isterdiniz.",
+      "rating": 3,
+      "author_name": "Selçuk Arslan",
+      "date": "2026-04-30T21:00:00",
+      "has_image": false,
+      "verified_purchase": true
+    },
+    {
+      "text": "Çok iyi laptop kaliteli ürün tavsiye ederim beğendim memnun kaldım",
+      "rating": 5,
+      "author_name": "Ayşe M.",
+      "date": "2026-05-02T19:00:00",
+      "has_image": false,
+      "verified_purchase": false
+    },
+    {
+      "text": "Laptop hakkında iyi şeyler duymuştum, bu fiyata çok uygun. Satıcı yeni görünüyor, biraz tereddüt ettim ama ürün sorunsuz geldi. İki ay geçmiş olsun da tekrar yazarım.",
+      "rating": 4,
+      "author_name": "Rıdvan Taş",
+      "date": "2026-05-04T14:20:00",
+      "has_image": false,
+      "verified_purchase": true
+    },
+    {
+      "text": "Satıcı bilgi sorularıma geç yanıt verdi, 2 soru sordum 1 tanesine yanıt geldi. Ürün nihayetinde geldi ve çalışıyor ama iletişim konusunda endişem vardı.",
+      "rating": 3,
+      "author_name": "Nuray Öztürk",
+      "date": "2026-05-06T16:45:00",
+      "has_image": false,
+      "verified_purchase": true
+    },
+    {
+      "text": "RedmiBook OLED ekranı gerçekten muhteşem, renk doğruluğu çok iyi. Tasarım iş hayatı için uygun, ince ve hafif. Pil dayanımı da sürpriz yaptı bana.",
+      "rating": 5,
+      "author_name": "Can Erdoğan",
+      "date": "2026-05-07T11:00:00",
+      "has_image": true,
+      "image_url": "https://cdn.dummyimage.com/review_can.jpg",
+      "verified_purchase": true
+    },
+    {
+      "text": "Çok iyi kaliteli laptop tavsiye ederim fiyat performans iyi",
+      "rating": 5,
+      "author_name": "Hüseyin Y.",
+      "date": "2026-05-08T09:00:00",
+      "has_image": false,
+      "verified_purchase": false
+    },
+    {
+      "text": "Siparişte ürün 512GB SSD yazıyordu ama sistem bilgilerinde 480GB görünüyor. Bu ciddi bir ürün tanımı uyuşmazlığı. Satıcıya sordum yanıt bekleyorum.",
+      "rating": 2,
+      "author_name": "Arda Güneş",
+      "date": "2026-05-08T20:30:00",
+      "has_image": false,
+      "verified_purchase": true
+    },
+    {
+      "text": "Ürün gayet iyi performanslı kesinlikle tavsiye ederim güzel laptop memnun kaldım",
+      "rating": 5,
+      "author_name": "Alara B.",
+      "date": "2026-05-09T10:00:00",
+      "has_image": false,
+      "verified_purchase": false
+    },
+    {
+      "text": "Fatura sadece 15 gün sonra geldi ve üzerinde satıcı adı farklı yazıyor. Vergi mükellefi olup olmadığını sorgulattım, sonuç belirsiz. Ürün çalışıyor ama bu fatura meselesi kafamı karıştırdı.",
+      "rating": 2,
+      "author_name": "Emre Çolak",
+      "date": "2026-05-09T22:15:00",
+      "has_image": false,
+      "verified_purchase": true
+    },
+    {
+      "text": "İyi performanslı laptop tavsiye ederim fiyatı uygun çok beğendim memnunum",
+      "rating": 5,
+      "author_name": "Şeyma T.",
+      "date": "2026-05-10T08:00:00",
+      "has_image": false,
+      "verified_purchase": false
+    },
+    {
+      "text": "Satıcının dükkan oluşturma tarihi çok yeni, bu kadar düşük fiyat biraz şüpheli geldi ama ürün beklediğim gibi çıktı. 1 ay sonra tekrar yorum yazabilirim eğer sorun çıkmazsa.",
+      "rating": 3,
+      "author_name": "Murat Alkan",
+      "date": "2026-05-10T14:30:00",
+      "has_image": false,
+      "verified_purchase": true
+    }
+  ],
+  "review_count_total": 41,
+  "rating_avg": 3.9,
+  "urgency_indicators": [
+    "Son 5 adet!",
+    "Bu fiyat sadece bugün geçerli"
+  ],
+  "scraped_at": "2026-05-11T10:00:00"
+}
