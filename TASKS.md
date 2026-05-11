@@ -8,7 +8,7 @@
 
 ## 🔄 Aktif Görev
 
-**#21** — Katman 5: Visual Agent (Gemini Vision) _(4-5 saat)_
+**#27** — Frontend ↔ Backend Tam Bağlantı _(4-5 saat)_
 
 ---
 
@@ -47,13 +47,13 @@
 
 ### FAZ 1.C — Backend Tamamlama
 
-- [ ] **#21** Katman 5: Visual Agent (Gemini Vision) _(4-5 saat)_
-- [ ] **#22** Katman 6: CrossPlatform Agent _(4-5 saat)_
-- [ ] **#23** Katman 7: Phishing Agent + Endpoint _(4-5 saat)_
+- [x] **#21** Katman 5: Visual Agent (Gemini Vision) _(4-5 saat)_ — MAliTopkara/Copilot 2025
+- [x] **#22** Katman 6: CrossPlatform Agent _(4-5 saat)_ — MAliTopkara/Copilot 2025
+- [x] **#23** Katman 7: Phishing Agent + Endpoint _(3-4 saat)_ — MAliTopkara/Copilot 2025
   - Hazır helpers: `mock_data.loader.load_phishing_image()` ve `load_phishing_domains()` kullan
-- [ ] **#24** Katman 8: Decision Agent _(5-6 saat)_ ⭐ KRİTİK
-- [ ] **#25** LangGraph Workflow _(3-4 saat)_
-- [ ] **#26** Cache Mantığı + duration_ms _(2 saat)_
+- [x] **#24** Katman 8: Decision Agent _(5-6 saat)_ ⭐ KRİTİK — MAliTopkara/Copilot 2025
+- [x] **#25** LangGraph Workflow _(3-4 saat)_ — MAliTopkara/Copilot 2025
+- [x] **#26** Cache Mantığı + duration_ms _(1-2 saat)_ — MAliTopkara/Copilot 2026
 
 ### FAZ 1.D — Tam Entegrasyon
 
