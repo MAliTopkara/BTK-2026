@@ -140,6 +140,24 @@ Sadece JSON döndür:
 
 
 # ---------------------------------------------------------------------------
+# Katman 7 — Görsel OCR (metin çıkarma)
+# ---------------------------------------------------------------------------
+
+def ocr_extraction_prompt() -> str:
+    """
+    SMS/e-posta ekran görüntüsündeki tüm metni JSON formatında çıkarır.
+
+    Returns JSON: {"extracted_text": "..."}
+    """
+    return """Bu görüntüdeki tüm metni olduğu gibi çıkar. \
+Yazım hatalarını düzeltme, büyük/küçük harf değiştirme. \
+Göremediğin veya okunamayan kısımlar için [OKUNAKSIZ] yaz.
+
+Sadece JSON döndür:
+{"extracted_text": "çıkarılan_metin_buraya"}"""
+
+
+# ---------------------------------------------------------------------------
 # Katman 7 — Phishing SMS/E-posta Analizi
 # ---------------------------------------------------------------------------
 
