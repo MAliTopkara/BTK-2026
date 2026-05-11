@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import TYPE_CHECKING
 
 from langgraph.graph import END, StateGraph
 
@@ -20,9 +19,6 @@ from app.agents.seller_agent import SellerAgent
 from app.agents.visual_agent import VisualAgent
 from app.models.scan import Alternative
 from app.orchestrator.state import ScanState
-
-if TYPE_CHECKING:
-    pass
 
 logger = logging.getLogger(__name__)
 

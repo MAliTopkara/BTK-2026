@@ -67,16 +67,5 @@ async def run_mock_scan(url: str) -> ScanResult:
         created_at=datetime.now(UTC),
     )
 
-
-def _extract_alternative(layer_results: dict[str, LayerResult]) -> Alternative | None:
-    """Crossplatform katmanı details'inden Alternative objesi çıkarır."""
-    cp = layer_results.get("crossplatform")
-    if cp is None or cp.status != "INFO":
-        return None
-    alt_data = cp.details.get("alternative")
-    if not isinstance(alt_data, dict):
-        return None
-    try:
-        return Alternative(**alt_data)
-    except Exception:
-        return None
+# Alternative çıkarımı graph.py decide_node içinde yapılıyor (TASK-25 sonrası).
+# Burada ayrı bir helper'a gerek yok — final_state.get("alternative") yeterli.
