@@ -5,7 +5,7 @@ Normal, edge case ve error senaryoları.
 
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from unittest.mock import patch
 
 import pytest
@@ -17,8 +17,8 @@ from app.agents.discount_agent import (
     _score_to_status,
 )
 from app.models.scan import ProductData, SellerData
-from app.services.price_history import PricePoint, _match_mock, get_price_history
-
+from app.services.price_history import PricePoint, get_price_history
+from mock_data.loader import match_url_to_mock
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -36,7 +36,7 @@ def _make_product(price_current: float, price_original: float | None = None) -> 
         price_original=price_original,
         discount_pct=discount,
         seller=SellerData(name="Satıcı"),
-        scraped_at=datetime.now(timezone.utc),
+        scraped_at=datetime.now(UTC),
     )
 
 
@@ -138,15 +138,15 @@ def test_analyze_history_score_clamped() -> None:
 # ---------------------------------------------------------------------------
 
 def test_match_mock_airpods() -> None:
-    assert _match_mock("trendyol.com/apple-airpods-pro") == "airpods_fake"
+    assert match_url_to_mock("trendyol.com/apple-airpods-pro") == "airpods_fake"
 
 
 def test_match_mock_watch() -> None:
-    assert _match_mock("trendyol.com/casio-g-shock") == "watch_genuine"
+    assert match_url_to_mock("trendyol.com/casio-g-shock") == "watch_genuine"
 
 
 def test_match_mock_unknown_returns_none() -> None:
-    assert _match_mock("trendyol.com/bilinmeyen-urun") is None
+    assert match_url_to_mock("trendyol.com/bilinmeyen-urun") is None
 
 
 def test_get_price_history_returns_sorted() -> None:

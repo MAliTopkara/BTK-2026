@@ -5,7 +5,7 @@ Normal, edge case ve error senaryoları. Gemini mock'lu çalışır.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -16,7 +16,6 @@ from app.agents.manipulation_agent import (
     _score_to_status,
 )
 from app.models.scan import ProductData, SellerData
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -34,7 +33,7 @@ def _make_product(
         seller=SellerData(name="Satıcı"),
         urgency_indicators=urgency_indicators or [],
         raw_html=raw_html,
-        scraped_at=datetime.now(timezone.utc),
+        scraped_at=datetime.now(UTC),
     )
 
 

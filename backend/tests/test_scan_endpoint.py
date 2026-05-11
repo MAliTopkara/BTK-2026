@@ -5,11 +5,10 @@ Mock runner ve FastAPI endpoint integration testleri.
 
 from __future__ import annotations
 
-from unittest.mock import AsyncMock, MagicMock, patch
+from datetime import UTC, datetime
+from unittest.mock import AsyncMock, patch
 from uuid import uuid4
-from datetime import datetime, timezone
 
-import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -17,9 +16,9 @@ from app.models.scan import LayerResult, ProductData, ScanResult, SellerData
 from app.orchestrator.mock_runner import (
     _build_explanation,
     _compute_overall_score,
-    _match_mock,
     _score_to_verdict,
 )
+from mock_data.loader import match_url_to_mock
 
 client = TestClient(app)
 
@@ -39,7 +38,7 @@ def _dummy_scan_result() -> ScanResult:
         title="Test",
         price_current=100.0,
         seller=SellerData(name="Satıcı"),
-        scraped_at=datetime.now(timezone.utc),
+        scraped_at=datetime.now(UTC),
     )
     return ScanResult(
         scan_id=uuid4(),
@@ -50,7 +49,7 @@ def _dummy_scan_result() -> ScanResult:
         layer_results={"review": _dummy_layer("review", 30, "RISK")},
         final_explanation="Test açıklaması",
         duration_ms=500,
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
     )
 
 
@@ -93,15 +92,15 @@ def test_scan_endpoint_unmatched_url() -> None:
 # ---------------------------------------------------------------------------
 
 def test_match_mock_airpods() -> None:
-    assert _match_mock("trendyol.com/apple-airpods") == "airpods_fake"
+    assert match_url_to_mock("trendyol.com/apple-airpods") == "airpods_fake"
 
 
 def test_match_mock_watch() -> None:
-    assert _match_mock("trendyol.com/casio-saat") == "watch_genuine"
+    assert match_url_to_mock("trendyol.com/casio-saat") == "watch_genuine"
 
 
 def test_match_mock_no_match() -> None:
-    assert _match_mock("trendyol.com/random-urun") is None
+    assert match_url_to_mock("trendyol.com/random-urun") is None
 
 
 def test_compute_overall_score_weighted() -> None:

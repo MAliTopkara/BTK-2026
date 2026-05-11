@@ -16,6 +16,7 @@ from app.agents.manipulation_agent import ManipulationAgent
 from app.agents.review_agent import ReviewAgent
 from app.agents.seller_agent import SellerAgent
 from app.models.scan import LayerResult, ScanResult
+from mock_data.loader import match_url_to_mock
 
 logger = logging.getLogger(__name__)
 
@@ -32,17 +33,6 @@ _WEIGHTS: dict[str, float] = {
 
 _AGENTS = [ReviewAgent(), DiscountAgent(), ManipulationAgent(), SellerAgent()]
 
-# URL anahtar kelimesi → mock senaryo eşleşmesi
-_URL_MOCK_MAP: dict[str, str] = {
-    "airpods": "airpods_fake",
-    "apple": "airpods_fake",
-    "casio": "watch_genuine",
-    "g-shock": "watch_genuine",
-    "xiaomi": "laptop_suspicious",
-    "redmi": "laptop_suspicious",
-    "laptop": "laptop_suspicious",
-}
-
 
 async def run_mock_scan(url: str) -> ScanResult:
     """
@@ -53,7 +43,7 @@ async def run_mock_scan(url: str) -> ScanResult:
     """
     from mock_data.loader import load_mock  # noqa: PLC0415
 
-    mock_name = _match_mock(url.lower())
+    mock_name = match_url_to_mock(url)
     if not mock_name:
         raise ValueError(
             f"URL hiçbir demo senaryoya eşleşmiyor: {url}\n"
@@ -85,13 +75,6 @@ async def run_mock_scan(url: str) -> ScanResult:
         duration_ms=duration_ms,
         created_at=datetime.now(UTC),
     )
-
-
-def _match_mock(url_lower: str) -> str | None:
-    for keyword, mock_name in _URL_MOCK_MAP.items():
-        if keyword in url_lower:
-            return mock_name
-    return None
 
 
 def _compute_overall_score(layer_results: dict[str, LayerResult]) -> int:

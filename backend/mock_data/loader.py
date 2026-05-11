@@ -19,6 +19,36 @@ _AVAILABLE = {
     "laptop_suspicious": "laptop_suspicious.json",
 }
 
+# URL anahtar kelimesi → mock senaryo eşleşmesi.
+# Hem app/orchestrator/mock_runner.py hem app/services/price_history.py kullanır.
+# TASK-28 (gerçek scraper) eklenince bu sözlük scraper sonucuna düşer.
+_URL_MOCK_MAP: dict[str, str] = {
+    "airpods": "airpods_fake",
+    "apple": "airpods_fake",
+    "casio": "watch_genuine",
+    "g-shock": "watch_genuine",
+    "xiaomi": "laptop_suspicious",
+    "redmi": "laptop_suspicious",
+    "laptop": "laptop_suspicious",
+}
+
+
+def match_url_to_mock(url: str) -> str | None:
+    """
+    Verilen URL'i mock senaryo ismine eşleştirir (case-insensitive).
+
+    Args:
+        url: Tarama URL'i (case farketmez)
+
+    Returns:
+        Mock senaryo ismi (load_mock'a verilebilir) veya None
+    """
+    url_lower = url.lower()
+    for keyword, mock_name in _URL_MOCK_MAP.items():
+        if keyword in url_lower:
+            return mock_name
+    return None
+
 
 def load_mock(name: str) -> ProductData:
     """

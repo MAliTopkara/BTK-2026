@@ -12,20 +12,11 @@ from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
+from mock_data.loader import match_url_to_mock
+
 logger = logging.getLogger(__name__)
 
 _MOCK_FILE = Path(__file__).parent.parent.parent / "mock_data" / "price_histories.json"
-
-# URL anahtar kelimesi → mock senaryo eşleşmesi (TASK-29'da kaldırılacak)
-_URL_MOCK_MAP: dict[str, str] = {
-    "airpods": "airpods_fake",
-    "apple": "airpods_fake",
-    "casio": "watch_genuine",
-    "g-shock": "watch_genuine",
-    "xiaomi": "laptop_suspicious",
-    "redmi": "laptop_suspicious",
-    "laptop": "laptop_suspicious",
-}
 
 _HISTORY_DAYS = 90
 
@@ -46,7 +37,7 @@ def get_price_history(url: str) -> list[PricePoint] | None:
     Returns:
         PricePoint listesi (eskiden yeniye sıralı) veya None (veri yok)
     """
-    mock_name = _match_mock(url.lower())
+    mock_name = match_url_to_mock(url)
     if not mock_name:
         logger.info("Fiyat geçmişi bulunamadı: %s", url)
         return None
@@ -66,10 +57,3 @@ def get_price_history(url: str) -> list[PricePoint] | None:
     ]
 
     return sorted(points, key=lambda p: p.date) if points else None
-
-
-def _match_mock(url_lower: str) -> str | None:
-    for keyword, mock_name in _URL_MOCK_MAP.items():
-        if keyword in url_lower:
-            return mock_name
-    return None

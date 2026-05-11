@@ -5,13 +5,12 @@ TASK-08: Normal, error ve abstract enforcement senaryoları.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
 from app.agents.base import BaseAgent
 from app.models.scan import LayerResult, ProductData, SellerData
-
 
 # ---------------------------------------------------------------------------
 # Test fixtures
@@ -24,7 +23,7 @@ def _dummy_product() -> ProductData:
         title="Test Ürünü",
         price_current=100.0,
         seller=SellerData(name="Test Satıcı"),
-        scraped_at=datetime.now(timezone.utc),
+        scraped_at=datetime.now(UTC),
     )
 
 

@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 WORKDIR /app
 
@@ -11,11 +11,17 @@ COPY pyproject.toml ./
 # Bağımlılıkları kur
 RUN uv pip install --system -e .
 
-# Playwright browser kur
-RUN python -m playwright install chromium --with-deps
+# Playwright browser kurulumu — TASK-28 (Trendyol scraper) aktif olduğunda açılacak.
+# ~500MB image şişirir, şimdi gereksiz.
+# RUN python -m playwright install chromium --with-deps
 
 # Uygulama kodunu kopyala
 COPY app/ ./app/
+
+# Mock data — orchestrator/mock_runner.py ve services/price_history.py kullanır.
+# TASK-28 (gerçek scraper) sonrasında kaldırılabilir, ama demo URL kartları için
+# (TASK-35) yedek olarak kalmalı.
+COPY mock_data/ ./mock_data/
 
 # Port
 EXPOSE 8000

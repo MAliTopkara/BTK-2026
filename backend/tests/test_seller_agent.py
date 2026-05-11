@@ -5,7 +5,7 @@ Normal, edge case ve error senaryoları.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
@@ -16,7 +16,6 @@ from app.agents.seller_agent import (
     _score_to_status,
 )
 from app.models.scan import ProductData, SellerData
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -29,7 +28,7 @@ def _make_product(seller: SellerData) -> ProductData:
         title="Test",
         price_current=100.0,
         seller=seller,
-        scraped_at=datetime.now(timezone.utc),
+        scraped_at=datetime.now(UTC),
     )
 
 

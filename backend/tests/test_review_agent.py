@@ -5,7 +5,7 @@ Normal, edge case ve error senaryoları. Gemini mock'lu çalışır.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -20,7 +20,6 @@ from app.agents.review_agent import (
 )
 from app.models.scan import ProductData, ReviewData, SellerData
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -33,7 +32,7 @@ def _make_product(reviews: list[ReviewData]) -> ProductData:
         price_current=100.0,
         seller=SellerData(name="Satıcı"),
         reviews=reviews,
-        scraped_at=datetime.now(timezone.utc),
+        scraped_at=datetime.now(UTC),
     )
 
 
@@ -109,7 +108,7 @@ def test_tfidf_single_review_empty() -> None:
 
 
 def test_detect_burst_true() -> None:
-    base = datetime(2026, 5, 10, 10, 0, tzinfo=timezone.utc)
+    base = datetime(2026, 5, 10, 10, 0, tzinfo=UTC)
     from datetime import timedelta
     reviews = [
         _review("yorum", dt=base + timedelta(hours=i))
@@ -119,7 +118,7 @@ def test_detect_burst_true() -> None:
 
 
 def test_detect_burst_false_spread() -> None:
-    base = datetime(2026, 5, 1, 10, 0, tzinfo=timezone.utc)
+    base = datetime(2026, 5, 1, 10, 0, tzinfo=UTC)
     from datetime import timedelta
     reviews = [
         _review("yorum", dt=base + timedelta(days=i * 7))
