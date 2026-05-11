@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { toast } from "sonner";
 
@@ -66,6 +66,13 @@ export function PhishingScanner() {
   const [preview, setPreview] = useState<string | null>(null);
   const [result, setResult] = useState<LayerResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Unmount'ta object URL'i serbest bırak — memory leak'i önle
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview);
+    };
+  }, [preview]);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];

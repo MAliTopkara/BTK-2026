@@ -32,6 +32,16 @@ export type SellerData = {
   is_verified: boolean;
 };
 
+export type ReviewData = {
+  text: string;
+  rating: number;
+  author_name: string | null;
+  date: string | null;
+  has_image: boolean;
+  image_url: string | null;
+  verified_purchase: boolean;
+};
+
 export type ProductData = {
   url: string;
   platform: string;
@@ -42,8 +52,11 @@ export type ProductData = {
   images: string[];
   description: string;
   seller: SellerData;
+  reviews: ReviewData[];
   rating_avg: number;
   review_count_total: number;
+  urgency_indicators: string[];
+  raw_html: string | null;
   scraped_at: string;
 };
 

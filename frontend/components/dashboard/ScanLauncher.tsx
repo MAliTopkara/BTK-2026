@@ -31,9 +31,9 @@ type LayerSlot = {
   task?: string;
 };
 
-// PENDING_BUILD = backend agent'ı normal scan'de çalışmıyor.
-// Phishing ayrı endpoint (/api/scan/phishing) — görsel yükleme gerekiyor,
-// /phishing sayfasında (TASK-31) aktif olacak. Burada placeholder olarak gösterilir.
+// PENDING_BUILD = bu katman normal ürün taramasında çalışmaz.
+// Phishing ayrı endpoint (/api/scan/phishing) — görsel yükleme gerekir;
+// /phishing sayfasında aktif (TASK-31 hayata geçti). Burada bilgi amaçlı listelenir.
 const INITIAL_LAYERS: LayerSlot[] = [
   { id: "review", code: "01", name: "Sahte Yorum Tespiti", status: "QUEUED", score: null, finding: "" },
   { id: "discount", code: "02", name: "Sahte İndirim", status: "QUEUED", score: null, finding: "" },
@@ -41,7 +41,7 @@ const INITIAL_LAYERS: LayerSlot[] = [
   { id: "seller", code: "04", name: "Satıcı Profili", status: "QUEUED", score: null, finding: "" },
   { id: "visual", code: "05", name: "Görsel Doğrulama", status: "QUEUED", score: null, finding: "" },
   { id: "crossplatform", code: "06", name: "Çapraz Platform", status: "QUEUED", score: null, finding: "" },
-  { id: "phishing", code: "07", name: "Phishing Tarama", status: "PENDING_BUILD", score: null, finding: "Görsel yükleme ile aktif (/phishing sayfası)", task: "TASK-31" },
+  { id: "phishing", code: "07", name: "Phishing Tarama", status: "PENDING_BUILD", score: null, finding: "Görsel yükleme ile aktif", task: "→ /phishing" },
 ];
 
 const STATUS_TEXT: Record<LayerSlot["status"], string> = {

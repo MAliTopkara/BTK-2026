@@ -225,10 +225,10 @@ export function ScanDetailView({ scan }: Props) {
             sub="Tüketici Hakem Heyeti · PDF"
             wip="TASK-32"
           />
-          <ActionButton
-            label="Geçmişe ekle"
-            sub="Bu taramayı kaydet"
-            wip="TASK-30"
+          <ActionLink
+            href="/history"
+            label="Geçmişe git"
+            sub="Tüm taramalarını gör"
           />
           <ActionButton
             label="Paylaş"
@@ -476,6 +476,32 @@ function ActionButton({ label, sub, wip }: { label: string; sub: string; wip: st
         </span>
       </span>
     </button>
+  );
+}
+
+function ActionLink({ href, label, sub }: { href: string; label: string; sub: string }) {
+  return (
+    <Link
+      href={href}
+      className="group bg-[var(--surface)]/40 hover:bg-[var(--surface)]/60 border border-[var(--border-strong)] hover:border-[var(--accent)]/60 p-4 text-left transition-colors flex flex-col justify-between min-h-[100px]"
+    >
+      <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-[var(--accent-dim)] group-hover:text-[var(--accent)]">
+        nav · {href}
+      </span>
+      <span className="mt-3 flex items-end justify-between gap-2">
+        <span className="min-w-0">
+          <span className="block font-mono text-[12px] tracking-[0.22em] uppercase text-[var(--foreground)]/85">
+            {label}
+          </span>
+          <span className="block text-[11px] text-[var(--muted-2)] mt-1.5 normal-case tracking-normal font-sans">
+            {sub}
+          </span>
+        </span>
+        <span className="font-sans text-[var(--muted)] group-hover:text-[var(--accent)] group-hover:translate-x-0.5 transition-all shrink-0">
+          →
+        </span>
+      </span>
+    </Link>
   );
 }
 
