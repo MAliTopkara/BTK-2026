@@ -21,8 +21,14 @@ from app.config import settings
 logger = logging.getLogger(__name__)
 
 # Model sabitleri
+# NOT: 2026 Mayis itibariyle yeni API key'lerde Google free tier'i cok kisitli:
+#   - gemini-2.5-flash: 20 RPD (hackathon icin yetmez)
+#   - gemini-2.0-flash, gemini-1.5-flash: free tier'da limit=0 (kapali)
+#   - gemini-2.5-flash-lite: erisilebilir, kota daha comert
+# Bizim use-case (Turkce yorum sinifi, dark pattern) icin flash-lite yeterli.
+# Decision Agent (TASK-24) icin 2.5-pro dener, kota patlarsa gemini-pro-latest'e gecilir.
 MODEL_PRO = "gemini-2.5-pro"
-MODEL_FLASH = "gemini-2.5-flash"
+MODEL_FLASH = "gemini-2.5-flash-lite"
 
 # Retry ayarları
 _MAX_RETRIES = 3
