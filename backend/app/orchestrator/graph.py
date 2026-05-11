@@ -84,26 +84,50 @@ def _route_after_cache(state: ScanState) -> str:
 async def scrape_node(state: ScanState) -> ScanState:
     """
     URL'den ProductData yükler.
-    Şimdilik mock — TASK-28'de gerçek Playwright scraper ile değiştirilecek.
+
+    Akış (TASK-28):
+      1. URL'den platform tespit (trendyol / hepsiburada)
+      2. İlgili Playwright scraper'ı çalıştır
+      3. Başarısızsa mock_data fallback (demo URL eşleşmesi varsa)
+      4. Hiçbir şey çalışmıyorsa state.error set et
     """
+    from app.scrapers import detect_platform, get_scraper  # noqa: PLC0415
     from mock_data.loader import load_mock, match_url_to_mock  # noqa: PLC0415
 
     url = state["url"]
-    mock_name = match_url_to_mock(url)
-    if not mock_name:
-        return {
-            **state,
-            "error": (
-                f"URL hiçbir demo senaryoya eşleşmiyor: {url}\n"
-                "Demo URL'leri: trendyol.com/apple-airpods, "
-                "trendyol.com/casio, hepsiburada.com/xiaomi-laptop"
-            ),
-            "product": None,
-        }
+    platform = detect_platform(url)
 
-    product = load_mock(mock_name)
-    logger.info("Scrape tamamlandı: %s → %s", url, mock_name)
-    return {**state, "product": product}
+    # 1) Gerçek scraper dene
+    if platform:
+        scraper = get_scraper(platform)
+        if scraper is not None:
+            try:
+                product = await scraper.scrape(url)
+                if product is not None:
+                    logger.info(
+                        "Scrape başarılı (gerçek): %s → %s", url, product.title[:40]
+                    )
+                    return {**state, "product": product}
+            except Exception as exc:  # noqa: BLE001 — defansif
+                logger.warning("Scraper exception, fallback denenecek: %s", exc)
+
+    # 2) Mock fallback (demo URL'lerinde anahtar kelime eşleşmesi)
+    mock_name = match_url_to_mock(url)
+    if mock_name:
+        product = load_mock(mock_name)
+        logger.info("Scrape fallback (mock): %s → %s", url, mock_name)
+        return {**state, "product": product}
+
+    # 3) Hiçbir yol çalışmadı
+    return {
+        **state,
+        "error": (
+            f"Bu URL şu an analiz edilemiyor: {url}\n"
+            "Demo URL'leri: trendyol.com/apple-airpods, "
+            "trendyol.com/casio, hepsiburada.com/xiaomi-laptop"
+        ),
+        "product": None,
+    }
 
 
 # ---------------------------------------------------------------------------

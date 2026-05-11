@@ -11,9 +11,9 @@ COPY pyproject.toml ./
 # Bağımlılıkları kur
 RUN uv pip install --system -e .
 
-# Playwright browser kurulumu — TASK-28 (Trendyol scraper) aktif olduğunda açılacak.
-# ~500MB image şişirir, şimdi gereksiz.
-# RUN python -m playwright install chromium --with-deps
+# Playwright Chromium — TASK-28 Trendyol/Hepsiburada scraper için.
+# --with-deps sistem kütüphanelerini de kurar (libx11, libnss vb.).
+RUN python -m playwright install chromium --with-deps
 
 # Uygulama kodunu kopyala
 COPY app/ ./app/

@@ -28,18 +28,23 @@ async def run_mock_scan(url: str, force_refresh: bool = False) -> ScanResult:
     """
     LangGraph workflow üzerinden tarama çalıştırır.
 
+    TASK-28: Artık gerçek scraper desteği var. URL eşleşmesi ya da
+    platform tespiti gerekli; ikisi de yoksa graph error döner.
+
     Args:
         url: Taranacak ürün URL'si.
         force_refresh: True ise cache bypass edilir, yeni tarama yapılır.
 
     Raises:
-        ValueError: URL hiçbir mock senaryoya eşleşmiyorsa.
+        ValueError: URL ne tanınan platformda ne de mock senaryoda eşleşiyorsa.
     """
-    # URL validasyonu — graph başlamadan erken hata
-    if not match_url_to_mock(url):
+    from app.scrapers import detect_platform  # noqa: PLC0415
+
+    # URL ya tanınan bir platform olmalı, ya da demo URL'lerinden biri
+    if not detect_platform(url) and not match_url_to_mock(url):
         raise ValueError(
-            f"URL hiçbir demo senaryoya eşleşmiyor: {url}\n"
-            "Demo URL'leri: trendyol.com/apple-airpods, trendyol.com/casio, hepsiburada.com/xiaomi-laptop"
+            f"URL hiçbir desteklenen platforma veya demo senaryoya eşleşmiyor: {url}\n"
+            "Destek: trendyol.com, hepsiburada.com"
         )
 
     if force_refresh:
