@@ -8,7 +8,7 @@
 
 ## 🔄 Aktif Görev
 
-**#20** — Scan Detail Sayfası (Tüm Bileşenler Bir Arada) _(4-5 saat)_
+**#21** — Katman 5: Visual Agent (Gemini Vision) _(4-5 saat)_
 
 ---
 
@@ -43,7 +43,7 @@
 - [x] **#17** ScoreRing Component (Framer Motion) _(Tamamlandı: 11 Mayıs 2026 — MehdiSndg)_
 - [x] **#18** LayerCard Component (7 Katman Görüntüleme) _(Tamamlandı: 11 Mayıs 2026 — MehdiSndg)_
 - [x] **#19** ReasoningPanel Component _(Tamamlandı: 11 Mayıs 2026 — MehdiSndg)_
-- [ ] **#20** Scan Detail Sayfası (Tüm Bileşenler Bir Arada) _(4-5 saat)_
+- [x] **#20** Scan Detail Sayfası (Tüm Bileşenler Bir Arada) _(Tamamlandı: 11 Mayıs 2026 — MehdiSndg)_
 
 ### FAZ 1.C — Backend Tamamlama
 

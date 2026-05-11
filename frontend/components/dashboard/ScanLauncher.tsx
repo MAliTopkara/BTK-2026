@@ -10,6 +10,7 @@ import {
   type LayerStatus,
   type ScanResult,
 } from "@/lib/api";
+import { saveScanToCache } from "@/lib/scan-cache";
 
 type Phase = "idle" | "scanning" | "complete" | "error";
 
@@ -124,6 +125,7 @@ export function ScanLauncher() {
     abortRef.current = new AbortController();
     try {
       const r = await postScan(url.trim(), { signal: abortRef.current.signal });
+      saveScanToCache(r);
       setResult(r);
       setPhase("complete");
 
