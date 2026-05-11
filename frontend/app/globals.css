@@ -1,55 +1,280 @@
 @import "tailwindcss";
 
 :root {
-  /* TrustLens Koyu Tema */
-  --background: #0a0a0a;
-  --surface: #111111;
-  --surface-2: #1a1a1a;
-  --border: #2a2a2a;
+  /* TrustLens — Forensic Console palette */
+  --bg: #0a0a0a;
+  --surface: #0f0f0f;
+  --surface-2: #141414;
+  --border: #1c1c1c;
+  --border-strong: #2a2a2a;
   --foreground: #ededed;
   --muted: #888888;
+  --muted-2: #555555;
+  --accent: #00ff88;
+  --accent-dim: #00aa5c;
+  --red: #ff4d4d;
+  --yellow: #ffcc33;
+  --blue: #5aa9ff;
 
-  /* Accent renkler */
-  --accent-green: #00ff88;
-  --accent-green-dim: #00cc6a;
-  --accent-yellow: #ffcc00;
-  --accent-red: #ff4444;
-
-  /* Fontlar */
   --font-serif: var(--font-serif);
   --font-mono: var(--font-mono);
 }
 
 @theme inline {
-  --color-background: var(--background);
+  --color-background: var(--bg);
   --color-foreground: var(--foreground);
   --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
   --color-border: var(--border);
-  --color-accent: var(--accent-green);
+  --color-border-strong: var(--border-strong);
+  --color-muted: var(--muted);
+  --color-muted-2: var(--muted-2);
+  --color-accent: var(--accent);
+  --color-accent-dim: var(--accent-dim);
+  --color-red: var(--red);
+  --color-yellow: var(--yellow);
+  --color-blue: var(--blue);
   --font-serif: var(--font-serif);
   --font-mono: var(--font-mono);
 }
 
+* {
+  border-color: var(--border);
+}
+
 body {
-  background: var(--background);
+  background: var(--bg);
   color: var(--foreground);
-  font-family: system-ui, sans-serif;
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Skor halkası animasyonu için */
-@keyframes score-ring {
-  from { stroke-dashoffset: 283; }
-  to { stroke-dashoffset: var(--target-offset); }
+/* ───────────────────────────────────────────────────────────────
+   Forensic graph-paper background grid
+   ─────────────────────────────────────────────────────────────── */
+.grid-bg {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: -1px -1px;
 }
 
-/* Typewriter efekti */
+.grid-bg-dense {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 12px 12px;
+}
+
+/* Subtle vignette + radial glow */
+.console-glow {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(0, 255, 136, 0.04), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 50% 100%, rgba(0, 255, 136, 0.02), transparent 70%);
+}
+
+/* ───────────────────────────────────────────────────────────────
+   Cursor blink
+   ─────────────────────────────────────────────────────────────── */
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
 }
 
-.cursor-blink::after {
-  content: '|';
-  animation: blink 1s infinite;
-  color: var(--accent-green);
+.cursor::after {
+  content: "▮";
+  display: inline-block;
+  margin-left: 0.18em;
+  color: var(--accent);
+  animation: blink 1.05s steps(1, end) infinite;
+  font-size: 0.85em;
+  vertical-align: -0.1em;
 }
+
+/* ───────────────────────────────────────────────────────────────
+   Live scan demo — 8s loop animations
+   ─────────────────────────────────────────────────────────────── */
+
+/* URL typewriter (0–1s) */
+@keyframes type-url {
+  0%, 100% { width: 0; }
+  10%, 95% { width: 100%; }
+}
+
+.type-url {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  animation: type-url 8s steps(48, end) infinite;
+  vertical-align: bottom;
+}
+
+/* Progress bar fill (1s–6s) */
+@keyframes progress-fill {
+  0%, 12% { width: 0%; }
+  75%, 100% { width: 100%; }
+}
+
+.progress-fill {
+  animation: progress-fill 8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* Layer reveal — staggered via animation-delay */
+@keyframes layer-reveal {
+  0%, 14% { opacity: 0.2; transform: translateY(2px); }
+  20%, 95% { opacity: 1; transform: translateY(0); }
+}
+
+.layer-reveal {
+  animation: layer-reveal 8s ease-out infinite;
+  opacity: 0.2;
+}
+
+/* Verdict reveal (last 1.5s of loop) */
+@keyframes verdict-reveal {
+  0%, 80% { opacity: 0; transform: translateY(4px); }
+  88%, 96% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; }
+}
+
+.verdict-reveal {
+  animation: verdict-reveal 8s ease-out infinite;
+  opacity: 0;
+}
+
+/* Spinning dot for analyzing state */
+@keyframes spin-dot {
+  to { transform: rotate(360deg); }
+}
+
+.spin-dot {
+  animation: spin-dot 1.2s linear infinite;
+}
+
+/* Pulse for live status */
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.5); }
+  50% { opacity: 0.85; box-shadow: 0 0 0 6px rgba(0, 255, 136, 0); }
+}
+
+.live-pulse {
+  animation: live-pulse 1.5s ease-in-out infinite;
+}
+
+/* ───────────────────────────────────────────────────────────────
+   Corner viewfinder brackets
+   ─────────────────────────────────────────────────────────────── */
+.corner-frame {
+  position: relative;
+}
+
+.corner-frame::before,
+.corner-frame::after,
+.corner-frame > .c-tl,
+.corner-frame > .c-tr,
+.corner-frame > .c-bl,
+.corner-frame > .c-br {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-color: var(--accent);
+  border-style: solid;
+  border-width: 0;
+  pointer-events: none;
+}
+
+.corner-frame::before {
+  top: -1px; left: -1px;
+  border-top-width: 1px;
+  border-left-width: 1px;
+}
+
+.corner-frame::after {
+  bottom: -1px; right: -1px;
+  border-bottom-width: 1px;
+  border-right-width: 1px;
+}
+
+.corner-frame > .c-tr {
+  top: -1px; right: -1px;
+  border-top-width: 1px;
+  border-right-width: 1px;
+}
+
+.corner-frame > .c-bl {
+  bottom: -1px; left: -1px;
+  border-bottom-width: 1px;
+  border-left-width: 1px;
+}
+
+/* ───────────────────────────────────────────────────────────────
+   Status pills + dots
+   ─────────────────────────────────────────────────────────────── */
+.status-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  vertical-align: 1px;
+}
+
+.status-dot-risk { background: var(--red); box-shadow: 0 0 8px rgba(255, 77, 77, 0.45); }
+.status-dot-warn { background: var(--yellow); box-shadow: 0 0 8px rgba(255, 204, 51, 0.4); }
+.status-dot-ok { background: var(--accent); box-shadow: 0 0 8px rgba(0, 255, 136, 0.45); }
+.status-dot-info { background: var(--muted-2); }
+
+/* ───────────────────────────────────────────────────────────────
+   Diagonal "ANALYZING" stripes
+   ─────────────────────────────────────────────────────────────── */
+@keyframes stripes-slide {
+  to { background-position: 24px 0; }
+}
+
+.stripes-active {
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(0, 255, 136, 0.1) 0,
+    rgba(0, 255, 136, 0.1) 6px,
+    transparent 6px,
+    transparent 12px
+  );
+  background-size: 24px 24px;
+  animation: stripes-slide 1s linear infinite;
+}
+
+/* ───────────────────────────────────────────────────────────────
+   Section divider rule (with center marker)
+   ─────────────────────────────────────────────────────────────── */
+.rule {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rule::before,
+.rule::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border-strong);
+}
+
+/* ───────────────────────────────────────────────────────────────
+   Editorial selection
+   ─────────────────────────────────────────────────────────────── */
+::selection {
+  background: var(--accent);
+  color: #000;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Hide scrollbar in horizontal scroll containers */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
