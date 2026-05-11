@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Literal, Optional
+from typing import Literal
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -9,20 +9,20 @@ from pydantic import BaseModel
 
 class SellerData(BaseModel):
     name: str
-    age_days: Optional[int] = None
-    total_products: Optional[int] = None
-    rating: Optional[float] = None
-    rating_count: Optional[int] = None
+    age_days: int | None = None
+    total_products: int | None = None
+    rating: float | None = None
+    rating_count: int | None = None
     is_verified: bool = False
 
 
 class ReviewData(BaseModel):
     text: str
     rating: int
-    author_name: Optional[str] = None
-    date: Optional[datetime] = None
+    author_name: str | None = None
+    date: datetime | None = None
     has_image: bool = False
-    image_url: Optional[str] = None
+    image_url: str | None = None
     verified_purchase: bool = False
 
 
@@ -31,8 +31,8 @@ class ProductData(BaseModel):
     platform: Literal["trendyol", "hepsiburada", "n11", "amazon_tr", "unknown"]
     title: str
     price_current: float
-    price_original: Optional[float] = None
-    discount_pct: Optional[float] = None
+    price_original: float | None = None
+    discount_pct: float | None = None
     images: list[str] = []
     description: str = ""
     seller: SellerData
@@ -40,7 +40,7 @@ class ProductData(BaseModel):
     review_count_total: int = 0
     rating_avg: float = 0.0
     urgency_indicators: list[str] = []
-    raw_html: Optional[str] = None
+    raw_html: str | None = None
     scraped_at: datetime
 
 
@@ -69,7 +69,7 @@ class LayerResult(BaseModel):
     layer_id: str
     name: str
     status: Literal["RISK", "WARN", "OK", "INFO"]
-    score: Optional[int] = None  # 0-100, None ise analiz yapılamadı
+    score: int | None = None  # 0-100, None ise analiz yapılamadı
     finding: str
     details: dict = {}
     confidence: float = 1.0  # 0-1
@@ -89,6 +89,6 @@ class ScanResult(BaseModel):
     layer_results: dict[str, LayerResult]
     reasoning_steps: list[ReasoningStep] = []
     final_explanation: str
-    alternative: Optional[Alternative] = None
+    alternative: Alternative | None = None
     duration_ms: int
     created_at: datetime

@@ -1,9 +1,10 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from app.api.routes import auth, history, petition, scan
 from app.config import settings
-from app.api.routes import scan, auth, history, petition
 
 
 @asynccontextmanager
