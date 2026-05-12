@@ -84,6 +84,26 @@ async def scan_product(request: ScanRequest) -> ScanResult:
         ) from exc
 
 
+@router.get("/scan/debug/akakce")
+async def debug_akakce(q: str = "Apple iPhone 15 128 GB") -> dict:
+    """Akakçe servisini scraper'dan bağımsız test eder (geçici diagnostic endpoint)."""
+    from app.services.akakce import fetch_akakce_summary  # noqa: PLC0415
+
+    diagnostics: dict = {}
+    result = await fetch_akakce_summary(q, diagnostics=diagnostics)
+    if result:
+        return {
+            "success": True,
+            "seller_count": result.seller_count,
+            "min_price": result.min_price,
+            "max_price": result.max_price,
+            "avg_price": round(result.avg_price, 2),
+            "product_url": result.product_url,
+            "diagnostics": diagnostics,
+        }
+    return {"success": False, "diagnostics": diagnostics}
+
+
 @router.post("/scan/phishing", response_model=LayerResult)
 async def scan_phishing(
     file: UploadFile = File(..., description="SMS/e-posta ekran görüntüsü"),
