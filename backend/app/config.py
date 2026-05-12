@@ -28,5 +28,22 @@ class Settings(BaseSettings):
     def is_production(self) -> bool:
         return self.environment == "production"
 
+    @property
+    def allowed_origins(self) -> list[str]:
+        """CORS allowed origins — always includes frontend_url."""
+        origins = {self.frontend_url}
+        # Production: Vercel preview URLs + canonical
+        if self.is_production:
+            origins.update([
+                "https://btk-2026.vercel.app",
+                "https://www.btk-2026.vercel.app",
+            ])
+        else:
+            origins.update([
+                "http://localhost:3000",
+                "http://127.0.0.1:3000",
+            ])
+        return list(origins)
+
 
 settings = Settings()

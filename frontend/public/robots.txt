@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Allow: /demo/
+Disallow: /dashboard/
+Disallow: /scan/
+Disallow: /history/
+Disallow: /phishing/
+Disallow: /profile/
+Disallow: /api/
+
+Sitemap: https://btk-2026.vercel.app/sitemap.xml

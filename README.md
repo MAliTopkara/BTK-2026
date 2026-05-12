@@ -91,12 +91,51 @@ BTK-2026/
 
 ---
 
+## 🎬 Demo Senaryoları (Login Gerektirmez)
+
+| Senaryo | Skor | Karar | Link |
+|---------|------|-------|------|
+| Apple AirPods Pro 2 — Sahte indirim + bot yorumlar | 34/100 | AVOID | `/demo/airpods_fake` |
+| Xiaomi RedmiBook Pro 15 — Şüpheli satıcı | 58/100 | CAUTION | `/demo/laptop_suspicious` |
+| Casio G-Shock GA-2100 — Gerçek indirim | 87/100 | BUY | `/demo/watch_genuine` |
+
+---
+
+## 🔌 API
+
+```bash
+# Ürün tarama
+POST /api/scan
+{"url": "https://www.trendyol.com/...", "force_refresh": false}
+
+# Demo sonucu (auth gerekmez)
+GET /api/demo/{scenario}    # airpods_fake | laptop_suspicious | watch_genuine
+
+# Phishing tarama
+POST /api/scan/phishing     # multipart/form-data: file=<görsel>
+
+# Dilekçe PDF
+POST /api/petition/{scan_id}
+{"url": "...", "user_full_name": "...", "tc_no": "...", "address": "...", "phone": "..."}
+```
+
+---
+
+## 🔐 Güvenlik
+
+- Gemini API key yalnızca backend'de — frontend'de sıfır key
+- Supabase RLS aktif — kullanıcılar yalnızca kendi verilerine erişir
+- HTTPS zorunlu (Vercel + Railway)
+- CORS: yalnızca izinli origin'ler
+
+---
+
 ## 👥 Takım
 
-BTK Akademi Hackathon 2026 katılımcıları.
+BTK Akademi Hackathon 2026 — [GitHub: MAliTopkara](https://github.com/MAliTopkara)
 
 ---
 
 ## 📄 Lisans
 
-Bu proje hackathon amaçlı geliştirilmiştir.
+Bu proje hackathon amaçlı geliştirilmiştir. MIT License.
