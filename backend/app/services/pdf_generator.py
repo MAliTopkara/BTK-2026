@@ -13,6 +13,7 @@ from __future__ import annotations
 import io
 import logging
 from datetime import date
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from reportlab.lib.pagesizes import A4
@@ -31,31 +32,32 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# Font kaydı — Arial (Türkçe karakter desteği için)
+# Font kaydı — repoya gömülü DejaVu Sans (Türkçe karakter desteği)
+# Helvetica WinAnsi'dir ve ç/ş/ğ/İ render edemez. DejaVu Sans Unicode TTF.
 # ---------------------------------------------------------------------------
 
+_FONTS_DIR = Path(__file__).resolve().parent.parent / "assets" / "fonts"
+_BODY_FONT_NAME = "DejaVuSans"
+_BOLD_FONT_NAME = "DejaVuSans-Bold"
 _FONT_REGISTERED = False
 
+
 def _register_fonts() -> None:
-    """Arial TTF'i bir kez kaydeder. İkinci çağrıda no-op."""
+    """DejaVu Sans TTF'lerini bir kez kaydeder. İkinci çağrıda no-op."""
     global _FONT_REGISTERED  # noqa: PLW0603
     if _FONT_REGISTERED:
         return
-    try:
-        pdfmetrics.registerFont(TTFont("Arial", "arial.ttf"))
-        pdfmetrics.registerFont(TTFont("Arial-Bold", "arialbd.ttf"))
-        _FONT_REGISTERED = True
-        logger.info("Arial font kaydedildi (Türkçe PDF desteği)")
-    except Exception as exc:
-        logger.warning("Arial yüklenemedi, Helvetica'ya fallback: %s", exc)
-
-
-def _body_font() -> str:
-    return "Arial" if _FONT_REGISTERED else "Helvetica"
-
-
-def _bold_font() -> str:
-    return "Arial-Bold" if _FONT_REGISTERED else "Helvetica-Bold"
+    regular = _FONTS_DIR / "DejaVuSans.ttf"
+    bold = _FONTS_DIR / "DejaVuSans-Bold.ttf"
+    if not regular.is_file() or not bold.is_file():
+        raise RuntimeError(
+            f"DejaVu Sans TTF dosyaları bulunamadı: {_FONTS_DIR}. "
+            "Türkçe karakter desteği için bu fontlar gereklidir."
+        )
+    pdfmetrics.registerFont(TTFont(_BODY_FONT_NAME, str(regular)))
+    pdfmetrics.registerFont(TTFont(_BOLD_FONT_NAME, str(bold)))
+    _FONT_REGISTERED = True
+    logger.info("DejaVu Sans kaydedildi (Türkçe PDF desteği aktif)")
 
 
 # ---------------------------------------------------------------------------
@@ -147,8 +149,8 @@ def _build_pdf(
         bottomMargin=2.5 * cm,
     )
 
-    body_font = _body_font()
-    bold_font = _bold_font()
+    body_font = _BODY_FONT_NAME
+    bold_font = _BOLD_FONT_NAME
 
     styles = getSampleStyleSheet()
     title_style = ParagraphStyle(
@@ -214,7 +216,7 @@ def _build_pdf(
     # Kanıtlar
     evidence = data.get("evidence_list", [])
     if evidence:
-        story.append(Paragraph("DELLLER:", bold_style))
+        story.append(Paragraph("DELİLLER:", bold_style))
         for ev in evidence:
             story.append(Paragraph(f"• {_safe(ev)}", normal_style))
         story.append(Spacer(1, 0.3 * cm))
