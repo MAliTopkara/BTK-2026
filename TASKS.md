@@ -8,7 +8,7 @@
 
 ## 🔄 Aktif Görev
 
-**#34** — Mobile Responsive Son Kontrol + Cila _(3-4 saat)_
+**#35** — 4 Demo URL Pre-cache + Landing Demo Kartları _(3-4 saat)_ ⭐ JÜRİ
 
 ---
 
@@ -67,7 +67,7 @@
 
 - [x] **#32** Dilekçe PDF + Endpoint + Frontend Butonu _(Tamamlandı: 16 Mayıs 2026 — GitHub Copilot)_
 - [x] **#33** Edge Case'ler + Hata Mesajları _(Tamamlandı: 16 Mayıs 2026 — GitHub Copilot)_
-- [ ] **#34** Mobile Responsive Son Kontrol + Cila _(3-4 saat)_
+- [x] **#34** Mobile Responsive Son Kontrol + Cila _(Tamamlandı: 17 Mayıs 2026 — GitHub Copilot)_
 - [ ] **#35** 4 Demo URL Pre-cache + Landing Demo Kartları _(3-4 saat)_ ⭐ JÜRİ
 - [ ] **#36** README + Production Hardening + Repo PUBLIC _(2-3 saat)_
 
