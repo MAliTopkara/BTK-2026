@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
@@ -7,6 +8,7 @@ import type { Alternative, LayerResult, ScanResult, Verdict } from "@/lib/api";
 import { ScoreRing } from "@/components/ui/ScoreRing";
 import { LayerCard } from "./LayerCard";
 import { ReasoningPanel } from "./ReasoningPanel";
+import { PetitionModal } from "./PetitionModal";
 
 const VERDICT_TR: Record<Verdict, string> = {
   BUY: "AL",
@@ -35,6 +37,7 @@ export function ScanDetailView({ scan }: Props) {
   const verdictTone = VERDICT_TONE[scan.verdict];
   const sortedLayers = sortLayers(Object.values(scan.layer_results));
   const counts = countByStatus(sortedLayers);
+  const [showPetitionModal, setShowPetitionModal] = useState(false);
 
   return (
     <div className="space-y-16 lg:space-y-20">
@@ -220,11 +223,28 @@ export function ScanDetailView({ scan }: Props) {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <ActionButton
-            label="Dilekçe oluştur"
-            sub="Tüketici Hakem Heyeti · PDF"
-            wip="TASK-32"
-          />
+          <button
+            type="button"
+            onClick={() => setShowPetitionModal(true)}
+            className="group bg-[var(--surface)]/40 hover:bg-[var(--surface)]/70 border border-[var(--border-strong)] hover:border-[var(--accent)]/60 p-4 text-left transition-colors flex flex-col justify-between min-h-[100px]"
+          >
+            <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-[var(--accent-dim)] group-hover:text-[var(--accent)]">
+              pdf · dilekçe
+            </span>
+            <span className="mt-3 flex items-end justify-between gap-2">
+              <span className="min-w-0">
+                <span className="block font-mono text-[12px] tracking-[0.22em] uppercase text-[var(--foreground)]/85">
+                  Dilekçe oluştur
+                </span>
+                <span className="block text-[11px] text-[var(--muted-2)] mt-1.5 normal-case tracking-normal font-sans">
+                  Tüketici Hakem Heyeti · PDF
+                </span>
+              </span>
+              <span className="font-sans text-[var(--muted)] group-hover:text-[var(--accent)] group-hover:translate-x-0.5 transition-all shrink-0">
+                ↓
+              </span>
+            </span>
+          </button>
           <ActionLink
             href="/history"
             label="Geçmişe git"
@@ -261,6 +281,15 @@ export function ScanDetailView({ scan }: Props) {
         <span>duration · {(scan.duration_ms / 1000).toFixed(2)}s</span>
         <span>cache · sessionStorage</span>
       </footer>
+
+      {/* Dilekçe Modal */}
+      {showPetitionModal && (
+        <PetitionModal
+          scanId={scan.scan_id}
+          scanUrl={scan.url}
+          onClose={() => setShowPetitionModal(false)}
+        />
+      )}
     </div>
   );
 }

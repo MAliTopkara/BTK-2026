@@ -207,6 +207,7 @@ export async function getScanById(
 }
 
 export type PetitionUserInfo = {
+  url: string;
   full_name: string;
   tc_no: string;
   address: string;
@@ -214,8 +215,7 @@ export type PetitionUserInfo = {
 };
 
 /**
- * Tüketici Hakem Heyeti dilekçesi PDF üretir (TASK-32 sonrası aktif).
- * Şu an backend 501 dönüyor.
+ * Tüketici Hakem Heyeti dilekçesi PDF üretir (TASK-32).
  */
 export async function generatePetition(
   scanId: string,
@@ -227,7 +227,13 @@ export async function generatePetition(
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(userInfo),
+      body: JSON.stringify({
+        url: userInfo.url,
+        user_full_name: userInfo.full_name,
+        tc_no: userInfo.tc_no,
+        address: userInfo.address,
+        phone: userInfo.phone,
+      }),
       signal: options.signal,
     },
   );
