@@ -275,3 +275,25 @@ export const DEMO_SCENARIOS = [
     note: "Yeni satıcı, hafif pump",
   },
 ] as const;
+
+export type DemoScenarioId = (typeof DEMO_SCENARIOS)[number]["id"];
+
+/**
+ * Pre-cache edilmiş demo sonucunu döner (TASK-35).
+ * Auth gerektirmez — jüri demo deneyimi için.
+ */
+export async function getDemoScan(
+  scenario: string,
+  options: { signal?: AbortSignal } = {},
+): Promise<ScanResult> {
+  const res = await fetch(`${API_URL}/api/demo/${encodeURIComponent(scenario)}`, {
+    method: "GET",
+    signal: options.signal,
+  });
+
+  if (!res.ok) {
+    throw new ApiError(res.status, await parseErrorDetail(res));
+  }
+
+  return res.json();
+}

@@ -1,0 +1,155 @@
+{
+  "scan_id": "33333333-3333-3333-3333-333333333333",
+  "url": "https://www.trendyol.com/casio/g-shock-ga-2100-1aer-erkek-kol-saati-p-55462321",
+  "product": {
+    "url": "https://www.trendyol.com/casio/g-shock-ga-2100-1aer-erkek-kol-saati-p-55462321",
+    "platform": "trendyol",
+    "title": "Casio G-Shock GA-2100-1AER Erkek Kol Saati - CasioCember Mağazası",
+    "price_current": 3899.0,
+    "price_original": 4399.0,
+    "discount_pct": 11.4,
+    "images": [
+      "https://cdn.dsmcdn.com/ty1234/product/casio-gshock-ga2100.jpg"
+    ],
+    "description": "Casio G-Shock GA-2100-1AER. 200m su geçirmezlik, karbon fiber çekirdek kasa, Bluetooth bağlantısı.",
+    "seller": {
+      "name": "CasioCember",
+      "age_days": 1847,
+      "total_products": 124,
+      "rating": 4.8,
+      "rating_count": 1203,
+      "is_verified": true
+    },
+    "reviews": [
+      {"text": "5 yıldır kullanıyorum, ilk kez saatin kırıldığını görmedim.", "rating": 5, "author_name": "Tolga M.", "date": "2024-01-20T10:00:00", "has_image": true, "image_url": "https://example.com/img1.jpg", "verified_purchase": true},
+      {"text": "Orijinal ürün, garantiyle geldi. Kutu sağlam, saat mükemmel.", "rating": 5, "author_name": "Deniz K.", "date": "2024-01-18T14:00:00", "has_image": false, "image_url": null, "verified_purchase": true},
+      {"text": "Beklentimi karşıladı. G-Shock kalitesi bilinen şey.", "rating": 4, "author_name": "Emre S.", "date": "2024-01-12T09:00:00", "has_image": false, "image_url": null, "verified_purchase": true},
+      {"text": "İnce tasarım, spor kullanım için ideal.", "rating": 5, "author_name": "Yusuf A.", "date": "2024-01-08T11:00:00", "has_image": false, "image_url": null, "verified_purchase": true},
+      {"text": "Hızlı kargo, orijinal kutusunda geldi.", "rating": 5, "author_name": "Merve B.", "date": "2023-12-28T10:00:00", "has_image": false, "image_url": null, "verified_purchase": true}
+    ],
+    "review_count_total": 312,
+    "rating_avg": 4.7,
+    "urgency_indicators": [],
+    "raw_html": null,
+    "scraped_at": "2026-05-17T10:00:00+00:00"
+  },
+  "overall_score": 87,
+  "verdict": "BUY",
+  "layer_results": {
+    "review": {
+      "layer_id": "review",
+      "name": "Yorum Analizi",
+      "status": "OK",
+      "score": 91,
+      "finding": "Yorumlar organik · Farklı tarihler · 312 değerlendirme · TF-IDF benzerlik skoru 0.18",
+      "details": {
+        "generic_ratio": 0.06,
+        "burst_detected": false,
+        "tfidf_similarity": 0.18,
+        "suspicious_count": 4,
+        "total_analyzed": 50
+      },
+      "confidence": 0.93
+    },
+    "discount": {
+      "layer_id": "discount",
+      "name": "Fiyat / İndirim",
+      "status": "OK",
+      "score": 84,
+      "finding": "Gerçek %11 indirim · Fiyat 90 gün boyunca stabil seyretmiş",
+      "details": {
+        "price_current": 3899.0,
+        "price_original_claimed": 4399.0,
+        "pump_ratio": 1.0,
+        "is_fake_discount": false,
+        "price_history_days": 90,
+        "price_trend": "stable_then_genuine_discount"
+      },
+      "confidence": 0.91
+    },
+    "manipulation": {
+      "layer_id": "manipulation",
+      "name": "Karanlık Kalıplar",
+      "status": "OK",
+      "score": 95,
+      "finding": "Dark pattern tespit edilmedi",
+      "details": {
+        "patterns_found": []
+      },
+      "confidence": 0.98
+    },
+    "seller": {
+      "layer_id": "seller",
+      "name": "Satıcı Güveni",
+      "status": "OK",
+      "score": 92,
+      "finding": "Doğrulanmış mağaza · 5+ yıllık · 4.8 yıldız · 1203 değerlendirme",
+      "details": {
+        "age_days": 1847,
+        "is_verified": true,
+        "rating": 4.8,
+        "rating_count": 1203,
+        "risk_flags": []
+      },
+      "confidence": 0.97
+    },
+    "visual": {
+      "layer_id": "visual",
+      "name": "Görsel Doğrulama",
+      "status": "OK",
+      "score": 83,
+      "finding": "Orijinal ürün görseli · Logo tutarlı · Stok fotoğraf ihtimali düşük",
+      "details": {
+        "stock_photo_probability": 0.21,
+        "logo_consistency": true,
+        "image_count_analyzed": 1
+      },
+      "confidence": 0.78
+    },
+    "crossplatform": {
+      "layer_id": "crossplatform",
+      "name": "Çapraz Platform",
+      "status": "OK",
+      "score": null,
+      "finding": "Hepsiburada'da 4.150 TL · Bu fiyat rekabetçi ve piyasayla uyumlu",
+      "details": {
+        "alternatives_found": 2,
+        "cheapest_legit_price": 3849.0,
+        "current_price_vs_legit": "competitive"
+      },
+      "confidence": 0.85
+    }
+  },
+  "reasoning_steps": [
+    {
+      "step": 1,
+      "content": "Satıcı profilinden başlıyorum: CasioCember 5+ yıllık, doğrulanmış, Trendyol'da Casio resmi distribütörü. 1203 değerlendirme ve 4.8 yıldız — bu güçlü bir güvenilirlik sinyali.",
+      "highlights": []
+    },
+    {
+      "step": 2,
+      "content": "Fiyat geçmişi incelendiğinde 90 gün boyunca 4.399 TL'de sabit kalmış ve ardından organik bir %11 indirim gelmiş. Pump-dump stratejisi yok.",
+      "highlights": []
+    },
+    {
+      "step": 3,
+      "content": "312 yorumun TF-IDF benzerlik skoru 0.18 — bu çok sağlıklı bir değer. Yorumlar birbirinden bağımsız, farklı tarihler ve detaylar içeriyor. Sahte yorum sinyali yok.",
+      "highlights": []
+    },
+    {
+      "step": 4,
+      "content": "Fiyat çapraz platform karşılaştırmasında da makul: Hepsiburada'da 4.150 TL. Bu fiyat gerçekçi ve piyasayla uyumlu, şüphe uyandıracak kadar düşük değil.",
+      "highlights": []
+    },
+    {
+      "step": 5,
+      "content": "Hiçbir dark pattern tespit edilmedi. Sayfa sakin, acele ettirici unsur yok. Bu doğrudan güvenilir bir satışın işareti.",
+      "highlights": []
+    }
+  ],
+  "final_explanation": "Bu ürünü AL. Doğrulanmış yetkili satıcı, organik yorumlar, stabil fiyat geçmişi ve dark pattern yok. Güvenli bir satın alma.",
+  "alternative": null,
+  "duration_ms": 6920,
+  "created_at": "2026-05-17T10:00:00+00:00",
+  "cached_at": null
+}

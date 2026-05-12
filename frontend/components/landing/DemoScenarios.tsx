@@ -7,6 +7,7 @@ type Scenario = {
   verdict: { code: "AVOID" | "CAUTION" | "BUY"; label: string; tr: string };
   duration: string;
   findings: { layer: string; status: "RISK" | "WARN" | "OK"; finding: string }[];
+  demoPath: string;
 };
 
 const scenarios: Scenario[] = [
@@ -18,6 +19,7 @@ const scenarios: Scenario[] = [
     score: 34,
     verdict: { code: "AVOID", label: "AVOID", tr: "ALMA" },
     duration: "7.4s",
+    demoPath: "/demo/airpods_fake",
     findings: [
       { layer: "Sahte İndirim", status: "RISK", finding: "3.299 → 4.999 TL pump tespit edildi" },
       { layer: "Sahte Yorum", status: "RISK", finding: "30/50 jenerik · 12 saatte kümelenmiş" },
@@ -32,6 +34,7 @@ const scenarios: Scenario[] = [
     score: 58,
     verdict: { code: "CAUTION", label: "CAUTION", tr: "DİKKATLİ OL" },
     duration: "8.1s",
+    demoPath: "/demo/laptop_suspicious",
     findings: [
       { layer: "Sahte İndirim", status: "WARN", finding: "+%11 hafif pump, sonra kademeli düşüş" },
       { layer: "Satıcı", status: "WARN", finding: "Yeni hesap, doğrulanmamış" },
@@ -46,6 +49,7 @@ const scenarios: Scenario[] = [
     score: 87,
     verdict: { code: "BUY", label: "BUY", tr: "AL" },
     duration: "6.9s",
+    demoPath: "/demo/watch_genuine",
     findings: [
       { layer: "Sahte İndirim", status: "OK", finding: "Gerçek %11 indirim, fiyat stabil" },
       { layer: "Sahte Yorum", status: "OK", finding: "Yorumlar özgün, farklı tarihler" },
@@ -142,9 +146,10 @@ export function DemoScenarios() {
           {scenarios.map((s) => {
             const v = verdictStyles[s.verdict.code];
             return (
-              <article
+              <a
                 key={s.id}
-                className={`relative ${v.bg} p-6 lg:p-7 flex flex-col`}
+                href={s.demoPath}
+                className={`relative ${v.bg} p-6 lg:p-7 flex flex-col group cursor-pointer hover:bg-opacity-80 transition-colors`}
               >
                 {/* Header */}
                 <div className="flex items-start justify-between mb-6">
@@ -209,13 +214,19 @@ export function DemoScenarios() {
                     </div>
                   ))}
                 </div>
-              </article>
+
+                {/* CTA */}
+                <div className={`mt-5 font-mono text-[10px] tracking-[0.22em] uppercase ${v.text} flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity`}>
+                  <span className={`status-dot ${v.dot}`} />
+                  Detaylı analizi gör →
+                </div>
+              </a>
             );
           })}
         </div>
 
         <div className="mt-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-mono text-[10px] tracking-[0.22em] uppercase text-[var(--muted)]">
-          <span>3 senaryo · 24 layer çıktısı · 22.4s toplam</span>
+          <span>3 senaryo · 24 layer çıktısı · 22.4s toplam · login gereksiz</span>
           <a
             href="/dashboard"
             className="text-[var(--accent)] hover:text-[var(--foreground)] transition-colors inline-flex items-center gap-2"

@@ -1,0 +1,173 @@
+{
+  "scan_id": "11111111-1111-1111-1111-111111111111",
+  "url": "https://www.trendyol.com/apple/airpods-pro-2nd-generation-aktif-govde-icin-usb-c-sarj-kutusu-p-535379085",
+  "product": {
+    "url": "https://www.trendyol.com/apple/airpods-pro-2nd-generation-aktif-govde-icin-usb-c-sarj-kutusu-p-535379085",
+    "platform": "trendyol",
+    "title": "Apple AirPods Pro 2. Nesil (USB-C) - Aktif Gürültü Engelleme",
+    "price_current": 3299.0,
+    "price_original": 4999.0,
+    "discount_pct": 34.0,
+    "images": [
+      "https://cdn.dsmcdn.com/ty933/product/media/images/prod/QC/20240201/16/e4cd1c5e-fc74-4741-80c5-a6e6cd4c3928/1_org_zoom.jpg"
+    ],
+    "description": "Apple AirPods Pro (2. Nesil) USB-C şarj kutusuyla gelir. Adaptif Ses Engelleme, Şeffaf Mod. Son 2 ürün kaldı! 1234 kişi izliyor.",
+    "seller": {
+      "name": "ElektronikDünyası",
+      "age_days": 45,
+      "total_products": 312,
+      "rating": 3.9,
+      "rating_count": 87,
+      "is_verified": false
+    },
+    "reviews": [
+      {"text": "Çok güzel ürün aldım harika.", "rating": 5, "author_name": "Kullanıcı1", "date": "2024-01-15T10:00:00", "has_image": false, "image_url": null, "verified_purchase": false},
+      {"text": "Mükemmel ürün tavsiye ederim.", "rating": 5, "author_name": "Kullanıcı2", "date": "2024-01-15T10:12:00", "has_image": false, "image_url": null, "verified_purchase": false},
+      {"text": "Harika kalite fiyat oranı.", "rating": 5, "author_name": "Kullanıcı3", "date": "2024-01-15T10:23:00", "has_image": false, "image_url": null, "verified_purchase": false},
+      {"text": "Çok iyi ürün aldım.", "rating": 5, "author_name": "Kullanıcı4", "date": "2024-01-15T10:31:00", "has_image": false, "image_url": null, "verified_purchase": false},
+      {"text": "Süper ürün kesinlikle alın.", "rating": 5, "author_name": "Kullanıcı5", "date": "2024-01-15T10:44:00", "has_image": false, "image_url": null, "verified_purchase": false},
+      {"text": "Fiyatına göre çok iyi, kutusu sağlam.", "rating": 5, "author_name": "Mehmet K.", "date": "2024-01-16T14:20:00", "has_image": false, "image_url": null, "verified_purchase": false},
+      {"text": "Orijinal değil ama fiyatı buna göre.", "rating": 2, "author_name": "Ali B.", "date": "2024-01-18T09:00:00", "has_image": false, "image_url": null, "verified_purchase": true},
+      {"text": "Garip ses geldi kutudan, şüpheliyim.", "rating": 1, "author_name": "Ayşe T.", "date": "2024-01-20T11:30:00", "has_image": false, "image_url": null, "verified_purchase": true}
+    ],
+    "review_count_total": 143,
+    "rating_avg": 4.2,
+    "urgency_indicators": ["Son 2 ürün kaldı!", "1234 kişi izliyor", "Bu fiyat bugün bitiyor"],
+    "raw_html": null,
+    "scraped_at": "2026-05-17T10:00:00+00:00"
+  },
+  "overall_score": 34,
+  "verdict": "AVOID",
+  "layer_results": {
+    "review": {
+      "layer_id": "review",
+      "name": "Yorum Analizi",
+      "status": "RISK",
+      "score": 22,
+      "finding": "30/50 jenerik yorum · 12 saatte kümelenmiş · TF-IDF benzerlik skoru 0.89",
+      "details": {
+        "generic_ratio": 0.60,
+        "burst_detected": true,
+        "burst_window_hours": 12,
+        "tfidf_similarity": 0.89,
+        "suspicious_count": 30,
+        "total_analyzed": 50
+      },
+      "confidence": 0.92
+    },
+    "discount": {
+      "layer_id": "discount",
+      "name": "Fiyat / İndirim",
+      "status": "RISK",
+      "score": 18,
+      "finding": "3.299 → 4.999 TL pump tespit edildi · Gerçek değer ~3.499 TL",
+      "details": {
+        "price_current": 3299.0,
+        "price_original_claimed": 4999.0,
+        "price_genuine_estimate": 3499.0,
+        "pump_ratio": 1.43,
+        "price_history_days": 90,
+        "is_fake_discount": true
+      },
+      "confidence": 0.95
+    },
+    "manipulation": {
+      "layer_id": "manipulation",
+      "name": "Karanlık Kalıplar",
+      "status": "RISK",
+      "score": 15,
+      "finding": "3 dark pattern tespit edildi: fake_urgency · fake_social_proof · false_scarcity",
+      "details": {
+        "patterns_found": ["fake_urgency", "fake_social_proof", "false_scarcity"],
+        "urgency_text": "Son 2 ürün kaldı!",
+        "social_proof_text": "1234 kişi izliyor"
+      },
+      "confidence": 0.97
+    },
+    "seller": {
+      "layer_id": "seller",
+      "name": "Satıcı Güveni",
+      "status": "RISK",
+      "score": 32,
+      "finding": "45 günlük hesap · Doğrulanmamış · 87 değerlendirme",
+      "details": {
+        "age_days": 45,
+        "is_verified": false,
+        "rating": 3.9,
+        "rating_count": 87,
+        "risk_flags": ["new_seller", "not_verified", "low_rating"]
+      },
+      "confidence": 0.88
+    },
+    "visual": {
+      "layer_id": "visual",
+      "name": "Görsel Doğrulama",
+      "status": "WARN",
+      "score": 48,
+      "finding": "Stok fotoğraf olasılığı yüksek · Kutu görseli orijinalden farklı",
+      "details": {
+        "stock_photo_probability": 0.78,
+        "logo_consistency": false,
+        "image_count_analyzed": 1
+      },
+      "confidence": 0.71
+    },
+    "crossplatform": {
+      "layer_id": "crossplatform",
+      "name": "Çapraz Platform",
+      "status": "INFO",
+      "score": null,
+      "finding": "Apple AirPods Pro 2. Nesil Apple Store'da 5.999 TL — %45 daha pahalı bu listede bile değer değil",
+      "details": {
+        "alternatives_found": 2,
+        "cheapest_legit_price": 5499.0,
+        "current_price_vs_legit": "significantly_lower_suspicious"
+      },
+      "confidence": 0.80
+    }
+  },
+  "reasoning_steps": [
+    {
+      "step": 1,
+      "content": "Yorum örüntüsüne bakıyorum: 50 yorumun 30 tanesi tek bir 12 saatlik pencerede gelmiş ve TF-IDF benzerlik skoru 0.89 — bu insanların aynı şablonu kopyalayıp yapıştırdığını gösteriyor. Organik yorum bu kadar homojen olmaz.",
+      "highlights": []
+    },
+    {
+      "step": 2,
+      "content": "Fiyat geçmişine bakıyorum: ürün gerçekte hiçbir zaman 4.999 TL'ye satılmamış. Bu fiyat 3 gün önce pump edilmiş, ardından %34 indirim etkisi yaratmak için 3.299 TL'ye çekilmiş. Piyasa değeri ~3.499 TL civarında.",
+      "highlights": []
+    },
+    {
+      "step": 3,
+      "content": "Satıcı profili endişe verici: 45 günlük hesap, doğrulanmamış, 3.9 yıldız. Apple yetkili satıcıları genellikle yıllarca faaliyet gösteren, doğrulanmış mağazalardır. Bu profil bir fırsatçı hesabın izlerini taşıyor.",
+      "highlights": []
+    },
+    {
+      "step": 4,
+      "content": "Üç dark pattern aynı anda kullanılmış: 'Son 2 ürün kaldı' (acele ettirme), '1234 kişi izliyor' (sahte sosyal kanıt), 'Bu fiyat bugün bitiyor' (yapay zaman baskısı). Bu birliktelik koordineli bir manipülasyon stratejisine işaret ediyor.",
+      "highlights": []
+    },
+    {
+      "step": 5,
+      "content": "Apple AirPods Pro 2. Nesil'in meşru fiyat aralığı 5.499-5.999 TL. Bu ürün 3.299 TL'ye satılıyorsa ya counterfeit (sahte) ya da işlevsel açıdan eksik bir ürün olması kuvvetle muhtemel. Bu fiyat Apple'ın üretim maliyetini dahi karşılamaz.",
+      "highlights": []
+    },
+    {
+      "step": 6,
+      "content": "Tüm sinyaller aynı yönü işaret ediyor: sahte indirim, jenerik yorum baskını, yeni ve doğrulanmamış satıcı, dark pattern trifecta ve şüpheli görseller. Bu ürünü almanızı tavsiye etmiyorum.",
+      "highlights": []
+    }
+  ],
+  "final_explanation": "Bu ürünü ALMA. Sahte indirim, koordineli yorum manipülasyonu, doğrulanmamış yeni satıcı ve birden fazla dark pattern tespit edildi. Fiyat gerçek AirPods Pro için gerçekçi değil — büyük olasılıkla counterfeit veya işlevsel açıdan bozuk bir ürün.",
+  "alternative": {
+    "platform": "trendyol.com",
+    "seller_name": "Apple Türkiye Yetkili",
+    "price": 5499.0,
+    "savings": -2200.0,
+    "rating": 4.9,
+    "url": "https://www.trendyol.com/apple/airpods-pro-2nd-generation"
+  },
+  "duration_ms": 7420,
+  "created_at": "2026-05-17T10:00:00+00:00",
+  "cached_at": null
+}
