@@ -43,8 +43,8 @@ async def run_mock_scan(url: str, force_refresh: bool = False) -> ScanResult:
     # URL ya tanınan bir platform olmalı, ya da demo URL'lerinden biri
     if not detect_platform(url) and not match_url_to_mock(url):
         raise ValueError(
-            f"URL hiçbir desteklenen platforma veya demo senaryoya eşleşmiyor: {url}\n"
-            "Destek: trendyol.com, hepsiburada.com"
+            "Bu URL desteklenen bir platforma eşleşmiyor. "
+            "Desteklenen siteler: trendyol.com, hepsiburada.com"
         )
 
     if force_refresh:

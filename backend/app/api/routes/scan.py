@@ -5,26 +5,85 @@ from fastapi import APIRouter, File, HTTPException, UploadFile, status
 from app.agents.phishing_agent import PhishingAgent
 from app.models.scan import LayerResult, ScanRequest, ScanResult
 from app.orchestrator.mock_runner import run_mock_scan
+from app.scrapers import detect_platform
 
 router = APIRouter(tags=["scan"])
 
 _phishing_agent = PhishingAgent()
 
+# Desteklenen platformlar — kullanıcı mesajı için
+_SUPPORTED_PLATFORMS = {"trendyol.com", "hepsiburada.com"}
+_PLATFORM_NAMES = "Trendyol veya Hepsiburada"
+
 
 @router.post("/scan", response_model=ScanResult)
 async def scan_product(request: ScanRequest) -> ScanResult:
-    # TASK-13: Mock versiyon — TASK-25'te LangGraph ile değiştirilecek
+    # 1) Protokol zorunlu
     if not request.url.startswith(("http://", "https://")):
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            detail="Geçersiz URL — http:// veya https:// ile başlamalı",
+            detail=(
+                "Geçersiz URL. http:// veya https:// ile başlayan tam bir bağlantı girin. "
+                "Örnek: https://www.trendyol.com/..."
+            ),
         )
+
+    # 2) Desteklenmeyen platform → 422
+    platform = detect_platform(request.url)
+    if platform is None:
+        # Bilinen ama desteklenmeyen domain'ler için özel mesaj
+        url_lower = request.url.lower()
+        if any(d in url_lower for d in ("amazon.com", "n11.com", "gittigidiyor", "ciceksepeti", "boyner", "zara")):
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail=(
+                    "Bu site şu an desteklenmiyor. "
+                    f"TrustLens şu an yalnızca {_PLATFORM_NAMES} URL'lerini analiz edebilir."
+                ),
+            )
+        # Demo URL eşleşmesi varsa devam et (mock runner halleder)
+        from mock_data.loader import match_url_to_mock  # noqa: PLC0415
+        if not match_url_to_mock(request.url):
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail=(
+                    f"Desteklenmeyen platform. "
+                    f"Geçerli bir {_PLATFORM_NAMES} ürün linki girin."
+                ),
+            )
+
     try:
         return await run_mock_scan(request.url, force_refresh=request.force_refresh)
     except ValueError as exc:
+        err_msg = str(exc)
+        # Scraping başarısız / ürün bulunamadı
+        if "analiz edilemiyor" in err_msg or "eşleşmiyor" in err_msg:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=(
+                    "Bu ürün şu an analiz edilemiyor. "
+                    "Lütfen URL'nin doğru olduğundan emin olun ve birazdan tekrar deneyin. "
+                    f"({err_msg.split(chr(10))[0]})"
+                ),
+            ) from exc
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(exc),
+            detail=err_msg,
+        ) from exc
+    except RuntimeError as exc:
+        err_msg = str(exc)
+        # Gemini / AI servisi hatası
+        if "Gemini" in err_msg or "AI" in err_msg or "denemede başarısız" in err_msg:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=(
+                    "AI servisi şu an yavaş yanıt veriyor. "
+                    "Lütfen birkaç saniye bekleyip tekrar deneyin."
+                ),
+            ) from exc
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Tarama sırasında beklenmedik bir hata oluştu: {err_msg[:200]}",
         ) from exc
 
 
@@ -44,7 +103,7 @@ async def scan_phishing(
     image_bytes = await file.read()
     if len(image_bytes) == 0:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Boş dosya yüklendi",
         )
     if len(image_bytes) > 10 * 1024 * 1024:  # 10 MB limit

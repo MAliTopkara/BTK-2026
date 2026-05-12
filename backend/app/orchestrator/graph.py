@@ -119,11 +119,13 @@ async def scrape_node(state: ScanState) -> ScanState:
         return {**state, "product": product}
 
     # 3) Hiçbir yol çalışmadı
+    logger.warning("Scraping başarısız, tüm yollar denendi: %s", url)
     return {
         **state,
         "error": (
-            f"Bu URL şu an analiz edilemiyor: {url}\n"
-            "Demo URL'leri: trendyol.com/apple-airpods, "
+            f"Bu ürün şu an analiz edilemiyor: {url[:80]}\n"
+            "Anti-bot koruması devreye girmiş olabilir. "
+            "Demo URL'lerini deneyin: trendyol.com/apple-airpods, "
             "trendyol.com/casio, hepsiburada.com/xiaomi-laptop"
         ),
         "product": None,

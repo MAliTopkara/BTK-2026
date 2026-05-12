@@ -301,7 +301,7 @@ export function ScanLauncher() {
           {error && (
             <div className="border border-[var(--red)]/50 bg-[var(--red)]/[0.08] px-4 py-3 flex items-start gap-3">
               <span className="status-dot status-dot-risk mt-1.5 shrink-0" />
-              <div>
+              <div className="flex-1 min-w-0">
                 <div className="text-[10px] tracking-[0.22em] uppercase text-[var(--red)] mb-1">
                   Tarama başarısız
                 </div>
@@ -309,6 +309,12 @@ export function ScanLauncher() {
                   {error}
                 </p>
               </div>
+              <button
+                type="submit"
+                className="shrink-0 font-mono text-[10px] tracking-[0.22em] uppercase text-[var(--accent)] border border-[var(--accent)]/40 hover:bg-[var(--accent)]/10 px-3 py-1.5 transition-colors whitespace-nowrap"
+              >
+                Tekrar dene ↺
+              </button>
             </div>
           )}
 
@@ -662,8 +668,32 @@ function verdictTr(v: ScanResult["verdict"]): string {
 }
 
 function translateApiError(e: ApiError): string {
-  if (e.status === 404) return "Bu URL hiçbir demo senaryoya eşleşmiyor — önerilen senaryolardan birini dene.";
-  if (e.status === 422) return "URL geçersiz görünüyor. http:// veya https:// ile başladığından emin ol.";
-  if (e.status >= 500) return "Sunucu hatası — birazdan tekrar dene.";
-  return e.detail || `İstek başarısız (${e.status}).`;
+  const detail = e.detail ?? "";
+
+  // 422 — doğrulama hataları
+  if (e.status === 422) {
+    if (detail.toLowerCase().includes("desteklenmiyor")) return detail;
+    if (detail.toLowerCase().includes("platform")) return detail;
+    return "Geçerli bir Trendyol veya Hepsiburada ürün linki girin. (https:// ile başlamalı)";
+  }
+
+  // 404 — ürün / URL bulunamadı
+  if (e.status === 404) {
+    if (detail.toLowerCase().includes("analiz edilemiyor")) {
+      return "Bu ürün şu an analiz edilemiyor. Lütfen birazdan tekrar deneyin veya farklı bir URL dene.";
+    }
+    return "Bu URL hiçbir demo senaryoya eşleşmiyor — önerilen senaryolardan birini dene.";
+  }
+
+  // 503 — AI servisi geçici arıza
+  if (e.status === 503) {
+    return "AI servisi şu an yavaş yanıt veriyor. 10–15 saniye bekleyip tekrar dene.";
+  }
+
+  // 500+ — sunucu hatası
+  if (e.status >= 500) {
+    return "Sunucu hatası. Birazdan tekrar dene.";
+  }
+
+  return detail || `İstek başarısız (${e.status}).`;
 }
