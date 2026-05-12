@@ -8,7 +8,12 @@
 
 ## 🔄 Aktif Görev
 
-**#46** — Email Rapor (Haftalık Özet) _(Tamamlandı: 12 Mayıs 2026 — MehdiSndg)_
+**FAZ 1 kapandı** _(denetim + düzeltme: 12 Mayıs 2026 — Claude/enesbildirir)_
+
+- FAZ 1.E (#32-#36) ve FAZ 1.F (#37-#46) denetimi tamamlandı.
+- KRİTİK: backend test suite `email-validator` eksikliği yüzünden çöküyordu (`pydantic[email]` eklendi → 159/159 yeşil).
+- Tipo + lint + i18n + dead code düzeltmeleri pushlandı (commit `7f52295`).
+- Kalan: opsiyonel **#42 Telegram Bot** + FAZ 2 (hackathon sonrası).
 
 ---
 
@@ -101,4 +106,5 @@ _(Henüz yok)_
 
 ## 📝 Notlar / Engeller
 
-_(Boş)_
+- **12 Mayıs 2026 — FAZ 1 denetim:** `email.py` route'unda `EmailStr` kullanıldığı için `email-validator` runtime bağımlılığı şart. `backend/pyproject.toml`'da `pydantic[email]` extras olarak kalmalı.
+- **Bilinçli atlama:** `EthicsPanel` ve `FinancialFitPanel` hâlâ hardcoded TR — sunum TR olduğu için i18n entegrasyonu bonus iş.
