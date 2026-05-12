@@ -216,7 +216,7 @@ export function HistoryView() {
                     type="button"
                     onClick={() => handleDelete(s)}
                     aria-label={`Sil: ${s.title || s.url}`}
-                    className="text-[var(--muted-2)] hover:text-[var(--red)] text-[10px] tracking-[0.22em] uppercase shrink-0 transition-colors px-2"
+                    className="text-[var(--muted-2)] hover:text-[var(--red)] text-[10px] tracking-[0.22em] uppercase shrink-0 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                   >
                     sil
                   </button>

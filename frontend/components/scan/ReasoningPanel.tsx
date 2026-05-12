@@ -226,23 +226,23 @@ function StepRow({
         delay: variant === "static" ? 0.2 + index * 0.18 : startAtMs / 1000,
         ease: [0.22, 1, 0.36, 1],
       }}
-      className="grid grid-cols-[60px_1fr] gap-6 lg:gap-8 items-start"
+      className="grid grid-cols-[44px_1fr] sm:grid-cols-[60px_1fr] gap-4 sm:gap-6 lg:gap-8 items-start"
     >
       {/* Step number in margin */}
       <span
-        className={`font-serif italic tabular-nums text-[2.6rem] lg:text-[3rem] leading-none ${
+        className={`font-serif italic tabular-nums text-[2rem] sm:text-[2.6rem] lg:text-[3rem] leading-none transition-colors ${
           typing
             ? "text-[var(--accent)]"
             : started
               ? "text-[var(--muted)]"
               : "text-[var(--muted-2)]/40"
-        } transition-colors`}
+        }`}
       >
         {String(step.step).padStart(2, "0")}
       </span>
 
       <div className="pt-1 lg:pt-2">
-        <p className="font-sans text-[15px] lg:text-[17px] leading-relaxed text-[var(--foreground)]/90">
+        <p className="font-sans text-[14px] sm:text-[15px] lg:text-[17px] leading-relaxed text-[var(--foreground)]/90">
           {isLive ? (
             <>
               {displayed}
@@ -285,7 +285,7 @@ function FinalCallout({
         delay: isLive ? startAtMs / 1000 : 0.4,
         ease: [0.22, 1, 0.36, 1],
       }}
-      className="relative px-6 lg:px-10 py-10 lg:py-14"
+      className="relative px-4 sm:px-6 lg:px-10 py-8 sm:py-10 lg:py-14"
     >
       {/* Giant opening quote */}
       <span
@@ -340,9 +340,9 @@ function ThinkingPlaceholder({ count }: { count: number }) {
       {Array.from({ length: count }).map((_, i) => (
         <li
           key={i}
-          className="grid grid-cols-[60px_1fr] gap-6 lg:gap-8 items-start"
+          className="grid grid-cols-[44px_1fr] sm:grid-cols-[60px_1fr] gap-4 sm:gap-6 lg:gap-8 items-start"
         >
-          <span className="font-serif italic tabular-nums text-[2.6rem] lg:text-[3rem] leading-none text-[var(--muted-2)]/40">
+          <span className="font-serif italic tabular-nums text-[2rem] sm:text-[2.6rem] lg:text-[3rem] leading-none text-[var(--muted-2)]/40">
             {String(i + 1).padStart(2, "0")}
           </span>
           <div className="pt-2 lg:pt-3 space-y-2">

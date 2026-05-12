@@ -541,40 +541,41 @@ function ScanProgress({
         </div>
 
         {/* Layer table */}
-        <div className="px-4 py-3">
-          <div className="grid grid-cols-[28px_1fr_84px_56px] gap-3 pb-2 mb-1 border-b border-[var(--border)] text-[9px] tracking-[0.22em] uppercase text-[var(--muted-2)]">
+        <div className="px-3 sm:px-4 py-3">
+          <div className="grid grid-cols-[24px_1fr_70px_44px] sm:grid-cols-[28px_1fr_84px_56px] gap-2 sm:gap-3 pb-2 mb-1 border-b border-[var(--border)] text-[9px] tracking-[0.22em] uppercase text-[var(--muted-2)]">
             <span>#</span>
             <span>Agent</span>
             <span className="text-right">Status</span>
-            <span className="text-right">Score</span>
+            <span className="text-right hidden sm:block">Score</span>
           </div>
 
           {layers.map((l) => (
             <div
               key={l.id}
-              className="grid grid-cols-[28px_1fr_84px_56px] gap-3 py-2 items-center border-b border-[var(--border)]/60 last:border-b-0"
+              className="grid grid-cols-[24px_1fr_70px_44px] sm:grid-cols-[28px_1fr_84px_56px] gap-2 sm:gap-3 py-2 items-center border-b border-[var(--border)]/60 last:border-b-0 min-h-[40px]"
             >
               <span className="text-[var(--muted-2)] text-[10px] tabular-nums">{l.code}</span>
-              <span className="text-[var(--foreground)] text-[12px]">
-                <span className="inline-flex items-center gap-2">
+              <span className="text-[var(--foreground)] text-[11px] sm:text-[12px] min-w-0">
+                <span className="inline-flex items-center gap-2 flex-wrap">
                   <span>{l.name}</span>
                   {l.task && (
-                    <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-[var(--accent-dim)] border border-[var(--border-strong)] px-1.5 py-0.5">
+                    <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-[var(--accent-dim)] border border-[var(--border-strong)] px-1.5 py-0.5 hidden sm:inline">
                       {l.task}
                     </span>
                   )}
                 </span>
                 {l.finding && (
-                  <span className="block text-[10.5px] text-[var(--muted)] mt-0.5">
+                  <span className="block text-[10px] sm:text-[10.5px] text-[var(--muted)] mt-0.5 truncate">
                     {l.finding}
                   </span>
                 )}
               </span>
-              <span className={`text-right text-[10px] tracking-[0.16em] uppercase ${STATUS_TEXT_COLOR[l.status]}`}>
-                <span className={`status-dot ${STATUS_DOT[l.status]} ${l.status === "ANALYZING" ? "live-pulse" : ""} mr-1.5`} />
-                {STATUS_TEXT[l.status]}
+              <span className={`text-right text-[10px] tracking-[0.14em] sm:tracking-[0.16em] uppercase ${STATUS_TEXT_COLOR[l.status]}`}>
+                <span className={`status-dot ${STATUS_DOT[l.status]} ${l.status === "ANALYZING" ? "live-pulse" : ""} mr-1`} />
+                <span className="hidden sm:inline">{STATUS_TEXT[l.status]}</span>
+                <span className="sm:hidden text-[9px]">{STATUS_TEXT[l.status].slice(0, 4)}</span>
               </span>
-              <span className={`text-right tabular-nums text-[12px] ${STATUS_TEXT_COLOR[l.status]}`}>
+              <span className={`text-right tabular-nums text-[11px] sm:text-[12px] ${STATUS_TEXT_COLOR[l.status]} hidden sm:block`}>
                 {l.score ?? "—"}
               </span>
             </div>

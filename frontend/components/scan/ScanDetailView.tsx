@@ -50,6 +50,22 @@ export function ScanDetailView({ scan }: Props) {
         />
 
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 items-start mt-8 lg:mt-12">
+          {/* Mobile: ScoreRing önce gelsin */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            className="lg:hidden flex justify-center"
+          >
+            <ScoreRing
+              score={scan.overall_score}
+              verdict={scan.verdict}
+              size="lg"
+              showPill
+              delay={300}
+            />
+          </motion.div>
+
           {/* Left: Product info */}
           <div className="lg:col-span-7 space-y-8">
             <motion.h1
@@ -86,7 +102,7 @@ export function ScanDetailView({ scan }: Props) {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.45 }}
-              className="grid grid-cols-[120px_1fr] gap-y-3 font-mono text-[12px] border-t border-[var(--border)] pt-6 max-w-md"
+              className="grid grid-cols-[100px_1fr] sm:grid-cols-[120px_1fr] gap-y-3 font-mono text-[12px] border-t border-[var(--border)] pt-6 max-w-md"
             >
               <ProductRow label="fiyat">
                 <PriceCell
@@ -134,12 +150,12 @@ export function ScanDetailView({ scan }: Props) {
             </motion.dl>
           </div>
 
-          {/* Right: XL ScoreRing — verdict moment */}
+          {/* Right: XL ScoreRing — verdict moment (desktop only) */}
           <motion.div
             initial={{ opacity: 0, scale: 0.92 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="lg:col-span-5 flex flex-col items-center lg:items-end"
+            className="hidden lg:flex lg:col-span-5 flex-col items-center justify-center"
           >
             <div className="flex flex-col items-center">
               <ScoreRing
@@ -199,7 +215,7 @@ export function ScanDetailView({ scan }: Props) {
           }
           sub="Her katman bağımsız çalıştı, kendi skorunu üretti. Statüye göre RISK ilk."
         />
-        <div className="grid lg:grid-cols-2 gap-6 mt-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mt-10">
           {sortedLayers.map((layer, i) => (
             <LayerCard
               key={layer.layer_id}
