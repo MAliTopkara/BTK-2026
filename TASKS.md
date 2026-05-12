@@ -8,7 +8,7 @@
 
 ## 🔄 Aktif Görev
 
-**#31** — Phishing Sayfası (Frontend) _(3 saat)_
+**#32** — Dilekçe PDF + Endpoint + Frontend Butonu _(5-6 saat)_
 
 ---
 
@@ -61,7 +61,7 @@
 - [x] **#28** Trendyol Scraper (Gerçek Playwright) _(Tamamlandı MVP: 12 Mayıs 2026 — Claude/enesbildirir; reviews+seller detayları next pass)_
 - [x] **#29** Akakçe Fiyat Geçmişi _(Tamamlandı MVP: 12 Mayıs 2026 — Claude/enesbildirir; Cimri fallback next pass)_
 - [x] **#30** History Sayfası _(Tamamlandı MVP: 12 Mayıs 2026 — Claude/enesbildirir; Supabase persist next pass)_
-- [ ] **#31** Phishing Sayfası (Frontend) _(3 saat)_
+- [x] **#31** Phishing Sayfası (Frontend) _(Tamamlandı: 12 Mayıs 2026 — Claude/enesbildirir)_
 
 ### FAZ 1.E — Cila + Demo
 
