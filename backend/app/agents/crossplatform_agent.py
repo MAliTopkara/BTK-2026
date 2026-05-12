@@ -37,16 +37,22 @@ class CrossPlatformAgent(BaseAgent):
     async def analyze(self, product: ProductData) -> LayerResult:
         search_query = await _extract_search_query(product.title)
 
-        akakce = await _safe_fetch_akakce(search_query, product.price_current)
+        diagnostics: dict = {}
+        akakce = await _safe_fetch_akakce(search_query, product.price_current, diagnostics)
 
         if akakce is None:
+            fail_reason = diagnostics.get("fail_reason", "unknown")
             return LayerResult(
                 layer_id=self.layer_id,
                 name=self.name,
                 status="OK",
                 score=100,
                 finding="Akakçe'de eşleşen ürün bulunamadı — fiyat karşılaştırması yapılamadı.",
-                details={"search_query": search_query, "akakce_available": False},
+                details={
+                    "search_query": search_query,
+                    "akakce_available": False,
+                    "akakce_fail_reason": fail_reason,
+                },
                 confidence=0.40,
             )
 
@@ -152,10 +158,17 @@ async def _extract_search_query(title: str) -> str:
     return " ".join(words[:5])
 
 
-async def _safe_fetch_akakce(query: str, reference_price: float) -> AkakceResult | None:
-    """Akakçe çağrısını exception'lardan korur."""
+async def _safe_fetch_akakce(
+    query: str,
+    reference_price: float,
+    diagnostics: dict,
+) -> AkakceResult | None:
+    """Akakçe çağrısını exception'lardan korur. Fail reason'ı diagnostics'e yazar."""
     try:
-        return await fetch_akakce_summary(query, reference_price=reference_price)
+        return await fetch_akakce_summary(
+            query, reference_price=reference_price, diagnostics=diagnostics
+        )
     except Exception as exc:
         logger.warning("Akakçe çağrısı başarısız (graceful): %s", exc)
+        diagnostics["fail_reason"] = f"top_level_exception:{type(exc).__name__}"
         return None

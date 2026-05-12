@@ -59,6 +59,8 @@ _NOISE_CEIL_RATIO = 2.5    # current'ın %250'sinden yüksek → muhtemelen üst
 async def fetch_akakce_summary(
     query: str,
     reference_price: float | None = None,
+    *,
+    diagnostics: dict | None = None,
 ) -> AkakceResult | None:
     """
     Verilen ürün adı için Akakçe arama → ilk ürün → satıcı fiyat istatistikleri.
@@ -67,11 +69,17 @@ async def fetch_akakce_summary(
         query: Ürün başlığı (arama metni)
         reference_price: Scrape edilen current_price. Verilirse alakasız satıcı
             listings'leri (aksesuar, farklı varyant) bu noktaya göre filtrelenir.
+        diagnostics: Verilirse başarısızlık nedeni "fail_reason" key'ine yazılır.
 
     Returns:
         AkakceResult ya da None (eşleşme yok, sayfa açılmadı, vb.)
     """
     from playwright.async_api import async_playwright  # noqa: PLC0415
+
+    def _fail(reason: str) -> None:
+        if diagnostics is not None:
+            diagnostics["fail_reason"] = reason
+        logger.info("[akakce] başarısız (%s): %s", reason, query)
 
     search_url = f"{_AKAKCE_BASE}/arama/?q={quote_plus(query)}"
     logger.info("[akakce] arama: %s", search_url)
@@ -100,15 +108,30 @@ async def fetch_akakce_summary(
             )
 
             # 1) Arama sayfası
-            resp = await page.goto(search_url, timeout=_NAV_TIMEOUT_MS, wait_until="domcontentloaded")
-            if resp is None or resp.status >= 400:
-                logger.warning("[akakce] arama HTTP başarısız: %s", resp.status if resp else "no-resp")
+            try:
+                resp = await page.goto(search_url, timeout=_NAV_TIMEOUT_MS, wait_until="domcontentloaded")
+            except Exception as exc:  # noqa: BLE001
+                _fail(f"search_nav_exception:{type(exc).__name__}")
+                return None
+            if resp is None:
+                _fail("search_no_response")
+                return None
+            if resp.status >= 400:
+                _fail(f"search_http_{resp.status}")
                 return None
 
             # 2) İlk ürün linki
             product_path = await _first_product_url(page)
             if not product_path:
-                logger.info("[akakce] arama sonucu boş: %s", query)
+                # Page title kontrol et — challenge mı yoksa empty result mı
+                try:
+                    page_title = (await page.title()).lower()
+                except Exception:  # noqa: BLE001
+                    page_title = ""
+                if any(m in page_title for m in ("challenge", "captcha", "denied", "blocked", "robot")):
+                    _fail(f"search_challenge:{page_title[:60]}")
+                else:
+                    _fail("search_no_product_link")
                 return None
 
             product_url = (
@@ -119,24 +142,28 @@ async def fetch_akakce_summary(
             logger.info("[akakce] ürün sayfası: %s", product_url)
 
             # 3) Ürün sayfası
-            resp = await page.goto(product_url, timeout=_NAV_TIMEOUT_MS, wait_until="domcontentloaded")
-            if resp is None or resp.status >= 400:
-                logger.warning("[akakce] ürün sayfası HTTP başarısız")
+            try:
+                resp = await page.goto(product_url, timeout=_NAV_TIMEOUT_MS, wait_until="domcontentloaded")
+            except Exception as exc:  # noqa: BLE001
+                _fail(f"product_nav_exception:{type(exc).__name__}")
+                return None
+            if resp is None:
+                _fail("product_no_response")
+                return None
+            if resp.status >= 400:
+                _fail(f"product_http_{resp.status}")
                 return None
 
             # 4) Satıcı fiyatlarını topla
             prices = await _collect_seller_prices(page)
             if not prices:
-                logger.info("[akakce] satıcı fiyatı bulunamadı: %s", product_url)
+                _fail("no_seller_prices")
                 return None
 
             # 5) Reference price varsa aksesuar/varyant noise'unu temizle
             cleaned = _denoise_prices(prices, reference_price)
             if not cleaned:
-                logger.info(
-                    "[akakce] denoise sonrası fiyat kalmadı (ref=%s, raw=%s)",
-                    reference_price, prices[:5],
-                )
+                _fail(f"denoise_empty:raw_count={len(prices)}")
                 return None
 
             return AkakceResult(
