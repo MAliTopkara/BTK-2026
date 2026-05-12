@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import auth, demo, history, petition, scan
+from app.api.routes import auth, demo, email, history, petition, scan
 from app.config import settings
 
 
@@ -36,6 +36,7 @@ app.include_router(demo.router, prefix="/api")
 app.include_router(auth.router, prefix="/api")
 app.include_router(history.router, prefix="/api")
 app.include_router(petition.router, prefix="/api")
+app.include_router(email.router, prefix="/api")
 
 
 @app.get("/health")

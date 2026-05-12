@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      width: 320px;
+      min-height: 200px;
+      background: #0a0a0a;
+      color: #ededed;
+      font-family: -apple-system, system-ui, sans-serif;
+      padding: 20px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #1c1c1c;
+    }
+
+    .header-dot {
+      width: 8px;
+      height: 8px;
+      background: #00ff88;
+      border-radius: 50;
+      box-shadow: 0 0 8px rgba(0, 255, 136, 0.5);
+    }
+
+    .header-title {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #ededed;
+    }
+
+    .header-version {
+      margin-left: auto;
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      color: #555;
+      text-transform: uppercase;
+    }
+
+    .scan-section {
+      margin-bottom: 16px;
+    }
+
+    .url-input {
+      width: 100%;
+      background: #0f0f0f;
+      border: 1px solid #2a2a2a;
+      color: #ededed;
+      padding: 10px 12px;
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 11px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .url-input:focus {
+      border-color: #00ff88;
+    }
+
+    .url-input::placeholder {
+      color: #555;
+    }
+
+    .scan-btn {
+      width: 100%;
+      margin-top: 8px;
+      padding: 10px;
+      background: #00ff88;
+      border: none;
+      color: #000;
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .scan-btn:hover { background: #00dd77; }
+    .scan-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .current-btn {
+      width: 100%;
+      margin-top: 6px;
+      padding: 8px;
+      background: none;
+      border: 1px solid #2a2a2a;
+      color: #888;
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .current-btn:hover {
+      border-color: #00ff88;
+      color: #00ff88;
+    }
+
+    .status {
+      font-size: 12px;
+      color: #888;
+      margin-top: 12px;
+      line-height: 1.5;
+    }
+
+    .status-error { color: #ff4d4d; }
+    .status-ok { color: #00ff88; }
+
+    .result-card {
+      margin-top: 12px;
+      padding: 12px;
+      border: 1px solid #2a2a2a;
+      background: #0f0f0f;
+    }
+
+    .result-verdict {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .result-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .result-verdict-text {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .result-score {
+      margin-left: auto;
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 11px;
+      color: #888;
+    }
+
+    .result-explanation {
+      font-size: 12px;
+      line-height: 1.5;
+      color: #ccc;
+      margin-bottom: 8px;
+    }
+
+    .result-link {
+      display: inline-block;
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #00ff88;
+      text-decoration: none;
+      border: 1px solid rgba(0, 255, 136, 0.4);
+      padding: 5px 10px;
+      transition: all 0.2s;
+    }
+
+    .result-link:hover {
+      background: rgba(0, 255, 136, 0.1);
+      border-color: #00ff88;
+    }
+
+    .footer {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid #1c1c1c;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer a {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #555;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer a:hover { color: #00ff88; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-dot"></div>
+    <span class="header-title">TrustLens</span>
+    <span class="header-version">v1.0</span>
+  </div>
+
+  <div class="scan-section">
+    <input
+      type="url"
+      id="url-input"
+      class="url-input"
+      placeholder="ürün url'si yapıştır…"
+    />
+    <button id="scan-btn" class="scan-btn">Tara</button>
+    <button id="current-btn" class="current-btn">Aktif sayfayı tara</button>
+  </div>
+
+  <div id="status" class="status"></div>
+  <div id="result" style="display:none"></div>
+
+  <div class="footer">
+    <a href="https://btk-2026.vercel.app" target="_blank">dashboard ↗</a>
+    <a href="https://github.com/MAliTopkara/BTK-2026" target="_blank">github ↗</a>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

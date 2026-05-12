@@ -5,7 +5,9 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 
 import type { Alternative, LayerResult, ScanResult, Verdict } from "@/lib/api";
+import { downloadPNG, downloadSVG } from "@/lib/score-ring-export";
 import { ScoreRing } from "@/components/ui/ScoreRing";
+import { EthicsPanel } from "./EthicsPanel";
 import { FinancialFitPanel } from "./FinancialFitPanel";
 import { LayerCard } from "./LayerCard";
 import { ReasoningPanel } from "./ReasoningPanel";
@@ -211,6 +213,9 @@ export function ScanDetailView({ scan }: Props) {
         />
       ) : null}
 
+      {/* ───────────────── ETHICS SCORE (TASK-40) ───────────────── */}
+      <EthicsPanel product={scan.product} />
+
       {/* ───────────────── REASONING ───────────────── */}
       {scan.reasoning_steps && scan.reasoning_steps.length > 0 ? (
         <ReasoningPanel
@@ -316,6 +321,11 @@ export function ScanDetailView({ scan }: Props) {
               </span>
             </span>
           </button>
+          <ScoreExportButton
+            score={scan.overall_score}
+            verdict={scan.verdict}
+            productTitle={scan.product.title}
+          />
           <Link
             href="/dashboard"
             className="group bg-[var(--accent)] hover:bg-[var(--accent-dim)] text-black p-4 transition-colors flex flex-col justify-between min-h-[100px]"
@@ -655,6 +665,65 @@ function SectionHeader({
           {sub}
         </p>
       </div>
+    </div>
+  );
+}
+
+function ScoreExportButton({
+  score,
+  verdict,
+  productTitle,
+}: {
+  score: number;
+  verdict: Verdict;
+  productTitle?: string;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="group bg-[var(--surface)]/40 hover:bg-[var(--surface)]/70 border border-[var(--border-strong)] hover:border-[var(--accent)]/60 p-4 text-left transition-colors flex flex-col justify-between min-h-[100px] w-full"
+      >
+        <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-[var(--accent-dim)] group-hover:text-[var(--accent)]">
+          export · skor
+        </span>
+        <span className="mt-3">
+          <span className="block font-mono text-[12px] tracking-[0.22em] uppercase text-[var(--foreground)]/85">
+            Skor İndir
+          </span>
+          <span className="block text-[11px] text-[var(--muted-2)] mt-1.5 normal-case tracking-normal font-sans">
+            SVG veya PNG olarak
+          </span>
+        </span>
+      </button>
+
+      {open && (
+        <div className="absolute bottom-full mb-2 left-0 right-0 bg-[var(--surface)] border border-[var(--border-strong)] p-2 space-y-1 z-10">
+          <button
+            type="button"
+            onClick={() => {
+              downloadSVG(score, verdict, productTitle);
+              setOpen(false);
+            }}
+            className="w-full text-left px-3 py-2 font-mono text-[10px] tracking-[0.18em] uppercase text-[var(--muted)] hover:text-[var(--accent)] hover:bg-[var(--accent)]/[0.05] transition-colors"
+          >
+            ↓ SVG
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              downloadPNG(score, verdict, productTitle);
+              setOpen(false);
+            }}
+            className="w-full text-left px-3 py-2 font-mono text-[10px] tracking-[0.18em] uppercase text-[var(--muted)] hover:text-[var(--accent)] hover:bg-[var(--accent)]/[0.05] transition-colors"
+          >
+            ↓ PNG (2x)
+          </button>
+        </div>
+      )}
     </div>
   );
 }

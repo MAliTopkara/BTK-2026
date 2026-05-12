@@ -19,7 +19,7 @@ export default function GlobalError({
   const message = error.message || "Beklenmeyen bir hata oluştu.";
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-6 py-16 bg-[#0a0a0a]">
+    <main className="min-h-screen flex items-center justify-center px-6 py-16 bg-[var(--bg)]">
       <div className="w-full max-w-2xl space-y-10">
         {/* Diagnostic strip */}
         <div className="font-mono text-[10px] tracking-[0.32em] uppercase text-[var(--muted)] flex items-center gap-3">

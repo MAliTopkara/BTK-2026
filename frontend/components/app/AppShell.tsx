@@ -7,21 +7,26 @@ import type { User } from "@supabase/supabase-js";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { loadProfile } from "@/lib/behavior-profile";
+import { useI18n } from "@/lib/i18n-context";
 import { SignOutButton } from "./SignOutButton";
+import { LanguageToggle } from "@/components/ui/LanguageToggle";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
+
+import type { TranslationKey } from "@/lib/i18n";
 
 type NavItem = {
   href: string;
-  label: string;
+  labelKey: TranslationKey;
   code: string;
   soon?: boolean;
 };
 
 const NAV: readonly NavItem[] = [
-  { href: "/dashboard", label: "Tarama", code: "01" },
-  { href: "/history", label: "Geçmiş", code: "02" },
-  { href: "/compare", label: "Karşılaştır", code: "03" },
-  { href: "/phishing", label: "Phishing", code: "04" },
-  { href: "/settings", label: "Ayarlar", code: "05" },
+  { href: "/dashboard", labelKey: "nav.scan", code: "01" },
+  { href: "/history", labelKey: "nav.history", code: "02" },
+  { href: "/compare", labelKey: "nav.compare", code: "03" },
+  { href: "/phishing", labelKey: "nav.phishing", code: "04" },
+  { href: "/settings", labelKey: "nav.settings", code: "05" },
 ] as const;
 
 type Props = {
@@ -31,10 +36,10 @@ type Props = {
 
 export function AppShell({ user, children }: Props) {
   const pathname = usePathname();
+  const { t } = useI18n();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [hasProfile, setHasProfile] = useState<boolean | null>(null);
 
-  // Pathname değiştiğinde de yeniden oku — settings'te kaydedilince güncellensin
   useEffect(() => {
     setHasProfile(loadProfile() !== null);
   }, [pathname]);
@@ -46,7 +51,7 @@ export function AppShell({ user, children }: Props) {
       : user.email ?? "—";
 
   const activeItem = NAV.find((n) => pathname?.startsWith(n.href)) ?? NAV[0];
-  const breadcrumb = activeItem.label.toLowerCase();
+  const breadcrumb = t(activeItem.labelKey).toLowerCase();
 
   return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--foreground)]">
@@ -70,7 +75,7 @@ export function AppShell({ user, children }: Props) {
           {/* Nav */}
           <nav className="flex-1 px-3 py-6 space-y-1">
             <div className="px-3 mb-3 font-mono text-[9px] tracking-[0.28em] uppercase text-[var(--muted-2)]">
-              Menü
+              {t("nav.menu")}
             </div>
             {NAV.map((item) => {
               const isActive = item.href === activeItem.href && !item.soon;
@@ -91,7 +96,7 @@ export function AppShell({ user, children }: Props) {
                   <span className="text-[var(--muted-2)] tabular-nums w-6">
                     {item.code}
                   </span>
-                  <span className="flex-1">{item.label}</span>
+                  <span className="flex-1">{t(item.labelKey)}</span>
                   {isActive && <span className="status-dot status-dot-ok" />}
                   {showProfileDot && (
                     <span
@@ -101,7 +106,7 @@ export function AppShell({ user, children }: Props) {
                   )}
                   {isDisabled && (
                     <span className="text-[9px] tracking-[0.22em] text-[var(--muted-2)]/70">
-                      yakında
+                      {t("nav.soon")}
                     </span>
                   )}
                 </>
@@ -131,10 +136,16 @@ export function AppShell({ user, children }: Props) {
             })}
           </nav>
 
+          {/* Theme + Language toggle */}
+          <div className="border-t border-[var(--border)] px-1 py-2 space-y-0.5">
+            <ThemeToggle />
+            <LanguageToggle />
+          </div>
+
           {/* User card */}
           <div className="border-t border-[var(--border)] p-4 space-y-3">
             <div className="font-mono text-[9px] tracking-[0.28em] uppercase text-[var(--muted-2)] mb-2">
-              Operatör
+              {t("nav.operator")}
             </div>
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 border border-[var(--accent)]/40 bg-[var(--accent)]/10 flex items-center justify-center font-mono text-[12px] text-[var(--accent)]">
@@ -199,7 +210,7 @@ export function AppShell({ user, children }: Props) {
                 {/* Drawer nav */}
                 <nav className="flex-1 px-3 py-6 space-y-1 overflow-y-auto">
                   <div className="px-3 mb-3 font-mono text-[9px] tracking-[0.28em] uppercase text-[var(--muted-2)]">
-                    Menü
+                    {t("nav.menu")}
                   </div>
                   {NAV.map((item) => {
                     const isActive = item.href === activeItem.href && !item.soon;
@@ -215,7 +226,7 @@ export function AppShell({ user, children }: Props) {
                     const content = (
                       <>
                         <span className="text-[var(--muted-2)] tabular-nums w-6">{item.code}</span>
-                        <span className="flex-1">{item.label}</span>
+                        <span className="flex-1">{t(item.labelKey)}</span>
                         {isActive && <span className="status-dot status-dot-ok" />}
                         {isDisabled && (
                           <span className="text-[9px] tracking-[0.22em] text-[var(--muted-2)]/70">yakında</span>
@@ -242,6 +253,12 @@ export function AppShell({ user, children }: Props) {
                     );
                   })}
                 </nav>
+
+                {/* Drawer theme + language toggle */}
+                <div className="border-t border-[var(--border)] px-1 py-2 shrink-0 space-y-0.5">
+                  <ThemeToggle />
+                  <LanguageToggle />
+                </div>
 
                 {/* Drawer user card */}
                 <div className="border-t border-[var(--border)] p-4 shrink-0">
@@ -300,7 +317,7 @@ export function AppShell({ user, children }: Props) {
               <div className="flex items-center gap-4 sm:gap-5 font-mono text-[10px] tracking-[0.18em] uppercase text-[var(--muted)] ml-auto">
                 <span className="hidden md:flex items-center gap-2">
                   <span className="status-dot status-dot-ok" />
-                  api · operational
+                  {t("topbar.api_status")}
                 </span>
                 <a
                   href="https://github.com/MAliTopkara/BTK-2026"
@@ -308,7 +325,7 @@ export function AppShell({ user, children }: Props) {
                   rel="noopener noreferrer"
                   className="hover:text-[var(--accent)] transition-colors"
                 >
-                  github_↗
+                  {t("topbar.github")}
                 </a>
               </div>
             </div>

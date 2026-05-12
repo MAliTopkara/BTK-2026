@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
-:root {
-  /* TrustLens — Forensic Console palette */
+:root,
+[data-theme="dark"] {
+  /* TrustLens — Forensic Console palette (dark) */
   --bg: #0a0a0a;
   --surface: #0f0f0f;
   --surface-2: #141414;
@@ -15,9 +16,32 @@
   --red: #ff4d4d;
   --yellow: #ffcc33;
   --blue: #5aa9ff;
+  --olive: #a8b040;
+  --grid-opacity: 0.022;
+  --glow-opacity: 0.04;
 
   --font-serif: var(--font-serif);
   --font-mono: var(--font-mono);
+}
+
+[data-theme="light"] {
+  /* TrustLens — Forensic Console palette (light) */
+  --bg: #f5f5f3;
+  --surface: #ffffff;
+  --surface-2: #f0f0ee;
+  --border: #e2e2df;
+  --border-strong: #d0d0cc;
+  --foreground: #1a1a1a;
+  --muted: #666666;
+  --muted-2: #999999;
+  --accent: #00885c;
+  --accent-dim: #006644;
+  --red: #cc3333;
+  --yellow: #b38f00;
+  --blue: #2a7acc;
+  --olive: #6b7020;
+  --grid-opacity: 0.04;
+  --glow-opacity: 0.02;
 }
 
 @theme inline {
@@ -34,6 +58,7 @@
   --color-red: var(--red);
   --color-yellow: var(--yellow);
   --color-blue: var(--blue);
+  --color-olive: var(--olive);
   --font-serif: var(--font-serif);
   --font-mono: var(--font-mono);
 }
@@ -48,6 +73,14 @@ body {
   font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
   font-feature-settings: "ss01", "cv11";
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Theme transition on all themed elements */
+[data-theme] *,
+[data-theme] *::before,
+[data-theme] *::after {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
 /* ───────────────────────────────────────────────────────────────
@@ -55,24 +88,24 @@ body {
    ─────────────────────────────────────────────────────────────── */
 .grid-bg {
   background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.022) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+    linear-gradient(to right, rgba(128, 128, 128, var(--grid-opacity)) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(128, 128, 128, var(--grid-opacity)) 1px, transparent 1px);
   background-size: 48px 48px;
   background-position: -1px -1px;
 }
 
 .grid-bg-dense {
   background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    linear-gradient(to right, rgba(128, 128, 128, calc(var(--grid-opacity) * 1.8)) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(128, 128, 128, calc(var(--grid-opacity) * 1.8)) 1px, transparent 1px);
   background-size: 12px 12px;
 }
 
 /* Subtle vignette + radial glow */
 .console-glow {
   background:
-    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(0, 255, 136, 0.04), transparent 70%),
-    radial-gradient(ellipse 60% 40% at 50% 100%, rgba(0, 255, 136, 0.02), transparent 70%);
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(0, 255, 136, var(--glow-opacity)), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 50% 100%, rgba(0, 255, 136, calc(var(--glow-opacity) * 0.5)), transparent 70%);
 }
 
 /* ───────────────────────────────────────────────────────────────
@@ -267,7 +300,7 @@ body {
    ─────────────────────────────────────────────────────────────── */
 ::selection {
   background: var(--accent);
-  color: #000;
+  color: var(--bg);
 }
 
 /* Smooth scroll */

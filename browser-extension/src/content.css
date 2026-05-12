@@ -1,0 +1,117 @@
+#trustlens-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid rgba(0, 255, 136, 0.4);
+  border-radius: 0;
+  background: #0a0a0a;
+  color: #00ff88;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6), 0 0 12px rgba(0, 255, 136, 0.1);
+}
+
+#trustlens-fab:hover {
+  background: #111;
+  border-color: #00ff88;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 255, 136, 0.2);
+}
+
+#trustlens-fab.trustlens-fab-loading {
+  pointer-events: none;
+  opacity: 0.7;
+  animation: trustlens-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes trustlens-pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+.trustlens-fab-label {
+  color: #ededed;
+}
+
+#trustlens-tooltip {
+  position: fixed;
+  bottom: 80px;
+  right: 24px;
+  z-index: 2147483647;
+  max-width: 340px;
+  padding: 16px;
+  background: #0f0f0f;
+  border: 1px solid #2a2a2a;
+  font-family: -apple-system, system-ui, sans-serif;
+  font-size: 13px;
+  color: #ededed;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
+}
+
+.trustlens-tooltip-error {
+  border-color: #ff4d4d !important;
+  color: #ff4d4d !important;
+}
+
+.trustlens-result {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.trustlens-result-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.trustlens-result-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.trustlens-result-score {
+  margin-left: auto;
+  color: #888;
+  font-variant-numeric: tabular-nums;
+}
+
+.trustlens-result-explanation {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #ccc;
+}
+
+.trustlens-result-btn {
+  align-self: flex-start;
+  background: none;
+  border: 1px solid rgba(0, 255, 136, 0.4);
+  color: #00ff88;
+  padding: 6px 12px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.trustlens-result-btn:hover {
+  background: rgba(0, 255, 136, 0.1);
+  border-color: #00ff88;
+}

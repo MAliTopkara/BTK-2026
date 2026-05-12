@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Instrument_Serif, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "sonner";
+import { I18nProvider } from "@/lib/i18n-context";
 import "./globals.css";
 
 const instrumentSerif = Instrument_Serif({
@@ -41,17 +42,32 @@ export const metadata: Metadata = {
   },
 };
 
+const themeInitScript = `
+(function(){
+  try {
+    var t = localStorage.getItem('trustlens-theme');
+    if (!t) t = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    document.documentElement.dataset.theme = t;
+    if (t === 'light') document.body.style.background = '#f5f5f3';
+  } catch(e){}
+})();
+`;
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="tr" className={`${instrumentSerif.variable} ${jetbrainsMono.variable}`}>
-      <body className="min-h-screen bg-[#0a0a0a] text-white antialiased">
+    <html lang="tr" className={`${instrumentSerif.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
+      <body className="min-h-screen bg-[var(--bg)] text-[var(--foreground)] antialiased">
+        <I18nProvider>
         {children}
+        </I18nProvider>
         <Toaster
-          theme="dark"
           position="bottom-right"
           toastOptions={{
             style: {

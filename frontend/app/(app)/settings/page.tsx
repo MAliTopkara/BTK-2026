@@ -3,23 +3,32 @@
 import { useEffect, useState } from "react";
 
 import { BehaviorProfileForm } from "@/components/settings/BehaviorProfileForm";
+import { EmailDigestSettings } from "@/components/settings/EmailDigestSettings";
 import { ProfileSummary } from "@/components/settings/ProfileSummary";
 import {
   type BehaviorProfile,
   clearProfile,
   loadProfile,
 } from "@/lib/behavior-profile";
+import { createClient } from "@/lib/supabase/client";
 
 type Mode = "loading" | "view" | "edit";
 
 export default function SettingsPage() {
   const [mode, setMode] = useState<Mode>("loading");
   const [profile, setProfile] = useState<BehaviorProfile | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
     const p = loadProfile();
     setProfile(p);
     setMode(p ? "view" : "edit");
+
+    createClient()
+      .auth.getUser()
+      .then(({ data }) => {
+        if (data.user?.email) setUserEmail(data.user.email);
+      });
   }, []);
 
   function handleSaved(p: BehaviorProfile) {
@@ -81,6 +90,37 @@ export default function SettingsPage() {
         <span>scope · device-local</span>
         <span>migrate · TASK-48 (Supabase)</span>
       </footer>
+
+      {/* Email Digest Section */}
+      {userEmail && (
+        <section className="space-y-4">
+          <header className="space-y-4">
+            <div className="font-mono text-[10px] tracking-[0.32em] uppercase text-[var(--muted)] flex items-center gap-3">
+              <span className="h-px w-8" style={{ background: "var(--accent)" }} />
+              <span>02 / E-posta_Bildirimleri</span>
+            </div>
+            <h2 className="font-serif text-[clamp(1.8rem,4vw,3rem)] leading-[0.95] tracking-[-0.02em]">
+              Haftalık{" "}
+              <span className="italic" style={{ color: "var(--accent)" }}>
+                güven özeti
+              </span>
+              .
+            </h2>
+            <p className="text-[14px] text-[var(--muted)] leading-relaxed max-w-xl">
+              Her Pazartesi, geçen haftanın tarama istatistikleri ve en riskli
+              ürün bilgisi e-postanla sana gelsin.
+            </p>
+          </header>
+
+          <EmailDigestSettings userEmail={userEmail} />
+
+          <footer className="border-t border-[var(--border)] pt-6 font-mono text-[10px] tracking-[0.22em] uppercase text-[var(--muted-2)] flex flex-wrap gap-x-6 gap-y-2">
+            <span>provider · Resend</span>
+            <span>frequency · weekly</span>
+            <span>unsubscribe · one-click</span>
+          </footer>
+        </section>
+      )}
     </div>
   );
 }

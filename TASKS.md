@@ -8,7 +8,7 @@
 
 ## 🔄 Aktif Görev
 
-**#40** — Etik / Sürdürülebilirlik Skoru _(3-4 saat)_
+**#46** — Email Rapor (Haftalık Özet) _(Tamamlandı: 12 Mayıs 2026 — MehdiSndg)_
 
 ---
 
@@ -76,13 +76,13 @@
 - [x] **#37** Faz 2 Mini: Finansal Dijital İkiz Lite _(Tamamlandı: 12 Mayıs 2026 — MehdiSndg)_
 - [x] **#38** Paylaşılabilir Rapor + OG Kartı _(Tamamlandı: 12 Mayıs 2026 — MehdiSndg)_
 - [x] **#39** Karşılaştırma Sayfası _(Tamamlandı: 12 Mayıs 2026 — MehdiSndg)_
-- [ ] **#40** Etik / Sürdürülebilirlik Skoru _(3-4 saat)_
-- [ ] **#41** Browser Extension (Chrome) _(6-8 saat)_
+- [x] **#40** Etik / Sürdürülebilirlik Skoru _(Tamamlandı: 12 Mayıs 2026 — MehdiSndg)_
+- [x] **#41** Browser Extension (Chrome) _(Tamamlandı: 12 Mayıs 2026 — MehdiSndg)_
 - [ ] **#42** Telegram Bot _(4-5 saat)_
-- [ ] **#43** Dark/Light Tema Toggle _(2-3 saat)_
-- [ ] **#44** Türkçe / İngilizce Dil Seçimi _(4-5 saat)_
-- [ ] **#45** Skor Halkası SVG Export _(2 saat)_
-- [ ] **#46** Email Rapor (Haftalık Özet) _(4 saat)_
+- [x] **#43** Dark/Light Tema Toggle _(Tamamlandı: 12 Mayıs 2026 — MehdiSndg)_
+- [x] **#44** Türkçe / İngilizce Dil Seçimi _(Tamamlandı: 12 Mayıs 2026 — MehdiSndg)_
+- [x] **#45** Skor Halkası SVG Export _(Tamamlandı: 12 Mayıs 2026 — MehdiSndg)_
+- [x] **#46** Email Rapor (Haftalık Özet) _(Tamamlandı: 12 Mayıs 2026 — MehdiSndg)_
 
 ### FAZ 2 — Tam Finansal Dijital İkiz (Hackathon Sonrası)
 

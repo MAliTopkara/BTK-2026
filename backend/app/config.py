@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     # Redis
     redis_url: str = "redis://localhost:6379"
 
+    # Email (Resend)
+    resend_api_key: str = ""
+
     # App
     environment: str = "development"
     frontend_url: str = "http://localhost:3000"
