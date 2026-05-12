@@ -145,18 +145,30 @@ export function ScanDetailView({ scan }: Props) {
                 )}
               </ProductRow>
 
-              {scan.product.seller?.rating != null && (
-                <ProductRow label="puan">
-                  <span className="text-[var(--foreground)] tabular-nums">
-                    {scan.product.seller.rating.toFixed(1)}
-                  </span>
-                  {scan.product.seller.rating_count != null && (
-                    <span className="text-[var(--muted-2)] ml-2">
-                      / {scan.product.seller.rating_count.toLocaleString("tr-TR")} değerlendirme
+              {(() => {
+                // Satıcı puanı varsa o, yoksa ürün rating'i (JSON-LD aggregateRating)
+                const ratingValue =
+                  scan.product.seller?.rating ??
+                  (scan.product.rating_avg > 0 ? scan.product.rating_avg : null);
+                const ratingCount =
+                  scan.product.seller?.rating_count ??
+                  (scan.product.review_count_total > 0
+                    ? scan.product.review_count_total
+                    : null);
+                if (ratingValue == null) return null;
+                return (
+                  <ProductRow label="puan">
+                    <span className="text-[var(--foreground)] tabular-nums">
+                      {ratingValue.toFixed(1)}
                     </span>
-                  )}
-                </ProductRow>
-              )}
+                    {ratingCount != null && (
+                      <span className="text-[var(--muted-2)] ml-2">
+                        / {ratingCount.toLocaleString("tr-TR")} değerlendirme
+                      </span>
+                    )}
+                  </ProductRow>
+                );
+              })()}
 
               <ProductRow label="süre">
                 <span className="text-[var(--foreground)] tabular-nums">

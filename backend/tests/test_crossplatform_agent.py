@@ -73,7 +73,7 @@ async def test_analyze_no_significant_diff() -> None:
     with patch("app.agents.crossplatform_agent.generate_json", new_callable=AsyncMock) as mock_gen, \
          patch("app.agents.crossplatform_agent.fetch_akakce_summary", new_callable=AsyncMock) as mock_ak:
         mock_gen.return_value = {"search_query": "Apple AirPods Pro 2"}
-        mock_ak.return_value = _akakce(min_price=970.0)  # %3 daha ucuz → eşik altı
+        mock_ak.return_value = _akakce(min_price=985.0)  # %1.5 daha ucuz → eşik altı (%3)
         product = _make_product("trendyol", 1000.0)
         result = await CrossPlatformAgent().analyze(product)
 

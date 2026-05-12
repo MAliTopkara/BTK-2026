@@ -23,7 +23,8 @@ from app.utils.prompts import crossplatform_keyword_prompt
 logger = logging.getLogger(__name__)
 
 # Minimum anlamlı tasarruf eşiği — bunun altı "anlamlı avantaj" değil
-_PRICE_DIFF_THRESHOLD = 0.05  # %5
+# %3: 1000 TL ürün için 30 TL alt sınır. Spam kaçınımı ve gerçek tasarruf arasındaki denge.
+_PRICE_DIFF_THRESHOLD = 0.03  # %3
 # Akakçe min, current'tan en fazla %50 ucuz olabilir; daha fazlası
 # büyük olasılıkla yanlış ürün eşleşmesi (varyant/aksesuar)
 _TRUST_FLOOR_RATIO = 0.50
