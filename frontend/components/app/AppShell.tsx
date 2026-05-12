@@ -199,7 +199,7 @@ export function AppShell({ user, children }: Props) {
                     type="button"
                     onClick={() => setMobileMenuOpen(false)}
                     className="w-11 h-11 flex items-center justify-center text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
-                    aria-label="Menüyü kapat"
+                    aria-label={t("nav.menu_close")}
                   >
                     <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
                       <path d="M2 2L16 16M16 2L2 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
@@ -290,7 +290,7 @@ export function AppShell({ user, children }: Props) {
                 type="button"
                 onClick={() => setMobileMenuOpen(true)}
                 className="lg:hidden w-11 h-11 flex items-center justify-center text-[var(--muted)] hover:text-[var(--foreground)] transition-colors shrink-0 -ml-2"
-                aria-label="Menüyü aç"
+                aria-label={t("nav.menu_open")}
               >
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
                   <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>

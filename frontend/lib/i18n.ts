@@ -31,6 +31,8 @@ export const translations = {
     "nav.menu": "Menü",
     "nav.operator": "Operatör",
     "nav.soon": "yakında",
+    "nav.menu_open": "Menüyü aç",
+    "nav.menu_close": "Menüyü kapat",
 
     // Dashboard
     "dashboard.title": "Hızlı tarama",
@@ -112,7 +114,7 @@ export const translations = {
     "ethics.source": "heuristic · client",
     "ethics.tier_ethical": "Etik",
     "ethics.tier_acceptable": "Kabul Edilebilir",
-    "ethics.tier_questionable": "Sorgulabilir",
+    "ethics.tier_questionable": "Sorgulanabilir",
     "ethics.show_details": "detayları_göster",
     "ethics.hide_details": "detayları_gizle",
 
@@ -186,6 +188,8 @@ export const translations = {
     "nav.menu": "Menu",
     "nav.operator": "Operator",
     "nav.soon": "soon",
+    "nav.menu_open": "Open menu",
+    "nav.menu_close": "Close menu",
 
     // Dashboard
     "dashboard.title": "Quick scan",

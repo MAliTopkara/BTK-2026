@@ -3,8 +3,8 @@ TrustLens AI — Email Routes (TASK-46)
 Weekly digest subscription + manual trigger for testing.
 """
 
-from pydantic import BaseModel, EmailStr
 from fastapi import APIRouter, HTTPException, status
+from pydantic import BaseModel, EmailStr
 
 from app.services.email import build_weekly_digest_html, send_email
 

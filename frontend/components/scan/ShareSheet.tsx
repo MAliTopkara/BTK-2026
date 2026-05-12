@@ -33,6 +33,8 @@ const URL_TO_DEMO: { keyword: string; scenario: string }[] = [
   { keyword: "xiaomi", scenario: "laptop_suspicious" },
   { keyword: "redmi", scenario: "laptop_suspicious" },
   { keyword: "laptop", scenario: "laptop_suspicious" },
+  { keyword: "phishing", scenario: "phishing_sms" },
+  { keyword: "sms", scenario: "phishing_sms" },
 ];
 
 type Props = {

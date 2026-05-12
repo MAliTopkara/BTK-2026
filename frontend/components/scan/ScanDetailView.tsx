@@ -564,28 +564,6 @@ function AlternativeCard({ alternative }: { alternative: Alternative }) {
   );
 }
 
-function ActionButton({ label, sub, wip }: { label: string; sub: string; wip: string }) {
-  return (
-    <button
-      type="button"
-      disabled
-      className="group bg-[var(--surface)]/40 border border-[var(--border-strong)] p-4 text-left disabled:cursor-not-allowed flex flex-col justify-between min-h-[100px]"
-    >
-      <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-[var(--accent-dim)]">
-        wip · {wip}
-      </span>
-      <span className="mt-3">
-        <span className="block font-mono text-[12px] tracking-[0.22em] uppercase text-[var(--foreground)]/70">
-          {label}
-        </span>
-        <span className="block text-[11px] text-[var(--muted-2)] mt-1.5 normal-case tracking-normal font-sans">
-          {sub}
-        </span>
-      </span>
-    </button>
-  );
-}
-
 function ActionLink({ href, label, sub }: { href: string; label: string; sub: string }) {
   return (
     <Link

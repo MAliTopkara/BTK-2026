@@ -32,7 +32,7 @@ const TIER_TOKENS: Record<
   questionable: {
     color: "var(--red)",
     dot: "status-dot-risk",
-    label: "Sorgulabilir",
+    label: "Sorgulanabilir",
   },
 };
 
