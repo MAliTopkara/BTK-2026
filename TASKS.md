@@ -8,7 +8,7 @@
 
 ## 🔄 Aktif Görev
 
-**#36** — README + Production Hardening + Repo PUBLIC _(2-3 saat)_
+**#37** — Faz 2 Mini: Finansal Dijital İkiz Lite _(6-8 saat)_ ⭐ EN ÖNEMLİ BONUS
 
 ---
 
@@ -69,7 +69,7 @@
 - [x] **#33** Edge Case'ler + Hata Mesajları _(Tamamlandı: 16 Mayıs 2026 — GitHub Copilot)_
 - [x] **#34** Mobile Responsive Son Kontrol + Cila _(Tamamlandı: 17 Mayıs 2026 — GitHub Copilot)_
 - [x] **#35** 4 Demo URL Pre-cache + Landing Demo Kartları _(Tamamlandı: 17 Mayıs 2026 — GitHub Copilot)_
-- [ ] **#36** README + Production Hardening + Repo PUBLIC _(2-3 saat)_
+- [x] **#36** README + Production Hardening + Repo PUBLIC _(Tamamlandı: 17 Mayıs 2026 — GitHub Copilot)_
 
 ### FAZ 1.F — Bonus (Zaman Kalırsa)
 
