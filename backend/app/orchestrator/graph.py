@@ -85,19 +85,20 @@ async def scrape_node(state: ScanState) -> ScanState:
     """
     URL'den ProductData yükler.
 
-    Akış (TASK-28):
+    Akış:
       1. URL'den platform tespit (trendyol / hepsiburada)
       2. İlgili Playwright scraper'ı çalıştır
-      3. Başarısızsa mock_data fallback (demo URL eşleşmesi varsa)
-      4. Hiçbir şey çalışmıyorsa state.error set et
+      3. Başarısızsa state.error set et — sahte data dönülmez.
+
+    Not: Daha önce `match_url_to_mock` fallback'i vardı; kullanıcı 404 / anti-bot
+    aldığında mock data dönüp gerçek ürün gibi gösteriyordu. Bu yüzden kaldırıldı.
+    Demo akışı /api/demo/{scenario} endpoint'inden ayrıca hizmet veriliyor.
     """
     from app.scrapers import detect_platform, get_scraper  # noqa: PLC0415
-    from mock_data.loader import load_mock, match_url_to_mock  # noqa: PLC0415
 
     url = state["url"]
     platform = detect_platform(url)
 
-    # 1) Gerçek scraper dene
     if platform:
         scraper = get_scraper(platform)
         if scraper is not None:
@@ -105,28 +106,20 @@ async def scrape_node(state: ScanState) -> ScanState:
                 product = await scraper.scrape(url)
                 if product is not None:
                     logger.info(
-                        "Scrape başarılı (gerçek): %s → %s", url, product.title[:40]
+                        "Scrape başarılı: %s → %s", url, product.title[:40]
                     )
                     return {**state, "product": product}
+                logger.warning("Scraper None döndü (ürün bulunamadı): %s", url)
             except Exception as exc:  # noqa: BLE001 — defansif
-                logger.warning("Scraper exception, fallback denenecek: %s", exc)
+                logger.warning("Scraper exception: %s", exc)
 
-    # 2) Mock fallback (demo URL'lerinde anahtar kelime eşleşmesi)
-    mock_name = match_url_to_mock(url)
-    if mock_name:
-        product = load_mock(mock_name)
-        logger.info("Scrape fallback (mock): %s → %s", url, mock_name)
-        return {**state, "product": product}
-
-    # 3) Hiçbir yol çalışmadı
-    logger.warning("Scraping başarısız, tüm yollar denendi: %s", url)
+    logger.warning("Scraping başarısız: %s", url)
     return {
         **state,
         "error": (
             f"Bu ürün şu an analiz edilemiyor: {url[:80]}\n"
-            "Anti-bot koruması devreye girmiş olabilir. "
-            "Demo URL'lerini deneyin: trendyol.com/apple-airpods, "
-            "trendyol.com/casio, hepsiburada.com/xiaomi-laptop"
+            "URL'nin doğru olduğundan emin olun. Sayfa kaldırılmış, "
+            "anti-bot koruması devreye girmiş veya ürün bulunamamış olabilir."
         ),
         "product": None,
     }

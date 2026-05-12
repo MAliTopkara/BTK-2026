@@ -41,16 +41,13 @@ async def scan_product(request: ScanRequest) -> ScanResult:
                     f"TrustLens şu an yalnızca {_PLATFORM_NAMES} URL'lerini analiz edebilir."
                 ),
             )
-        # Demo URL eşleşmesi varsa devam et (mock runner halleder)
-        from mock_data.loader import match_url_to_mock  # noqa: PLC0415
-        if not match_url_to_mock(request.url):
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-                detail=(
-                    f"Desteklenmeyen platform. "
-                    f"Geçerli bir {_PLATFORM_NAMES} ürün linki girin."
-                ),
-            )
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=(
+                f"Desteklenmeyen platform. "
+                f"Geçerli bir {_PLATFORM_NAMES} ürün linki girin."
+            ),
+        )
 
     try:
         return await run_mock_scan(request.url, force_refresh=request.force_refresh)

@@ -16,7 +16,6 @@ from uuid import UUID, uuid4
 from app.models.scan import Alternative, LayerResult, ScanResult
 from app.orchestrator.graph import build_graph
 from app.services import cache
-from mock_data.loader import match_url_to_mock
 
 logger = logging.getLogger(__name__)
 
@@ -28,20 +27,16 @@ async def run_mock_scan(url: str, force_refresh: bool = False) -> ScanResult:
     """
     LangGraph workflow üzerinden tarama çalıştırır.
 
-    TASK-28: Artık gerçek scraper desteği var. URL eşleşmesi ya da
-    platform tespiti gerekli; ikisi de yoksa graph error döner.
-
     Args:
         url: Taranacak ürün URL'si.
         force_refresh: True ise cache bypass edilir, yeni tarama yapılır.
 
     Raises:
-        ValueError: URL ne tanınan platformda ne de mock senaryoda eşleşiyorsa.
+        ValueError: URL desteklenen bir platforma ait değilse veya scrape başarısız olursa.
     """
     from app.scrapers import detect_platform  # noqa: PLC0415
 
-    # URL ya tanınan bir platform olmalı, ya da demo URL'lerinden biri
-    if not detect_platform(url) and not match_url_to_mock(url):
+    if not detect_platform(url):
         raise ValueError(
             "Bu URL desteklenen bir platforma eşleşmiyor. "
             "Desteklenen siteler: trendyol.com, hepsiburada.com"
