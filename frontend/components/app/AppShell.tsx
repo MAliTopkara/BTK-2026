@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { AnimatePresence, motion } from "framer-motion";
 
+import { loadProfile } from "@/lib/behavior-profile";
 import { SignOutButton } from "./SignOutButton";
 
 type NavItem = {
@@ -19,7 +20,7 @@ const NAV: readonly NavItem[] = [
   { href: "/dashboard", label: "Tarama", code: "01" },
   { href: "/history", label: "Geçmiş", code: "02" },
   { href: "/phishing", label: "Phishing", code: "03" },
-  { href: "/settings", label: "Ayarlar", code: "04", soon: true },
+  { href: "/settings", label: "Ayarlar", code: "04" },
 ] as const;
 
 type Props = {
@@ -30,6 +31,13 @@ type Props = {
 export function AppShell({ user, children }: Props) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [hasProfile, setHasProfile] = useState<boolean | null>(null);
+
+  // Pathname değiştiğinde de yeniden oku — settings'te kaydedilince güncellensin
+  useEffect(() => {
+    setHasProfile(loadProfile() !== null);
+  }, [pathname]);
+
   const initial = (user.email ?? "?").slice(0, 1).toUpperCase();
   const shortEmail =
     user.email && user.email.length > 22
@@ -75,6 +83,8 @@ export function AppShell({ user, children }: Props) {
                   ? "text-[var(--muted-2)] border-transparent cursor-not-allowed"
                   : "text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--surface)]/50 border-transparent";
 
+              const showProfileDot =
+                item.href === "/settings" && !isActive && hasProfile !== null;
               const content = (
                 <>
                   <span className="text-[var(--muted-2)] tabular-nums w-6">
@@ -82,6 +92,12 @@ export function AppShell({ user, children }: Props) {
                   </span>
                   <span className="flex-1">{item.label}</span>
                   {isActive && <span className="status-dot status-dot-ok" />}
+                  {showProfileDot && (
+                    <span
+                      className={`status-dot ${hasProfile ? "status-dot-ok" : "status-dot-warn"}`}
+                      title={hasProfile ? "Profil kayıtlı" : "Profil eksik"}
+                    />
+                  )}
                   {isDisabled && (
                     <span className="text-[9px] tracking-[0.22em] text-[var(--muted-2)]/70">
                       yakında

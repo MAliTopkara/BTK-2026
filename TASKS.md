@@ -8,7 +8,7 @@
 
 ## 🔄 Aktif Görev
 
-**#37** — Faz 2 Mini: Finansal Dijital İkiz Lite _(6-8 saat)_ ⭐ EN ÖNEMLİ BONUS
+**#38** — Paylaşılabilir Rapor + OG Kartı _(4-5 saat)_
 
 ---
 
@@ -73,7 +73,7 @@
 
 ### FAZ 1.F — Bonus (Zaman Kalırsa)
 
-- [ ] **#37** Faz 2 Mini: Finansal Dijital İkiz Lite _(6-8 saat)_ ⭐ EN ÖNEMLİ BONUS
+- [x] **#37** Faz 2 Mini: Finansal Dijital İkiz Lite _(Tamamlandı: 12 Mayıs 2026 — MehdiSndg)_
 - [ ] **#38** Paylaşılabilir Rapor + OG Kartı _(4-5 saat)_
 - [ ] **#39** Karşılaştırma Sayfası _(4-5 saat)_
 - [ ] **#40** Etik / Sürdürülebilirlik Skoru _(3-4 saat)_

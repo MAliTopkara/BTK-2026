@@ -13,6 +13,7 @@ import {
   type ScanResult,
   type Verdict,
 } from "@/lib/api";
+import { loadProfile } from "@/lib/behavior-profile";
 import {
   getRecentScans,
   saveScanToCache,
@@ -103,6 +104,7 @@ export function ScanLauncher() {
   const [result, setResult] = useState<ScanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [recentScans, setRecentScans] = useState<RecentScanEntry[]>([]);
+  const [hasProfile, setHasProfile] = useState<boolean | null>(null);
 
   const tickerRef = useRef<NodeJS.Timeout | null>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -111,6 +113,11 @@ export function ScanLauncher() {
   useEffect(() => {
     setRecentScans(getRecentScans(3));
   }, [phase]);
+
+  // Finansal profil var mı? (TASK-37 — banner için)
+  useEffect(() => {
+    setHasProfile(loadProfile() !== null);
+  }, []);
 
   // Elapsed timer + progressive layer reveal during scan
   useEffect(() => {
@@ -221,6 +228,36 @@ export function ScanLauncher() {
 
   return (
     <div className="space-y-10">
+      {/* Profil banner — TASK-37 */}
+      {hasProfile === false && (
+        <div className="border border-dashed border-[var(--blue)]/40 bg-[var(--blue)]/[0.04] px-4 py-3 flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-3">
+            <span
+              className="status-dot"
+              style={{
+                background: "var(--blue)",
+                boxShadow: "0 0 8px rgba(90, 169, 255, 0.4)",
+              }}
+            />
+            <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-[var(--blue)]">
+              cüzdan_perspektifi
+            </span>
+            <span className="font-sans text-[12px] text-[var(--muted)]">
+              Finansal profil eksik — tarama sonuçları cüzdanına göre
+              kişiselleştirilemiyor.
+            </span>
+          </div>
+          <Link
+            href="/settings"
+            className="font-mono text-[10px] tracking-[0.22em] uppercase text-[var(--foreground)] hover:opacity-80 inline-flex items-center gap-2 shrink-0"
+            style={{ color: "var(--blue)" }}
+          >
+            <span>profil_oluştur</span>
+            <span className="font-sans">→</span>
+          </Link>
+        </div>
+      )}
+
       {/* Hero */}
       <header className="space-y-6 max-w-3xl">
         <div className="font-mono text-[10px] tracking-[0.32em] uppercase text-[var(--muted)] flex items-center gap-3">

@@ -6,6 +6,7 @@ import Link from "next/link";
 
 import type { Alternative, LayerResult, ScanResult, Verdict } from "@/lib/api";
 import { ScoreRing } from "@/components/ui/ScoreRing";
+import { FinancialFitPanel } from "./FinancialFitPanel";
 import { LayerCard } from "./LayerCard";
 import { ReasoningPanel } from "./ReasoningPanel";
 import { PetitionModal } from "./PetitionModal";
@@ -199,6 +200,14 @@ export function ScanDetailView({ scan }: Props) {
           <CountStat label="info" count={counts.INFO} dot="status-dot-info" tone="text-[var(--muted)]" />
         </motion.div>
       </section>
+
+      {/* ───────────────── FINANCIAL FIT (TASK-37) ───────────────── */}
+      {scan.product?.price_current ? (
+        <FinancialFitPanel
+          price={scan.product.price_current}
+          trustScore={scan.overall_score}
+        />
+      ) : null}
 
       {/* ───────────────── REASONING ───────────────── */}
       {scan.reasoning_steps && scan.reasoning_steps.length > 0 ? (
