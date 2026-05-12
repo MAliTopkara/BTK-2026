@@ -38,6 +38,7 @@ export function ScanDetailView({ scan }: Props) {
   const sortedLayers = sortLayers(Object.values(scan.layer_results));
   const counts = countByStatus(sortedLayers);
   const [showPetitionModal, setShowPetitionModal] = useState(false);
+  const lowDataNotice = scan.product.review_count_total === 0;
 
   return (
     <div className="space-y-16 lg:space-y-20">
@@ -48,6 +49,22 @@ export function ScanDetailView({ scan }: Props) {
           createdAt={scan.created_at}
           cachedAt={scan.cached_at}
         />
+
+        {lowDataNotice && (
+          <div className="mt-6 border border-[var(--yellow)]/40 bg-[var(--yellow)]/[0.06] px-4 py-3 flex items-start gap-3">
+            <span className="status-dot status-dot-warn mt-1.5 shrink-0" />
+            <div className="min-w-0">
+              <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-[var(--yellow)] mb-1">
+                Yetersiz veri ile sınırlı analiz
+              </div>
+              <p className="font-sans text-[13px] text-[var(--foreground)]/85 leading-relaxed">
+                Bu ürün için kullanıcı yorumu bulunamadı. Yorum katmanı atlandı,
+                karar diğer katmanlardan gelen sinyallere dayanıyor — güveni
+                tek başına doğrulamak için yeterli değil.
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 items-start mt-8 lg:mt-12">
           {/* Mobile: ScoreRing önce gelsin */}

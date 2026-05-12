@@ -28,6 +28,40 @@ Bir e-ticaret ürün linkini yapıştırıyorsunuz, TrustLens AI 7 paralel yapay
 
 - **Frontend:** https://btk-2026.vercel.app
 - **Backend API:** https://btk-2026-production.up.railway.app/health
+- **Demo videosu:** _yüklenecek — sunum öncesi YouTube linki bu satıra eklenir_
+
+---
+
+## 🏛️ Mimari
+
+```
+   ┌────────────┐                ┌─────────────────────────────────────────┐
+   │  Tarayıcı  │  HTTPS         │  Vercel · Next.js 14 (App Router)       │
+   │  (Kullanıcı)├───────────────►│  /landing  /dashboard  /scan/[id]      │
+   └────────────┘                │  /history  /phishing   /demo/[scenario] │
+                                 └──────────────┬──────────────────────────┘
+                                                │ fetch  POST /api/scan
+                                                ▼
+                                 ┌──────────────────────────────────────────┐
+                                 │  Railway · FastAPI (Python 3.11 + uv)    │
+                                 │                                          │
+                                 │   ┌──────────── LangGraph ──────────┐    │
+                                 │   │  scrape → fan-out 7 paralel ajan│    │
+                                 │   │   01 Review     04 Seller       │    │
+                                 │   │   02 Discount   05 Visual       │    │
+                                 │   │   03 Manip.     06 X-Platform   │    │
+                                 │   │           07 Phishing           │    │
+                                 │   │  → fan-in → 08 Decision (Pro)   │    │
+                                 │   └─────────────────────────────────┘    │
+                                 └────┬──────────┬──────────┬───────────────┘
+                                      │          │          │
+                          Gemini 2.5  │   Upstash│  Supabase│   Akakçe/Cimri
+                          (Pro+Flash) │   Redis  │  Postgres│   (scraper)
+                                      ▼          ▼          ▼
+                                  AI çağrı    Cache     Auth + Geçmiş
+```
+
+Detaylar için `PROJECT.md` (Bölüm 4 — Teknik Mimari).
 
 ---
 
@@ -98,6 +132,7 @@ BTK-2026/
 | Apple AirPods Pro 2 — Sahte indirim + bot yorumlar | 34/100 | AVOID | `/demo/airpods_fake` |
 | Xiaomi RedmiBook Pro 15 — Şüpheli satıcı | 58/100 | CAUTION | `/demo/laptop_suspicious` |
 | Casio G-Shock GA-2100 — Gerçek indirim | 87/100 | BUY | `/demo/watch_genuine` |
+| Sahte Apple Promosyonu SMS — Phishing | 8/100 | AVOID | `/demo/phishing_sms` |
 
 ---
 
@@ -109,7 +144,7 @@ POST /api/scan
 {"url": "https://www.trendyol.com/...", "force_refresh": false}
 
 # Demo sonucu (auth gerekmez)
-GET /api/demo/{scenario}    # airpods_fake | laptop_suspicious | watch_genuine
+GET /api/demo/{scenario}    # airpods_fake | laptop_suspicious | watch_genuine | phishing_sms
 
 # Phishing tarama
 POST /api/scan/phishing     # multipart/form-data: file=<görsel>
@@ -132,7 +167,13 @@ POST /api/petition/{scan_id}
 
 ## 👥 Takım
 
-BTK Akademi Hackathon 2026 — [GitHub: MAliTopkara](https://github.com/MAliTopkara)
+BTK Akademi Hackathon 2026 katılımcısı:
+
+- **Mehmet Ali Topkara** — Backend, ajan mimarisi · [@MAliTopkara](https://github.com/MAliTopkara)
+- **Mehdi Senduğ** — Backend, agent implementasyonu · [@MehdiSndg](https://github.com/MehdiSndg)
+- **Enes Bildirir** — Frontend, entegrasyon, scraping · [@enesbildirir](https://github.com/enesbildirir)
+
+Detaylı katkı dağılımı için `git log --format="%an" | sort -u`.
 
 ---
 

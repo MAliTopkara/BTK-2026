@@ -56,6 +56,21 @@ const scenarios: Scenario[] = [
       { layer: "Satıcı", status: "OK", finding: "Doğrulanmış mağaza · 4.8 · 200+ değerlendirme" },
     ],
   },
+  {
+    id: "phishing_sms",
+    title: "Sahte Apple Promosyonu (SMS)",
+    platform: "apple-tr-promo.shop",
+    url: "/airpods-kampanya?utm=sms",
+    score: 8,
+    verdict: { code: "AVOID", label: "AVOID", tr: "ALMA" },
+    duration: "5.8s",
+    demoPath: "/demo/phishing_sms",
+    findings: [
+      { layer: "Phishing", status: "RISK", finding: "Brand impersonation · 4 günlük domain · WHOIS privacy" },
+      { layer: "Sahte İndirim", status: "RISK", finding: "AirPods 49 TL — imkansız fiyat" },
+      { layer: "Dark Pattern", status: "RISK", finding: "Sahte çekiliş + 'son 2 saat' baskısı" },
+    ],
+  },
 ];
 
 const verdictStyles = {
@@ -128,21 +143,23 @@ export function DemoScenarios() {
               <span>04 / Örnek_Çıktılar</span>
             </div>
             <h2 className="font-serif text-[clamp(2.2rem,4.5vw,3.8rem)] leading-[0.98] tracking-[-0.015em] text-[var(--foreground)]">
-              Üç senaryo,{" "}
-              <span className="italic text-[var(--muted)]">üç farklı</span>{" "}
+              Dört senaryo,{" "}
+              <span className="italic text-[var(--muted)]">dört farklı</span>{" "}
               karar.
             </h2>
           </div>
           <div className="lg:col-span-5">
             <p className="text-[14px] leading-relaxed text-[var(--muted)] max-w-md">
-              Aşağıdaki tarama sonuçları, mock veri seti üzerinde çalışan
-              ajanların gerçek çıktılarıdır — pre-cache edilmiş demo değil,{" "}
-              <span className="text-[var(--foreground)]">canlı pipeline</span>.
+              Aşağıdaki tarama sonuçları{" "}
+              <span className="text-[var(--foreground)]">
+                pre-cache edilmiş gerçek pipeline çıktılarıdır
+              </span>
+              . Karta tıkla, 8 saniyelik analizi izle — login gerekmez.
             </p>
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-px bg-[var(--border-strong)] border border-[var(--border-strong)]">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-px bg-[var(--border-strong)] border border-[var(--border-strong)]">
           {scenarios.map((s) => {
             const v = verdictStyles[s.verdict.code];
             return (
@@ -226,7 +243,7 @@ export function DemoScenarios() {
         </div>
 
         <div className="mt-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-mono text-[10px] tracking-[0.22em] uppercase text-[var(--muted)]">
-          <span>3 senaryo · 24 layer çıktısı · 22.4s toplam · login gereksiz</span>
+          <span>4 senaryo · 28 layer çıktısı · 28.2s toplam · login gereksiz</span>
           <a
             href="/dashboard"
             className="text-[var(--accent)] hover:text-[var(--foreground)] transition-colors inline-flex items-center gap-2"

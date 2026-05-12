@@ -1,0 +1,156 @@
+{
+  "scan_id": "44444444-4444-4444-4444-444444444444",
+  "url": "https://apple-tr-promo.shop/airpods-kampanya?utm=sms",
+  "product": {
+    "url": "https://apple-tr-promo.shop/airpods-kampanya?utm=sms",
+    "platform": "unknown",
+    "title": "Sahte Apple Promosyon Sayfası — SMS Üzerinden Yayıldı",
+    "price_current": 49.0,
+    "price_original": 5999.0,
+    "discount_pct": 99.0,
+    "images": [],
+    "description": "Apple Türkiye adına gönderilen SMS: 'Tebrikler! AirPods Pro 49 TL'ye çekilişten size düştü. Linke tıklayın: apple-tr-promo[.]shop/airpods-kampanya'. Resmi Apple iletişim kanalı değil; alan adı 4 gün önce tescil edilmiş.",
+    "seller": {
+      "name": "Bilinmeyen — alan adı kayıt sahibi gizli",
+      "age_days": 4,
+      "total_products": 0,
+      "rating": null,
+      "rating_count": 0,
+      "is_verified": false
+    },
+    "reviews": [],
+    "review_count_total": 0,
+    "rating_avg": 0.0,
+    "urgency_indicators": [
+      "Sadece bugün geçerli!",
+      "Çekilişten size düştü, hemen tıklayın",
+      "Son 2 saat"
+    ],
+    "raw_html": null,
+    "scraped_at": "2026-05-17T10:00:00+00:00"
+  },
+  "overall_score": 8,
+  "verdict": "AVOID",
+  "layer_results": {
+    "phishing": {
+      "layer_id": "phishing",
+      "name": "Phishing Tarama",
+      "status": "RISK",
+      "score": 5,
+      "finding": "Apple kimliğine bürünmüş sahte alan adı · 4 günlük domain · Türkçe yazım hataları · SSL sertifikası Let's Encrypt anlık üretilmiş · resmi Apple iletişiminde 'apple-tr-promo' alt alanı yer almaz",
+      "details": {
+        "domain": "apple-tr-promo.shop",
+        "domain_age_days": 4,
+        "ssl_issuer": "Let's Encrypt",
+        "brand_impersonation": "Apple",
+        "matched_blocklist": true,
+        "idn_homograph": false,
+        "typosquatting_score": 0.84
+      },
+      "confidence": 0.96
+    },
+    "manipulation": {
+      "layer_id": "manipulation",
+      "name": "Manipülatif Tasarım",
+      "status": "RISK",
+      "score": 12,
+      "finding": "3 dark pattern + sahte aciliyet ('son 2 saat') + sahte çekiliş kazanma iddiası — klasik phishing oltası",
+      "details": {
+        "dark_patterns": ["fake_urgency", "fake_lottery_win", "fake_scarcity"],
+        "psychological_pressure_score": 0.91
+      },
+      "confidence": 0.93
+    },
+    "discount": {
+      "layer_id": "discount",
+      "name": "Sahte İndirim",
+      "status": "RISK",
+      "score": 2,
+      "finding": "Apple AirPods Pro hiçbir resmi kanalda 49 TL'ye satılmaz. %99 'indirim' phishing'in bilinen oltalama desenidir.",
+      "details": {
+        "current_price": 49.0,
+        "market_low": 5499.0,
+        "implausibility": "extreme"
+      },
+      "confidence": 1.0
+    },
+    "seller": {
+      "layer_id": "seller",
+      "name": "Satıcı Profili",
+      "status": "RISK",
+      "score": 0,
+      "finding": "Alan adı sahibi gizli (WHOIS privacy) · 4 günlük tescil · kurumsal kimlik yok · resmi Apple yetkili satıcı listesinde değil",
+      "details": {
+        "whois_privacy": true,
+        "registrar": "NameCheap",
+        "registration_date": "2026-05-13"
+      },
+      "confidence": 0.98
+    },
+    "review": {
+      "layer_id": "review",
+      "name": "Yorum Analizi",
+      "status": "INFO",
+      "score": null,
+      "finding": "Phishing sayfasında yorum bölümü yok — analiz uygulanamadı.",
+      "details": {},
+      "confidence": 1.0
+    },
+    "visual": {
+      "layer_id": "visual",
+      "name": "Görsel Doğrulama",
+      "status": "WARN",
+      "score": 35,
+      "finding": "Apple resmi görsellerinin düşük çözünürlüklü kopyaları kullanılmış · logo orantısı bozuk · sayfa CSS'i resmi Apple stil rehberinden farklı",
+      "details": {
+        "stock_photo_probability": 0.94,
+        "brand_asset_misuse": true
+      },
+      "confidence": 0.85
+    },
+    "crossplatform": {
+      "layer_id": "crossplatform",
+      "name": "Çapraz Platform",
+      "status": "INFO",
+      "score": null,
+      "finding": "Bu URL hiçbir resmi e-ticaret platformunda eşleşmiyor — tek başına yayılan oltalama sayfası.",
+      "details": {
+        "alternatives_found": 0,
+        "platform_match": null
+      },
+      "confidence": 1.0
+    }
+  },
+  "reasoning_steps": [
+    {
+      "step": 1,
+      "content": "Alan adı 'apple-tr-promo.shop' Apple'a ait değil — Apple Türkiye yalnızca apple.com/tr ve resmi mağaza alt alanlarını kullanır. Bu tipik bir marka kimliğine bürünme (brand impersonation) örüntüsü.",
+      "highlights": []
+    },
+    {
+      "step": 2,
+      "content": "Alan adı 4 gün önce NameCheap üzerinden gizli WHOIS ile tescil edilmiş. Meşru kampanyalar yıllarca yaşayan kurumsal alan adlarından yapılır. 4 günlük 'kampanya alan adı' phishing kampanyalarının imzasıdır.",
+      "highlights": []
+    },
+    {
+      "step": 3,
+      "content": "Fiyat 'AirPods Pro 49 TL' fiziksel olarak imkansız — ürünün üretim maliyetinin yüzde biri bile değil. Bu, kullanıcıyı kredi kartı bilgisi girmeye yönlendiren klasik 'çok güzel olamayacak kadar iyi' tuzağıdır.",
+      "highlights": []
+    },
+    {
+      "step": 4,
+      "content": "Sayfa üç psikolojik baskı tekniğini aynı anda kullanıyor: sahte çekiliş kazanma ('size düştü'), sahte kıtlık ('son 2 saat'), sahte aciliyet ('hemen tıklayın'). Bu üçlü oltalama sayfalarının standart silahıdır.",
+      "highlights": []
+    },
+    {
+      "step": 5,
+      "content": "Tüm sinyaller birleştiğinde sonuç netleşiyor: bu bir e-ticaret ürünü değil, kredi kartı bilgilerinizi çalmak için tasarlanmış bir oltalama sayfasıdır. Bağlantıya kesinlikle tıklamayın, bilgi girmeyin, SMS'i bankanıza ihbar edin.",
+      "highlights": []
+    }
+  ],
+  "final_explanation": "Bu bir oltalama (phishing) sayfasıdır, gerçek bir ürün değil. SMS Apple kimliğine büründürülmüş bir saldırı. Alan adı 4 gün önce gizli kayıtla açılmış, fiyat imkansız (49 TL), Apple'ın resmi iletişim kanalı değil. Linke tıklamayın, kredi kartı bilgisi girmeyin, SMS'i bankanızın dolandırıcılık hattına bildirin.",
+  "alternative": null,
+  "duration_ms": 5840,
+  "created_at": "2026-05-17T10:00:00+00:00",
+  "cached_at": null
+}

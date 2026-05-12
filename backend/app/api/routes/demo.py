@@ -15,9 +15,9 @@ from app.models.scan import ScanResult
 
 router = APIRouter(tags=["demo"])
 
-_DEMO_DIR = Path(__file__).parent.parent.parent.parent / "mock_data" / "precached_results"
+_DEMO_DIR = Path(__file__).parents[3] / "mock_data" / "precached_results"
 
-_VALID_SCENARIOS = {"airpods_fake", "laptop_suspicious", "watch_genuine"}
+_VALID_SCENARIOS = {"airpods_fake", "laptop_suspicious", "watch_genuine", "phishing_sms"}
 
 
 @router.get("/demo/{scenario}", response_model=ScanResult)

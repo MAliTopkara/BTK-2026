@@ -24,14 +24,17 @@ def test_scan_invalid_url_no_protocol():
     response = client.post("/api/scan", json={"url": "www.trendyol.com/urun-p-123"})
     assert response.status_code == 422
     detail = response.json()["detail"]
-    # FastAPI validation (Pydantic URL field) veya manuel kontrol
-    assert len(detail) > 0
+    assert isinstance(detail, str)
+    # Mesaj kullanıcıya http/https protokol gerekli olduğunu söylemeli
+    assert "http" in detail.lower() and ("geçersiz" in detail.lower() or "başla" in detail.lower())
 
 
 def test_scan_invalid_url_empty():
-    """Boş string URL → 422."""
+    """Boş string URL → 422 + protokol mesajı."""
     response = client.post("/api/scan", json={"url": ""})
     assert response.status_code == 422
+    detail = response.json()["detail"]
+    assert isinstance(detail, str) and "http" in detail.lower()
 
 
 # ---------------------------------------------------------------------------
