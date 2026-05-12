@@ -10,6 +10,7 @@ import { FinancialFitPanel } from "./FinancialFitPanel";
 import { LayerCard } from "./LayerCard";
 import { ReasoningPanel } from "./ReasoningPanel";
 import { PetitionModal } from "./PetitionModal";
+import { ShareSheet } from "./ShareSheet";
 
 const VERDICT_TR: Record<Verdict, string> = {
   BUY: "AL",
@@ -39,6 +40,7 @@ export function ScanDetailView({ scan }: Props) {
   const sortedLayers = sortLayers(Object.values(scan.layer_results));
   const counts = countByStatus(sortedLayers);
   const [showPetitionModal, setShowPetitionModal] = useState(false);
+  const [showShareSheet, setShowShareSheet] = useState(false);
   const lowDataNotice = scan.product.review_count_total === 0;
 
   return (
@@ -292,11 +294,23 @@ export function ScanDetailView({ scan }: Props) {
             label="Geçmişe git"
             sub="Tüm taramalarını gör"
           />
-          <ActionButton
-            label="Paylaş"
-            sub="Bağlantı + OG kartı üret"
-            wip="TASK-38"
-          />
+          <button
+            type="button"
+            onClick={() => setShowShareSheet(true)}
+            className="group bg-[var(--surface)]/40 border border-[var(--border-strong)] hover:border-[var(--accent)] p-4 text-left transition-colors flex flex-col justify-between min-h-[100px]"
+          >
+            <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-[var(--accent-dim)]">
+              paylaş ↗
+            </span>
+            <span className="mt-3">
+              <span className="block font-mono text-[12px] tracking-[0.22em] uppercase text-[var(--foreground)] group-hover:text-[var(--accent)] transition-colors">
+                Paylaş
+              </span>
+              <span className="block text-[11px] text-[var(--muted-2)] mt-1.5 normal-case tracking-normal font-sans">
+                Link + OG kart + paylaşım metni
+              </span>
+            </span>
+          </button>
           <Link
             href="/dashboard"
             className="group bg-[var(--accent)] hover:bg-[var(--accent-dim)] text-black p-4 transition-colors flex flex-col justify-between min-h-[100px]"
@@ -332,6 +346,13 @@ export function ScanDetailView({ scan }: Props) {
           onClose={() => setShowPetitionModal(false)}
         />
       )}
+
+      {/* Paylaş Sheet — TASK-38 */}
+      <ShareSheet
+        scan={scan}
+        open={showShareSheet}
+        onClose={() => setShowShareSheet(false)}
+      />
     </div>
   );
 }

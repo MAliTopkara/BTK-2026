@@ -8,7 +8,7 @@
 
 ## 🔄 Aktif Görev
 
-**#38** — Paylaşılabilir Rapor + OG Kartı _(4-5 saat)_
+**#39** — Karşılaştırma Sayfası _(4-5 saat)_
 
 ---
 
@@ -74,7 +74,7 @@
 ### FAZ 1.F — Bonus (Zaman Kalırsa)
 
 - [x] **#37** Faz 2 Mini: Finansal Dijital İkiz Lite _(Tamamlandı: 12 Mayıs 2026 — MehdiSndg)_
-- [ ] **#38** Paylaşılabilir Rapor + OG Kartı _(4-5 saat)_
+- [x] **#38** Paylaşılabilir Rapor + OG Kartı _(Tamamlandı: 12 Mayıs 2026 — MehdiSndg)_
 - [ ] **#39** Karşılaştırma Sayfası _(4-5 saat)_
 - [ ] **#40** Etik / Sürdürülebilirlik Skoru _(3-4 saat)_
 - [ ] **#41** Browser Extension (Chrome) _(6-8 saat)_
