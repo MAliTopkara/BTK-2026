@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { getDemoScan } from "@/lib/api";
+import { DemoHeader } from "@/components/app/DemoHeader";
 
 const SCENARIO_LABELS: Record<string, string> = {
   airpods_fake: "Apple AirPods Pro 2 — sahte indirim + bot yorumlar",
@@ -61,5 +62,10 @@ export async function generateMetadata({
 }
 
 export default function DemoLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+  return (
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--foreground)]">
+      <DemoHeader />
+      {children}
+    </div>
+  );
 }

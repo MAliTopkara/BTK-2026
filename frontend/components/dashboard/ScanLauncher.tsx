@@ -162,6 +162,12 @@ export function ScanLauncher() {
     e.preventDefault();
     if (!url.trim() || phase === "scanning") return;
 
+    if (!url.trim().startsWith("http://") && !url.trim().startsWith("https://")) {
+      setError("URL http:// veya https:// ile başlamalı. Adres çubuğundan tam linki kopyalayıp yapıştırın.");
+      setPhase("error");
+      return;
+    }
+
     setPhase("scanning");
     setLayers(INITIAL_LAYERS);
     setElapsed(0);
@@ -314,7 +320,7 @@ export function ScanLauncher() {
               <span className="text-[var(--accent)] text-[14px] shrink-0">{">"}</span>
               <input
                 id={inputId}
-                type="url"
+                type="text"
                 inputMode="url"
                 autoFocus
                 value={url}
