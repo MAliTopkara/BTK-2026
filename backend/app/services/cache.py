@@ -34,10 +34,14 @@ def _cache_key(url: str) -> str:
     - Lowercase
     - Query string sökülür
     - Trailing slash kaldırılır
+
+    NOT: v2 prefix'i — v1 cache'inde sahte mock-fallback verisi vardı (kullanıcı
+    404 URL'i için bile uydurma ürün görüyordu). Prefix yükseltilerek hepsi
+    erişilemez yapıldı; 24 saatte TTL ile temizlenir.
     """
     normalized = url.lower().split("?")[0].rstrip("/")
     url_hash = hashlib.sha256(normalized.encode()).hexdigest()[:16]
-    return f"scan:v1:{url_hash}"
+    return f"scan:v2:{url_hash}"
 
 
 def _get_client() -> aioredis.Redis:

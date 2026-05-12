@@ -159,4 +159,4 @@ def test_cache_key_normalization() -> None:
     key3 = _cache_key("HTTPS://WWW.TRENDYOL.COM/TEST/")
 
     assert key1 == key2 == key3
-    assert key1.startswith("scan:v1:")
+    assert key1.startswith("scan:v2:")
