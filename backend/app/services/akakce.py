@@ -14,6 +14,7 @@ DiscountAgent için yeterli sinyal: synthetic 2 noktalık history
 from __future__ import annotations
 
 import logging
+import random
 import re
 from dataclasses import dataclass
 from datetime import date, timedelta
@@ -91,23 +92,70 @@ async def fetch_akakce_summary(
                 "--disable-blink-features=AutomationControlled",
                 "--no-sandbox",
                 "--disable-dev-shm-usage",
+                "--disable-features=IsolateOrigins,site-per-process",
             ],
         )
         try:
             context = await browser.new_context(
+                # Windows UA — Linux datacenter UA Akakçe tarafından bot olarak işaretleniyor
                 user_agent=(
-                    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                     "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
                 ),
-                viewport={"width": 1440, "height": 900},
+                viewport={"width": 1280, "height": 800},
                 locale="tr-TR",
+                timezone_id="Europe/Istanbul",
+                extra_http_headers={
+                    "Accept": (
+                        "text/html,application/xhtml+xml,application/xml;"
+                        "q=0.9,image/avif,image/webp,image/apng,*/*;"
+                        "q=0.8,application/signed-exchange;v=b3;q=0.7"
+                    ),
+                    "Accept-Language": "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7",
+                    "Accept-Encoding": "gzip, deflate, br",
+                    "Upgrade-Insecure-Requests": "1",
+                    "Sec-Ch-Ua": '"Not_A Brand";v="8", "Chromium";v="131", "Google Chrome";v="131"',
+                    "Sec-Ch-Ua-Mobile": "?0",
+                    "Sec-Ch-Ua-Platform": '"Windows"',
+                    "Sec-Fetch-Dest": "document",
+                    "Sec-Fetch-Mode": "navigate",
+                    "Sec-Fetch-Site": "none",
+                    "Sec-Fetch-User": "?1",
+                    "Cache-Control": "max-age=0",
+                },
             )
             page = await context.new_page()
-            await page.add_init_script(
-                "Object.defineProperty(navigator, 'webdriver', { get: () => undefined });"
-            )
+            await page.add_init_script("""
+                Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+                Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5] });
+                Object.defineProperty(navigator, 'languages', {
+                    get: () => ['tr-TR', 'tr', 'en-US', 'en']
+                });
+            """)
+
+            # Ana sayfayı önce ziyaret et — cookie + session kur, insan benzeri pattern
+            try:
+                home_resp = await page.goto(
+                    _AKAKCE_BASE, timeout=_NAV_TIMEOUT_MS, wait_until="domcontentloaded"
+                )
+                if home_resp and home_resp.status < 400:
+                    await page.wait_for_timeout(random.randint(800, 1800))
+                    # Cookie consent varsa kapat
+                    try:
+                        consent = page.locator(
+                            'button:text("Kabul Et"), button:text("Kabul"), '
+                            'button:text("Accept All"), button[id*="accept"]'
+                        ).first
+                        if await consent.count() > 0:
+                            await consent.click(timeout=2_000)
+                            await page.wait_for_timeout(400)
+                    except Exception:  # noqa: BLE001
+                        pass
+            except Exception:  # noqa: BLE001
+                pass  # Ana sayfa opsiyonel — başarısız olursa devam et
 
             # 1) Arama sayfası
+            await page.wait_for_timeout(random.randint(300, 800))
             try:
                 resp = await page.goto(search_url, timeout=_NAV_TIMEOUT_MS, wait_until="domcontentloaded")
             except Exception as exc:  # noqa: BLE001
