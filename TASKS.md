@@ -8,7 +8,7 @@
 
 ## 🔄 Aktif Görev
 
-**#39** — Karşılaştırma Sayfası _(4-5 saat)_
+**#40** — Etik / Sürdürülebilirlik Skoru _(3-4 saat)_
 
 ---
 
@@ -75,7 +75,7 @@
 
 - [x] **#37** Faz 2 Mini: Finansal Dijital İkiz Lite _(Tamamlandı: 12 Mayıs 2026 — MehdiSndg)_
 - [x] **#38** Paylaşılabilir Rapor + OG Kartı _(Tamamlandı: 12 Mayıs 2026 — MehdiSndg)_
-- [ ] **#39** Karşılaştırma Sayfası _(4-5 saat)_
+- [x] **#39** Karşılaştırma Sayfası _(Tamamlandı: 12 Mayıs 2026 — MehdiSndg)_
 - [ ] **#40** Etik / Sürdürülebilirlik Skoru _(3-4 saat)_
 - [ ] **#41** Browser Extension (Chrome) _(6-8 saat)_
 - [ ] **#42** Telegram Bot _(4-5 saat)_

@@ -266,7 +266,7 @@ export function ScanDetailView({ scan }: Props) {
           Aksiyonlar
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
           <button
             type="button"
             onClick={() => setShowPetitionModal(true)}
@@ -293,6 +293,11 @@ export function ScanDetailView({ scan }: Props) {
             href="/history"
             label="Geçmişe git"
             sub="Tüm taramalarını gör"
+          />
+          <ActionLink
+            href={`/compare?a=scan:${scan.scan_id}`}
+            label="Karşılaştır"
+            sub="Başka bir tarama veya demo ile yan yana"
           />
           <button
             type="button"

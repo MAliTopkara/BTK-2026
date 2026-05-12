@@ -19,8 +19,9 @@ type NavItem = {
 const NAV: readonly NavItem[] = [
   { href: "/dashboard", label: "Tarama", code: "01" },
   { href: "/history", label: "Geçmiş", code: "02" },
-  { href: "/phishing", label: "Phishing", code: "03" },
-  { href: "/settings", label: "Ayarlar", code: "04" },
+  { href: "/compare", label: "Karşılaştır", code: "03" },
+  { href: "/phishing", label: "Phishing", code: "04" },
+  { href: "/settings", label: "Ayarlar", code: "05" },
 ] as const;
 
 type Props = {
