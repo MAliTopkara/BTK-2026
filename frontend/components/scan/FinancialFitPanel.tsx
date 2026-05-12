@@ -314,14 +314,19 @@ function NoProfileCallout() {
             göreceksin. Veriler sadece tarayıcında saklanır.
           </p>
         </div>
-        <Link
-          href="/settings"
-          className="group inline-flex items-center gap-3 text-black px-5 py-3 font-mono text-[10px] tracking-[0.24em] uppercase transition-opacity hover:opacity-90 shrink-0"
-          style={{ background: "var(--blue)" }}
-        >
-          <span>Profil_oluştur</span>
-          <span className="font-sans transition-transform group-hover:translate-x-0.5">→</span>
-        </Link>
+        <div className="flex flex-col items-start gap-1 shrink-0">
+          <Link
+            href="/settings"
+            className="group inline-flex items-center gap-3 text-black px-5 py-3 font-mono text-[10px] tracking-[0.24em] uppercase transition-opacity hover:opacity-90"
+            style={{ background: "var(--blue)" }}
+          >
+            <span>Profil_oluştur</span>
+            <span className="font-sans transition-transform group-hover:translate-x-0.5">→</span>
+          </Link>
+          <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-[var(--muted-2)] mt-1">
+            giriş gerekir
+          </p>
+        </div>
       </div>
     </section>
   );

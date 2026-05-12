@@ -52,7 +52,7 @@ const VERDICT_COLORS: Record<Verdict, { ring: string; glow: string; cssVar: stri
 
 const VERDICT_TR: Record<Verdict, string> = {
   BUY: "AL",
-  CAUTION: "DİKKATLİ",
+  CAUTION: "DİKKATLİ OL",
   AVOID: "ALMA",
 };
 

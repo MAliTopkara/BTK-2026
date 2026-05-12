@@ -273,7 +273,7 @@ export function ScanDetailView({ scan }: Props) {
       </section>
 
       {/* ───────────────── ALTERNATIVE ───────────────── */}
-      {scan.alternative && (
+      {scan.alternative && scan.alternative.savings > 0 && (
         <AlternativeCard alternative={scan.alternative} />
       )}
 
@@ -310,11 +310,13 @@ export function ScanDetailView({ scan }: Props) {
             href="/history"
             label="Geçmişe git"
             sub="Tüm taramalarını gör"
+            prefetch={false}
           />
           <ActionLink
             href={`/compare?a=scan:${scan.scan_id}`}
             label="Karşılaştır"
             sub="Başka bir tarama veya demo ile yan yana"
+            prefetch={false}
           />
           <button
             type="button"
@@ -576,10 +578,11 @@ function AlternativeCard({ alternative }: { alternative: Alternative }) {
   );
 }
 
-function ActionLink({ href, label, sub }: { href: string; label: string; sub: string }) {
+function ActionLink({ href, label, sub, prefetch }: { href: string; label: string; sub: string; prefetch?: boolean }) {
   return (
     <Link
       href={href}
+      prefetch={prefetch}
       className="group bg-[var(--surface)]/40 hover:bg-[var(--surface)]/60 border border-[var(--border-strong)] hover:border-[var(--accent)]/60 p-4 text-left transition-colors flex flex-col justify-between min-h-[100px]"
     >
       <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-[var(--accent-dim)] group-hover:text-[var(--accent)]">
