@@ -1,70 +1,39 @@
 """
 TrendyolScraper — TrustLens AI
-TASK-28: Trendyol ürün sayfasından ProductData parse eder.
 
-MVP kapsamı (bu görev):
-  - title, price_current, price_original, discount_pct
-  - images (en az 3 CDN URL)
-  - description (varsa)
-  - seller (en azından isim)
+JSON-LD merkezli strateji:
+  Trendyol her ürün sayfasında schema.org Product JSON-LD koyuyor (SEO için).
+  Bu structured data DOM selector'lardan kat kat güvenilir çünkü:
+    - Selectorlar (CSS Modules hash'leriyle) sık değişir
+    - JSON-LD SEO için stable kalır
+    - Aggregate rating + review listesi de orada hazır
 
-Geniş kapsam (sonraki devirler):
-  - reviews ~50 (ayrı API çağrısı)
-  - urgency_indicators
-  - rating_avg + review_count_total
+Primary: <script type="application/ld+json"> Product objesi
+Fallback: DOM selectorlar (seller adı için, JSON-LD'de yok)
 """
 
 from __future__ import annotations
 
+import json
 import logging
 import re
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from playwright.async_api import Page
 
-from app.models.scan import ProductData, SellerData
+from app.models.scan import ProductData, ReviewData, SellerData
 from app.scrapers.base import BaseScraper, ScraperError
 
 logger = logging.getLogger(__name__)
 
-# Trendyol DOM seçicileri — Mayıs 2026 itibariyle yapı.
-# NOT: Trendyol CSS Modules hash'leri kullanıyor (_carouselImage_abb7111),
-# bu yüzden stable attribute selectorlara öncelik veriyoruz (data-testid,
-# class içerme [class*='...']).
-_SEL_TITLE = (
-    "h1.pr-new-br, h1.product-name, "
-    "[data-testid='product-detail-title'], "
-    "h1"  # generic fallback — Trendyol ürün sayfasında genelde tek h1 var
-)
-_SEL_PRICE_CURRENT = (
-    "p.new-price, "
-    "[class*='price-current-price'], "
-    "span.prc-dsc, "
-    "[data-testid='price-current-price']"
-)
-_SEL_PRICE_ORIGINAL = (
-    "p.old-price, "
-    "[class*='price-original'], "
-    "span.prc-org, span.prc-slg, "
-    "[data-testid='price-original-price']"
-)
-_SEL_PRICE_FALLBACK = "div.product-price-container, [class*='product-price']"
-_SEL_IMAGES = (
-    "img[data-testid='image'], "
-    "img[class*='carouselImage' i], "
-    "img.detail-section-img"
-)
-_SEL_DESCRIPTION = (
-    "ul.detail-attr-container, "
-    "[class*='product-description'], "
-    "[class*='detail-desc']"
-)
+# Seller adı için DOM fallback — JSON-LD'de yok
 _SEL_SELLER_NAME = (
     "[class*='merchant-name'], "
     "a.pb-merchant-link, a.merchant-link, "
-    "[data-testid='seller-name']"
+    "[data-testid='seller-name'], "
+    "a[href*='/magaza/'], a[href*='/sr?mid=']"
 )
 
 
@@ -72,14 +41,29 @@ class TrendyolScraper(BaseScraper):
     platform = "trendyol"
 
     async def _parse(self, page: Page, url: str) -> ProductData:
-        # Cloudflare arkasında uzun yüklemeler olabilir
-        await page.wait_for_load_state("networkidle", timeout=15_000)
+        # H1 görünür olmasını bekle — JSON-LD bundan önce zaten DOM'da olur
+        try:
+            await page.wait_for_selector("h1", timeout=10_000)
+        except Exception:  # noqa: BLE001
+            # h1 yoksa muhtemelen challenge / yanlış sayfa
+            pass
 
-        title = await self._extract_title(page)
-        price_current, price_original = await self._extract_prices(page)
-        discount_pct = self._compute_discount(price_current, price_original)
-        images = await self._extract_images(page)
-        description = await self._extract_description(page)
+        product_json = await self._extract_product_jsonld(page)
+        if product_json is None:
+            raise ScraperError("Ürün JSON-LD bulunamadı (sayfa beklenmeyen yapıda)")
+
+        title = self._get_str(product_json, "name")
+        if not title:
+            raise ScraperError("JSON-LD'de ürün başlığı yok")
+
+        price_current = self._extract_price(product_json)
+        if price_current is None:
+            raise ScraperError("JSON-LD'de geçerli fiyat yok")
+
+        images = self._extract_images(product_json)
+        description = self._get_str(product_json, "description")[:1500]
+        rating_avg, review_count = self._extract_rating(product_json)
+        reviews = self._extract_reviews(product_json)
         seller = await self._extract_seller(page)
 
         return ProductData(
@@ -87,104 +71,171 @@ class TrendyolScraper(BaseScraper):
             platform="trendyol",
             title=title,
             price_current=price_current,
-            price_original=price_original,
-            discount_pct=discount_pct,
-            images=images[:10],   # token tasarrufu
+            price_original=None,  # JSON-LD'de "üstü çizili" fiyat yok
+            discount_pct=None,
+            images=images[:10],
             description=description,
             seller=seller,
-            reviews=[],            # MVP: yorumlar henüz çekilmiyor
-            review_count_total=0,
-            rating_avg=0.0,
+            reviews=reviews,
+            review_count_total=review_count,
+            rating_avg=rating_avg,
             urgency_indicators=[],
             raw_html=None,
             scraped_at=datetime.now(UTC),
         )
 
     # -----------------------------------------------------------------------
-    # Field extractors — her biri kendi fallback'iyle çalışır
+    # JSON-LD extraction
     # -----------------------------------------------------------------------
 
-    async def _extract_title(self, page: Page) -> str:
-        title = await _first_text(page, _SEL_TITLE)
-        if not title:
-            # OG title fallback
-            og = await page.locator('meta[property="og:title"]').first.get_attribute("content")
-            title = (og or "").strip()
-        if not title:
-            raise ScraperError("Ürün başlığı bulunamadı")
-        return title
+    async def _extract_product_jsonld(self, page: Page) -> dict[str, Any] | None:
+        """Sayfadaki ilk Product tipindeki JSON-LD bloğunu döner."""
+        try:
+            blocks = await page.locator('script[type="application/ld+json"]').all_inner_texts()
+        except Exception as exc:  # noqa: BLE001
+            logger.debug("JSON-LD locator hatası: %s", exc)
+            return None
 
-    async def _extract_prices(self, page: Page) -> tuple[float, float | None]:
-        current_text = await _first_text(page, _SEL_PRICE_CURRENT)
-        original_text = await _first_text(page, _SEL_PRICE_ORIGINAL)
-
-        # Fallback: tüm fiyat kutusundan iki sayı çek
-        if not current_text:
-            fallback = await _first_text(page, _SEL_PRICE_FALLBACK)
-            if fallback:
-                nums = _extract_money(fallback)
-                if len(nums) == 1:
-                    return nums[0], None
-                if len(nums) >= 2:
-                    nums.sort()
-                    return nums[0], nums[-1]
-
-        if not current_text:
-            raise ScraperError("Fiyat bulunamadı")
-
-        current_nums = _extract_money(current_text)
-        if not current_nums:
-            raise ScraperError(f"Fiyat parse edilemedi: {current_text!r}")
-        current = current_nums[0]
-
-        original: float | None = None
-        if original_text:
-            original_nums = _extract_money(original_text)
-            if original_nums:
-                original = original_nums[0]
-                # Üstü çizili fiyat current'tan küçükse muhtemelen yanlış eşleşti
-                if original <= current:
-                    original = None
-
-        return current, original
-
-    async def _extract_images(self, page: Page) -> list[str]:
-        urls: list[str] = []
-        locator = page.locator(_SEL_IMAGES)
-        count = await locator.count()
-        for i in range(min(count, 20)):
-            elem = locator.nth(i)
-            src = await elem.get_attribute("src") or await elem.get_attribute("srcset")
-            if not src:
+        for raw in blocks:
+            try:
+                data = json.loads(raw)
+            except json.JSONDecodeError:
                 continue
-            # srcset varsa ilk URL'yi al
-            first = src.split(",")[0].strip().split(" ")[0]
-            if first.startswith("//"):
-                first = "https:" + first
-            if first.startswith("http") and first not in urls:
-                urls.append(first)
-        # OG image fallback
-        if not urls:
-            og = await page.locator('meta[property="og:image"]').first.get_attribute("content")
-            if og:
-                urls.append(og)
+            # Schema.org tek obje veya graph dizisi olabilir
+            candidates = data if isinstance(data, list) else [data]
+            if "@graph" in data:
+                candidates = data["@graph"]
+            for item in candidates:
+                if isinstance(item, dict) and item.get("@type") == "Product":
+                    return item
+        return None
+
+    @staticmethod
+    def _get_str(d: dict[str, Any], key: str) -> str:
+        v = d.get(key)
+        if isinstance(v, str):
+            return v.strip()
+        return ""
+
+    @staticmethod
+    def _extract_price(d: dict[str, Any]) -> float | None:
+        offers = d.get("offers")
+        if not isinstance(offers, dict):
+            return None
+        raw = offers.get("price")
+        if raw is None:
+            return None
+        try:
+            value = float(raw)
+        except (TypeError, ValueError):
+            return None
+        if value < 1:
+            return None
+        return value
+
+    @staticmethod
+    def _extract_images(d: dict[str, Any]) -> list[str]:
+        image = d.get("image")
+        urls: list[str] = []
+
+        def add(u: Any) -> None:
+            if isinstance(u, str) and u.startswith("http"):
+                if u not in urls:
+                    urls.append(u)
+
+        if isinstance(image, str):
+            add(image)
+        elif isinstance(image, dict):
+            content = image.get("contentUrl")
+            if isinstance(content, list):
+                for u in content:
+                    add(u)
+            else:
+                add(content)
+            add(image.get("url"))
+        elif isinstance(image, list):
+            for entry in image:
+                if isinstance(entry, str):
+                    add(entry)
+                elif isinstance(entry, dict):
+                    add(entry.get("url") or entry.get("contentUrl"))
         return urls
 
-    async def _extract_description(self, page: Page) -> str:
-        text = await _first_text(page, _SEL_DESCRIPTION)
-        if text:
-            # Çok uzunsa kırp
-            return text[:1500]
-        # Meta description fallback
-        meta = await page.locator('meta[name="description"]').first.get_attribute("content")
-        return (meta or "")[:1500]
+    @staticmethod
+    def _extract_rating(d: dict[str, Any]) -> tuple[float, int]:
+        ar = d.get("aggregateRating")
+        if not isinstance(ar, dict):
+            return 0.0, 0
+        try:
+            rating = float(ar.get("ratingValue", 0) or 0)
+        except (TypeError, ValueError):
+            rating = 0.0
+        # reviewCount yazılı yorum sayısı, ratingCount toplam puan veren sayısı — ikincisini tercih
+        count = ar.get("ratingCount") or ar.get("reviewCount") or 0
+        try:
+            count_int = int(count)
+        except (TypeError, ValueError):
+            count_int = 0
+        return rating, count_int
+
+    @staticmethod
+    def _extract_reviews(d: dict[str, Any]) -> list[ReviewData]:
+        raw = d.get("review")
+        if not isinstance(raw, list):
+            return []
+        out: list[ReviewData] = []
+        for entry in raw[:50]:
+            if not isinstance(entry, dict):
+                continue
+            body = entry.get("reviewBody") or entry.get("description") or ""
+            if not isinstance(body, str) or not body.strip():
+                continue
+            author = entry.get("author")
+            author_name: str | None = None
+            if isinstance(author, dict):
+                author_name = author.get("name")
+            elif isinstance(author, str):
+                author_name = author
+            rating_val = 5
+            rr = entry.get("reviewRating")
+            if isinstance(rr, dict):
+                try:
+                    rating_val = int(float(rr.get("ratingValue", 5)))
+                except (TypeError, ValueError):
+                    rating_val = 5
+            date_str = entry.get("datePublished")
+            date_val: datetime | None = None
+            if isinstance(date_str, str):
+                try:
+                    date_val = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
+                except ValueError:
+                    date_val = None
+            out.append(
+                ReviewData(
+                    text=body.strip()[:500],
+                    rating=max(1, min(5, rating_val)),
+                    author_name=author_name,
+                    date=date_val,
+                    has_image=False,
+                    verified_purchase=False,
+                )
+            )
+        return out
+
+    # -----------------------------------------------------------------------
+    # Seller — JSON-LD'de yok, DOM'dan
+    # -----------------------------------------------------------------------
 
     async def _extract_seller(self, page: Page) -> SellerData:
-        name = await _first_text(page, _SEL_SELLER_NAME)
+        name = ""
+        try:
+            locator = page.locator(_SEL_SELLER_NAME).first
+            if await locator.count() > 0:
+                name = (await locator.inner_text(timeout=3_000)).strip()
+        except Exception:  # noqa: BLE001
+            pass
         if not name:
-            name = "Bilinmeyen Satıcı"
-        # Detaylı satıcı bilgileri (age_days, total_products, rating) ayrı sayfada
-        # MVP: sadece isim. age/rating None bırakılır, seller_agent INFO döner.
+            name = "Trendyol satıcısı (DOM'dan okunamadı)"
         return SellerData(
             name=name,
             age_days=None,
@@ -194,18 +245,11 @@ class TrendyolScraper(BaseScraper):
             is_verified=False,
         )
 
-    # -----------------------------------------------------------------------
-    # Yardımcı
-    # -----------------------------------------------------------------------
-
-    def _compute_discount(self, current: float, original: float | None) -> float | None:
-        if not original or original <= current:
-            return None
-        return round((1 - current / original) * 100, 1)
-
 
 # ---------------------------------------------------------------------------
-# Module-level helpers
+# Module-level helpers — Hepsiburada scraper bunları kullanıyor (DOM fallback yolu).
+# Trendyol artık JSON-LD merkezli olduğu için kendi içinde çağırmıyor ama
+# diğer scraper'lar shared parser olarak kullanıyor.
 # ---------------------------------------------------------------------------
 
 async def _first_text(page: Page, selector: str) -> str:
@@ -220,13 +264,10 @@ async def _first_text(page: Page, selector: str) -> str:
         return ""
 
 
-# Birinci alternatif: Türkçe formatlı binlik ayırıcılı sayılar (1.899,00 / 1 899)
-# İkinci alternatif: Düz tam/ondalıklı sayılar (1899 / 1899,00)
-# Birinci `+` ile en az 1 binlik grup zorunlu — yoksa 1899'u 189 + 9 olarak parçalamasın.
+# Türkçe formatlı binlik ayırıcılı sayılar (1.899,00) ya da düz sayılar.
+# `+` ile en az 1 binlik grup zorunlu — yoksa 1899'u 189 + 9 olarak parçalamasın.
 _MONEY_RE = re.compile(r"(\d{1,3}(?:[.\s]\d{3})+(?:,\d{1,2})?|\d+(?:,\d{1,2})?)")
-
-# KDV (%18), rating (4.5), iskonto (%62) gibi küçük sayıları fiyat olarak alma.
-_MIN_PRICE = 50.0
+_MIN_PRICE = 50.0  # KDV (%18), rating (4.5) gibi küçük sayıları fiyat olarak alma
 
 
 def _extract_money(text: str) -> list[float]:
