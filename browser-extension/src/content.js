@@ -86,7 +86,7 @@
           <span class="trustlens-result-verdict" style="color:${color}">${verdictTr}</span>
           <span class="trustlens-result-score">${result.overall_score}/100</span>
         </div>
-        <p class="trustlens-result-explanation">${truncate(result.final_explanation, 120)}</p>
+        <p class="trustlens-result-explanation">${escapeHtml(truncate(result.final_explanation, 120))}</p>
         <button class="trustlens-result-btn" id="trustlens-open-report">Detaylı Rapor →</button>
       </div>
     `;
@@ -104,5 +104,10 @@
   function truncate(str, len) {
     if (!str) return "";
     return str.length > len ? str.slice(0, len) + "…" : str;
+  }
+
+  function escapeHtml(str) {
+    if (!str) return "";
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
 })();

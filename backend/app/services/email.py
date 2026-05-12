@@ -82,7 +82,7 @@ def build_weekly_digest_html(
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td>
-                    <span style="display: inline-block; width: 8px; height: 8px; background: #00ff88; border-radius: 50; margin-right: 8px; vertical-align: middle;"></span>
+                    <span style="display: inline-block; width: 8px; height: 8px; background: #00ff88; border-radius: 50%; margin-right: 8px; vertical-align: middle;"></span>
                     <span style="font-family: monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #ededed; vertical-align: middle;">TrustLens AI</span>
                   </td>
                   <td align="right">

@@ -229,7 +229,7 @@ export function AppShell({ user, children }: Props) {
                         <span className="flex-1">{t(item.labelKey)}</span>
                         {isActive && <span className="status-dot status-dot-ok" />}
                         {isDisabled && (
-                          <span className="text-[9px] tracking-[0.22em] text-[var(--muted-2)]/70">yakında</span>
+                          <span className="text-[9px] tracking-[0.22em] text-[var(--muted-2)]/70">{t("nav.soon")}</span>
                         )}
                       </>
                     );
@@ -263,7 +263,7 @@ export function AppShell({ user, children }: Props) {
                 {/* Drawer user card */}
                 <div className="border-t border-[var(--border)] p-4 shrink-0">
                   <div className="font-mono text-[9px] tracking-[0.28em] uppercase text-[var(--muted-2)] mb-3">
-                    Operatör
+                    {t("nav.operator")}
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 border border-[var(--accent)]/40 bg-[var(--accent)]/10 flex items-center justify-center font-mono text-[12px] text-[var(--accent)] shrink-0">

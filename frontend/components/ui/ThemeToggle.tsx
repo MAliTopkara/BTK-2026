@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { type Theme, getActiveTheme, toggleTheme, initTheme } from "@/lib/theme";
+import { useI18n } from "@/lib/i18n-context";
 
 export function ThemeToggle() {
+  const { t } = useI18n();
   const [theme, setTheme] = useState<Theme>("dark");
   const [mounted, setMounted] = useState(false);
 
@@ -66,7 +68,7 @@ export function ThemeToggle() {
         </svg>
       </span>
       <span className="flex-1 text-left">
-        {isDark ? "light_mode" : "dark_mode"}
+        {isDark ? t("theme.light") : t("theme.dark")}
       </span>
       <span className="text-[var(--muted-2)] text-[9px]">
         {isDark ? "☀" : "☾"}

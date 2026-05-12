@@ -20,7 +20,7 @@ export function LanguageToggle() {
         {locale === "tr" ? "TR" : "EN"}
       </span>
       <span className="flex-1 text-left">
-        {locale === "tr" ? "english" : "türkçe"}
+        {locale === "tr" ? t("lang.en") : t("lang.tr")}
       </span>
       <span className="text-[var(--muted-2)] text-[9px]">
         {locale === "tr" ? "EN" : "TR"}
