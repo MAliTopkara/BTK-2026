@@ -71,6 +71,23 @@ _CDN_IMG_RE = re.compile(
     re.IGNORECASE,
 )
 
+# Trendyol aciliyet göstergeleri — manipulation agent için
+_URGENCY_JSON_RE = re.compile(
+    r'"(?:urgencyMessage|stockMessage|urgencyText|inStockMessage)"\s*:\s*"([^"]+)"',
+    re.IGNORECASE,
+)
+_URGENCY_TEXT_RE = re.compile(
+    r'(son\s+\d+\s+[üu]r[üu]n|stok\s+t[üu]keniyor|stok\s+kritik|'
+    r's[ıi]n[ıi]rl[ıi]\s+stok|\d+\s+ki[şs]i\s+(?:inceliyor|bak[ıi]yor)|'
+    r'[çc]ok\s+az\s+kald[ıi]|h[ıi]zl[ıi]\s+sat[ıi]yor|son\s+f[ıi]rsat|'
+    r'"isUrgent"\s*:\s*true)',
+    re.IGNORECASE,
+)
+
+# Trendyol reviews API endpoint — ürün yorumlarını ayrıca çeker
+_REVIEWS_API_URL = "https://www.trendyol.com/api/review/item"
+_REVIEWS_TIMEOUT_SEC = 8.0
+
 # Seller adı için DOM fallback (Playwright path) — JSON-LD'de yok
 _SEL_SELLER_NAME = (
     "[class*='merchant-name'], "
@@ -180,6 +197,13 @@ class TrendyolScraper(BaseScraper):
         # ─── BİRİNCİL: inline JSON + meta extraction ───
         product = _parse_inline_html(html, url)
         if product is not None:
+            # Reviews ayrı API çağrısıyla tamamla (HTML'de yok)
+            product_id = _extract_product_id(url)
+            if product_id and not product.reviews:
+                reviews = await _fetch_trendyol_reviews(product_id)
+                if reviews:
+                    logger.info("[trendyol] %d yorum API'den alındı", len(reviews))
+                    product = product.model_copy(update={"reviews": reviews})
             return product
 
         # ─── İKİNCİL: eski JSON-LD yolu (Trendyol JSON-LD'yi geri getirirse) ───
@@ -662,6 +686,20 @@ def _parse_inline_html(html: str, url: str) -> ProductData | None:
             break
     images = images[:10]
 
+    # 8. Aciliyet göstergeleri (manipulation agent için)
+    urgency_indicators: list[str] = []
+    for m in _URGENCY_JSON_RE.finditer(html):
+        msg = m.group(1).strip()
+        if msg and msg not in urgency_indicators:
+            urgency_indicators.append(msg)
+    for m in _URGENCY_TEXT_RE.finditer(html[:8000]):
+        msg = m.group(1).strip()
+        if msg and msg not in urgency_indicators:
+            urgency_indicators.append(msg)
+
+    # 9. raw_html — manipulation agent için; description + title yeterli
+    raw_html_excerpt = f"{title}\n\n{description}" if description else title
+
     return ProductData(
         url=url,
         platform="trendyol",
@@ -672,10 +710,89 @@ def _parse_inline_html(html: str, url: str) -> ProductData | None:
         images=images,
         description=description,
         seller=SellerData(name=seller_name, is_verified=False),
-        reviews=[],  # Yorumlar artık HTML'de yok — TASK ileride ayrı endpoint
+        reviews=[],  # _scrape_via_html reviews API ile tamamlar
         review_count_total=review_count,
         rating_avg=rating_avg,
-        urgency_indicators=[],
-        raw_html=None,
+        urgency_indicators=urgency_indicators,
+        raw_html=raw_html_excerpt,
         scraped_at=datetime.now(UTC),
     )
+
+
+# ---------------------------------------------------------------------------
+# Trendyol Reviews API (HTML'de yorum yok — ayrı çağrı gerekiyor)
+# ---------------------------------------------------------------------------
+
+async def _fetch_trendyol_reviews(product_id: str) -> list[ReviewData]:
+    """
+    Trendyol'un review API endpoint'inden yorumları çeker.
+    Başarısız olursa boş liste döner (graceful degradation).
+    """
+    params = {
+        "productId": product_id,
+        "pageNumber": "0",
+        "pageSize": "20",
+        "sortBy": "0",
+    }
+    headers = {
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "tr-TR,tr;q=0.9",
+        "Referer": "https://www.trendyol.com/",
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+            "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+        ),
+    }
+    try:
+        async with httpx.AsyncClient(timeout=_REVIEWS_TIMEOUT_SEC, follow_redirects=True) as client:
+            resp = await client.get(_REVIEWS_API_URL, params=params, headers=headers)
+            if resp.status_code != 200:
+                logger.debug("[trendyol] reviews API HTTP %d", resp.status_code)
+                return []
+            data = resp.json()
+    except Exception as exc:  # noqa: BLE001
+        logger.debug("[trendyol] reviews API hatası: %s", exc)
+        return []
+
+    # Yanıt yapısı: {"result": {"hydrateScript": ..., "content": [...]}} veya {"content": [...]}
+    content = data.get("result", {}).get("content") or data.get("content") or []
+    if not isinstance(content, list):
+        return []
+
+    reviews: list[ReviewData] = []
+    for entry in content[:30]:
+        if not isinstance(entry, dict):
+            continue
+        text = entry.get("comment") or entry.get("text") or entry.get("reviewBody") or ""
+        if not isinstance(text, str) or not text.strip():
+            continue
+        rating = entry.get("rate") or entry.get("rating") or entry.get("ratingValue") or 5
+        try:
+            rating_int = max(1, min(5, int(float(rating))))
+        except (TypeError, ValueError):
+            rating_int = 5
+        author = entry.get("userFullName") or entry.get("authorName") or entry.get("author")
+        if isinstance(author, dict):
+            author = author.get("name")
+        date_raw = entry.get("createdDate") or entry.get("date") or entry.get("datePublished")
+        date_val = None
+        if isinstance(date_raw, str):
+            try:
+                date_val = datetime.fromisoformat(date_raw.replace("Z", "+00:00"))
+            except ValueError:
+                pass
+        elif isinstance(date_raw, (int, float)):
+            try:
+                date_val = datetime.fromtimestamp(date_raw / 1000, tz=UTC)
+            except Exception:  # noqa: BLE001
+                pass
+        reviews.append(ReviewData(
+            text=text.strip()[:500],
+            rating=rating_int,
+            author_name=str(author) if author else None,
+            date=date_val,
+            has_image=bool(entry.get("images") or entry.get("imageUrls")),
+            verified_purchase=bool(entry.get("verified") or entry.get("verifiedPurchase")),
+        ))
+    return reviews
+
