@@ -50,6 +50,27 @@ _ORIGINAL_PRICE_RE = re.compile(
     r'"originalPrice":\s*\{[^}]*?"value"\s*:\s*([\d.]+)',
 )
 
+# ── Mayıs 2026: JSON-LD kaldırıldı, veri inline JSON ile geliyor ──
+_TITLE_RE = re.compile(r"<title[^>]*>(.+?)</title>", re.DOTALL)
+# " - Fiyatı, Yorumları" gibi SEO suffix'i temizle
+_TITLE_SUFFIX_RE = re.compile(r"\s*[-–—]\s*Fiyat[ıI].*$", re.IGNORECASE)
+_SELLING_PRICE_RE = re.compile(
+    r'"sellingPrice":\s*\{[^}]*?"value"\s*:\s*([\d.]+)',
+)
+_RATING_AVG_RE = re.compile(r'"averageRating"\s*:\s*([\d.]+)')
+_REVIEW_COUNT_RE = re.compile(
+    r'"(?:totalRatingCount|totalCount)"\s*:\s*(\d+)',
+)
+_OG_DESC_RE = re.compile(
+    r'<meta\s+property=["\']og:description["\']\s+content=["\']([^"\']+)["\']',
+    re.IGNORECASE,
+)
+# Trendyol CDN'inden ürün görseli
+_CDN_IMG_RE = re.compile(
+    r'https://cdn\.dsmcdn\.com/[^"\'\s)]+\.(?:jpg|jpeg|png|webp)',
+    re.IGNORECASE,
+)
+
 # Seller adı için DOM fallback (Playwright path) — JSON-LD'de yok
 _SEL_SELLER_NAME = (
     "[class*='merchant-name'], "
@@ -134,11 +155,18 @@ class TrendyolScraper(BaseScraper):
             return None
 
     async def _scrape_via_html(self, url: str) -> ProductData | None:
-        """www.trendyol.com sayfasını çek, JSON-LD'den ProductData üret."""
+        """
+        www.trendyol.com sayfasını çek, ProductData üret.
+
+        Strateji (Mayıs 2026 sonrası):
+          1. Birincil: <title> + inline JSON pattern'leri (sellingPrice, originalPrice,
+             averageRating, totalCount, merchant.name) + OG meta + CDN img
+          2. İkincil fallback: JSON-LD Product (gelecekte tekrar eklenirse diye korunuyor)
+        """
         # Desktop Chrome ile dene
         html = await self._fetch_html(url, _DEFAULT_HEADERS)
         if html is None:
-            # Fallback: mobil Safari UA (Akamai daha toleranslı)
+            # Mobil Safari UA fallback (Akamai daha toleranslı)
             logger.debug("[trendyol] desktop başarısız, mobil UA deneniyor")
             html = await self._fetch_html(url, _MOBILE_HEADERS)
         if html is None:
@@ -149,9 +177,15 @@ class TrendyolScraper(BaseScraper):
             logger.debug("[trendyol] challenge sayfası tespit edildi")
             return None
 
+        # ─── BİRİNCİL: inline JSON + meta extraction ───
+        product = _parse_inline_html(html, url)
+        if product is not None:
+            return product
+
+        # ─── İKİNCİL: eski JSON-LD yolu (Trendyol JSON-LD'yi geri getirirse) ───
         product_jsonld = _find_product_jsonld(html)
         if product_jsonld is None:
-            logger.debug("[trendyol] HTML'de Product JSON-LD bulunamadı")
+            logger.debug("[trendyol] inline JSON ve JSON-LD ikisi de yok")
             return None
 
         title = self._get_str(product_jsonld, "name")
@@ -162,13 +196,11 @@ class TrendyolScraper(BaseScraper):
         if price_current is None:
             return None
 
-        # İndirim öncesi fiyat — ham HTML regex
         price_original: float | None = None
         m = _ORIGINAL_PRICE_RE.search(html)
         if m:
             try:
                 candidate = float(m.group(1))
-                # originalPrice ya da sellingPrice == price_current ise indirim yok
                 if candidate > price_current:
                     price_original = candidate
             except ValueError:
@@ -183,13 +215,11 @@ class TrendyolScraper(BaseScraper):
         rating_avg, review_count = self._extract_rating(product_jsonld)
         reviews = self._extract_reviews(product_jsonld)
 
-        # Merchant adı — ham HTML regex
         seller_name = ""
         seller_match = _MERCHANT_NAME_RE.search(html)
         if seller_match:
             seller_name = seller_match.group(1).strip()
         if not seller_name:
-            # Fallback: brand
             brand = product_jsonld.get("brand")
             if isinstance(brand, dict):
                 seller_name = self._get_str(brand, "name")
@@ -532,3 +562,120 @@ def _find_product_jsonld(html: str) -> dict[str, Any] | None:
         if found is not None:
             return found
     return None
+
+
+# ---------------------------------------------------------------------------
+# Inline HTML parsing (Mayıs 2026 sonrası — JSON-LD yokken birincil yol)
+# ---------------------------------------------------------------------------
+
+def _parse_inline_html(html: str, url: str) -> ProductData | None:
+    """
+    Trendyol HTML sayfasından inline JSON pattern'leri + meta tag'leriyle
+    ProductData üret. JSON-LD'ye ihtiyaç yok.
+
+    Beklenen alanlar (eksikse None döner → caller fallback'e düşer):
+      - <title>
+      - "sellingPrice":{"value": ...}
+      - "merchant":{"name": ...}      (zorunlu değil, fallback "Trendyol satıcısı")
+      - "averageRating", "totalCount" (opsiyonel, 0 default)
+      - og:description, cdn img URL'leri
+    """
+    # 1. Title (zorunlu)
+    title_m = _TITLE_RE.search(html)
+    if not title_m:
+        return None
+    raw_title = title_m.group(1).strip()
+    title = _TITLE_SUFFIX_RE.sub("", raw_title).strip()
+    if not title:
+        return None
+
+    # 2. Fiyat (zorunlu — yoksa Product değil, kategori sayfası vb. olabilir)
+    sp = _SELLING_PRICE_RE.search(html)
+    if not sp:
+        return None
+    try:
+        price_current = float(sp.group(1))
+    except ValueError:
+        return None
+    if price_current < 1:
+        return None
+
+    # 3. İndirim öncesi fiyat (opsiyonel)
+    price_original: float | None = None
+    discount_pct: float | None = None
+    op = _ORIGINAL_PRICE_RE.search(html)
+    if op:
+        try:
+            candidate = float(op.group(1))
+            if candidate > price_current:
+                price_original = candidate
+                discount_pct = round((1 - price_current / price_original) * 100, 1)
+        except ValueError:
+            pass
+
+    # 4. Rating (opsiyonel)
+    rating_avg = 0.0
+    rating_m = _RATING_AVG_RE.search(html)
+    if rating_m:
+        try:
+            rating_avg = round(float(rating_m.group(1)), 2)
+        except ValueError:
+            pass
+
+    # 5. Yorum sayısı (opsiyonel)
+    review_count = 0
+    rcount_m = _REVIEW_COUNT_RE.search(html)
+    if rcount_m:
+        try:
+            review_count = int(rcount_m.group(1))
+        except ValueError:
+            pass
+
+    # 6. Merchant adı
+    seller_name = ""
+    merch_m = _MERCHANT_NAME_RE.search(html)
+    if merch_m:
+        seller_name = merch_m.group(1).strip()
+    if not seller_name:
+        seller_name = "Trendyol satıcısı"
+
+    # 7. Açıklama (og:description)
+    description = ""
+    og_desc = _OG_DESC_RE.search(html)
+    if og_desc:
+        description = og_desc.group(1).strip()[:1500]
+
+    # 8. Görseller — og:image + tüm cdn.dsmcdn.com URL'leri (max 10, unique)
+    images: list[str] = []
+    og_imgs = re.findall(
+        r'<meta\s+property=["\']og:image["\']\s+content=["\']([^"\']+)["\']',
+        html,
+        re.IGNORECASE,
+    )
+    for u in og_imgs:
+        if u not in images:
+            images.append(u)
+    for u in _CDN_IMG_RE.findall(html):
+        if u not in images:
+            images.append(u)
+        if len(images) >= 10:
+            break
+    images = images[:10]
+
+    return ProductData(
+        url=url,
+        platform="trendyol",
+        title=title,
+        price_current=price_current,
+        price_original=price_original,
+        discount_pct=discount_pct,
+        images=images,
+        description=description,
+        seller=SellerData(name=seller_name, is_verified=False),
+        reviews=[],  # Yorumlar artık HTML'de yok — TASK ileride ayrı endpoint
+        review_count_total=review_count,
+        rating_avg=rating_avg,
+        urgency_indicators=[],
+        raw_html=None,
+        scraped_at=datetime.now(UTC),
+    )
