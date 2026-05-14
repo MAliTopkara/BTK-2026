@@ -12,6 +12,7 @@ import {
   impulseLabel,
   loadProfile,
 } from "@/lib/behavior-profile";
+import { createClient } from "@/lib/supabase/client";
 
 type Props = {
   price: number;
@@ -294,6 +295,32 @@ function FortyEightHourRule({
 // ─────────────────────────────────────────────────────────────────────────
 
 function NoProfileCallout() {
+  // Demo ziyaretçileri (giriş yapmamış) /settings'e gidince auth middleware
+  // /login'e atıyor; beklentiyle uyumsuz oluyor. Auth durumuna göre href kuralım.
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    createClient()
+      .auth.getUser()
+      .then(({ data }) => {
+        if (!cancelled) setIsAuthenticated(!!data.user);
+      })
+      .catch(() => {
+        if (!cancelled) setIsAuthenticated(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const settingsHref =
+    isAuthenticated === false ? "/login?redirect=/settings" : "/settings";
+  const tooltip =
+    isAuthenticated === false
+      ? "Giriş yapmanız gerekiyor."
+      : "Finansal profil ayarlarını aç.";
+
   return (
     <section className="relative">
       <header className="mb-6">
@@ -316,7 +343,8 @@ function NoProfileCallout() {
         </div>
         <div className="flex flex-col items-start gap-1 shrink-0">
           <Link
-            href="/settings"
+            href={settingsHref}
+            title={tooltip}
             className="group inline-flex items-center gap-3 text-black px-5 py-3 font-mono text-[10px] tracking-[0.24em] uppercase transition-opacity hover:opacity-90"
             style={{ background: "var(--blue)" }}
           >
@@ -324,7 +352,9 @@ function NoProfileCallout() {
             <span className="font-sans transition-transform group-hover:translate-x-0.5">→</span>
           </Link>
           <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-[var(--muted-2)] mt-1">
-            giriş gerekir
+            {isAuthenticated === false
+              ? "Önce giriş yapmanız gerekiyor"
+              : "giriş gerekir"}
           </p>
         </div>
       </div>

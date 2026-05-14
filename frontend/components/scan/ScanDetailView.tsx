@@ -556,7 +556,7 @@ function AlternativeCard({ alternative }: { alternative: Alternative }) {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.22em] uppercase text-[var(--accent)] hover:text-[var(--accent-dim)] transition-colors"
             >
-              <span>Karşılaştırmaya_git</span>
+              <span>Akakçe&apos;de_karşılaştır</span>
               <span className="font-sans">↗</span>
             </a>
           </div>

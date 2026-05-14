@@ -428,7 +428,7 @@ export function ScanLauncher() {
                   <span className="text-[var(--accent)] group-hover:translate-x-0.5 transition-transform">
                     →
                   </span>
-                  use_url
+                  URL&apos;yi kullan
                 </div>
               </button>
             );

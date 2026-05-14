@@ -26,7 +26,7 @@ export function SignOutButton() {
       aria-label="Çıkış yap"
     >
       <span>{loading ? "çıkılıyor" : "çıkış"}</span>
-      <span className="text-[var(--muted-2)]">↗</span>
+      <span className="text-[var(--muted-2)]">→</span>
     </button>
   );
 }

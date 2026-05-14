@@ -1,15 +1,14 @@
 """
 TrendyolScraper — TrustLens AI
 
-JSON-LD merkezli strateji:
-  Trendyol her ürün sayfasında schema.org Product JSON-LD koyuyor (SEO için).
-  Bu structured data DOM selector'lardan kat kat güvenilir çünkü:
-    - Selectorlar (CSS Modules hash'leriyle) sık değişir
-    - JSON-LD SEO için stable kalır
-    - Aggregate rating + review listesi de orada hazır
-
-Primary: <script type="application/ld+json"> Product objesi
-Fallback: DOM selectorlar (seller adı için, JSON-LD'de yok)
+İki katmanlı strateji:
+  1. Public API (öncelikli): https://public-mdc.trendyol.com/.../product-detail/{id}
+     - Anti-bot yok (Cloudflare/Datadome arkasında değil)
+     - Railway IP'lerinden erişilebiliyor
+     - JSON yapılı, hızlı (<1 saniye)
+  2. Playwright + JSON-LD (fallback): public API başarısızsa
+     - schema.org Product JSON-LD (SEO için stable)
+     - DOM fallback sadece seller adı için
 """
 
 from __future__ import annotations
@@ -20,11 +19,22 @@ import re
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
+import httpx
+
 if TYPE_CHECKING:
     from playwright.async_api import Page
 
 from app.models.scan import ProductData, ReviewData, SellerData
 from app.scrapers.base import BaseScraper, ScraperError
+
+# Public API endpoint — anti-bot yok, JSON döner
+_API_URL_TEMPLATE = (
+    "https://public-mdc.trendyol.com/discovery-web-productgw-service"
+    "/api/product-detail/{product_id}"
+)
+_API_TIMEOUT_SEC = 10.0
+# URL pattern: ".../urun-adi-p-123456789" → product_id = "123456789"
+_PRODUCT_ID_RE = re.compile(r"-p-(\d+)")
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +49,53 @@ _SEL_SELLER_NAME = (
 
 class TrendyolScraper(BaseScraper):
     platform = "trendyol"
+
+    async def scrape(self, url: str) -> ProductData | None:
+        """
+        Önce public API'yi dene (hızlı, anti-bot yok). Başarısız olursa
+        BaseScraper.scrape() (Playwright + JSON-LD) fallback'ine düşer.
+        """
+        product_id = _extract_product_id(url)
+        if product_id:
+            try:
+                api_result = await self._scrape_via_api(url, product_id)
+                if api_result is not None:
+                    logger.info(
+                        "[trendyol] public API başarılı: id=%s url=%s",
+                        product_id,
+                        url,
+                    )
+                    return api_result
+            except Exception as exc:  # noqa: BLE001 — geniş yakala, fallback'e düş
+                logger.info(
+                    "[trendyol] public API başarısız (%s), Playwright deneniyor",
+                    exc,
+                )
+        else:
+            logger.debug("[trendyol] product_id URL'de bulunamadı, Playwright deneniyor: %s", url)
+
+        return await super().scrape(url)
+
+    async def _scrape_via_api(self, url: str, product_id: str) -> ProductData | None:
+        """Trendyol public product-detail API'sinden ProductData üret."""
+        api_url = _API_URL_TEMPLATE.format(product_id=product_id)
+        headers = {
+            "Accept": "application/json",
+            "Accept-Language": "tr-TR,tr;q=0.9,en;q=0.8",
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+            ),
+        }
+
+        async with httpx.AsyncClient(
+            timeout=_API_TIMEOUT_SEC, follow_redirects=True
+        ) as client:
+            resp = await client.get(api_url, headers=headers)
+            resp.raise_for_status()
+            data = resp.json()
+
+        return _product_from_api(data, url)
 
     async def _parse(self, page: Page, url: str) -> ProductData:
         # H1 görünür olmasını bekle — JSON-LD bundan önce zaten DOM'da olur
@@ -285,3 +342,125 @@ def _extract_money(text: str) -> list[float]:
         except ValueError:
             continue
     return nums
+
+
+# ---------------------------------------------------------------------------
+# Public API helpers (TASK-S9)
+# ---------------------------------------------------------------------------
+
+def _extract_product_id(url: str) -> str | None:
+    """URL'deki '-p-{id}' pattern'inden product_id çıkar."""
+    match = _PRODUCT_ID_RE.search(url)
+    return match.group(1) if match else None
+
+
+def _safe_float(v: Any) -> float | None:
+    if v is None:
+        return None
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return None
+
+
+def _safe_int(v: Any) -> int | None:
+    if v is None:
+        return None
+    try:
+        return int(v)
+    except (TypeError, ValueError):
+        return None
+
+
+def _product_from_api(data: dict[str, Any], url: str) -> ProductData | None:
+    """
+    Trendyol public API JSON yanıtından ProductData üret.
+    Beklenen yapı eksikse None döner — caller Playwright fallback'e düşer.
+    """
+    result = data.get("result")
+    if not isinstance(result, dict):
+        return None
+
+    product = result.get("product")
+    if not isinstance(product, dict):
+        return None
+
+    name = product.get("name")
+    if not isinstance(name, str) or not name.strip():
+        return None
+
+    price_info = product.get("priceInfo")
+    if not isinstance(price_info, dict):
+        price_info = {}
+
+    price_current = _safe_float(price_info.get("price"))
+    if price_current is None or price_current < 1:
+        return None
+
+    price_original = _safe_float(price_info.get("originalPrice"))
+    discount_pct: float | None = None
+    if price_original is not None and price_original > price_current:
+        discount_pct = round((1 - price_current / price_original) * 100, 1)
+
+    # Görseller
+    images: list[str] = []
+    images_raw = product.get("images") or []
+    if isinstance(images_raw, list):
+        for img in images_raw[:10]:
+            url_str: str | None = None
+            if isinstance(img, dict):
+                candidate = img.get("url") or img.get("imageUrl") or img.get("contentUrl")
+                if isinstance(candidate, str):
+                    url_str = candidate
+            elif isinstance(img, str):
+                url_str = img
+            if url_str and url_str.startswith("http") and url_str not in images:
+                images.append(url_str)
+
+    # Rating
+    rating_score = product.get("ratingScore")
+    if not isinstance(rating_score, dict):
+        rating_score = {}
+    rating_avg = _safe_float(rating_score.get("averageRating")) or 0.0
+    review_count = (
+        _safe_int(rating_score.get("totalRatingCount"))
+        or _safe_int(rating_score.get("totalCount"))
+        or 0
+    )
+
+    # Satıcı: önce merchant, fallback brand
+    seller_name = ""
+    merchant = product.get("merchant")
+    if isinstance(merchant, dict):
+        candidate = merchant.get("name")
+        if isinstance(candidate, str):
+            seller_name = candidate.strip()
+    if not seller_name:
+        brand = product.get("brand")
+        if isinstance(brand, dict):
+            candidate = brand.get("name")
+            if isinstance(candidate, str):
+                seller_name = candidate.strip()
+    if not seller_name:
+        seller_name = "Trendyol satıcısı"
+
+    description_raw = product.get("description")
+    description = description_raw[:1500] if isinstance(description_raw, str) else ""
+
+    return ProductData(
+        url=url,
+        platform="trendyol",
+        title=name.strip(),
+        price_current=price_current,
+        price_original=price_original,
+        discount_pct=discount_pct,
+        images=images,
+        description=description,
+        seller=SellerData(name=seller_name, is_verified=False),
+        reviews=[],  # Public API yorum listesi sağlamıyor — review_agent <20 yorum için INFO döner
+        review_count_total=review_count,
+        rating_avg=rating_avg,
+        urgency_indicators=[],
+        raw_html=None,
+        scraped_at=datetime.now(UTC),
+    )

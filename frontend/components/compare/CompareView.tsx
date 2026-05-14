@@ -552,6 +552,12 @@ function SectionHeader({
 // Comparison logic
 // ─────────────────────────────────────────────────────────────────────────
 
+// Backend'in /api/scan response'unda yer almayan katmanlar (örn. phishing,
+// görsel yükleme ile ayrı endpoint'ten gelir) için Türkçe etiket fallback'i.
+const LAYER_NAME_FALLBACK_TR: Record<string, string> = {
+  phishing: "Phishing / SMS",
+};
+
 function buildLayerComparisons(
   a: ScanResult,
   b: ScanResult,
@@ -560,7 +566,8 @@ function buildLayerComparisons(
     const aLayer = a.layer_results[layerId] as LayerResult | undefined;
     const bLayer = b.layer_results[layerId] as LayerResult | undefined;
     const meta = LAYER_META[layerId] ?? { code: "??", method: "", nameEn: layerId };
-    const name = aLayer?.name ?? bLayer?.name ?? layerId;
+    const name =
+      aLayer?.name ?? bLayer?.name ?? LAYER_NAME_FALLBACK_TR[layerId] ?? layerId;
 
     const aSide = aLayer
       ? { score: aLayer.score, status: aLayer.status }
