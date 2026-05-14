@@ -107,7 +107,7 @@ async def inspect_akakce(query: str) -> None:
                 await page.wait_for_load_state("networkidle", timeout=10_000)
 
                 print(f"Title: {await page.title()}")
-                print(f"\n=== Fiyat / geçmiş kutuları ===")
+                print("\n=== Fiyat / geçmiş kutuları ===")
                 # Fiyat container'ları
                 for sel in [
                     "#price_v",

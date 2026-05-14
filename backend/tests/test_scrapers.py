@@ -46,8 +46,14 @@ class TestPlatformDetection:
     def test_hepsiburada_url(self):
         assert detect_platform("https://www.hepsiburada.com/laptop-p-HBC123") == "hepsiburada"
 
+    def test_n11_url(self):
+        assert detect_platform("https://www.n11.com/urun/foo-123") == "n11"
+
+    def test_amazon_tr_url(self):
+        assert detect_platform("https://www.amazon.com.tr/dp/B0ABC12345") == "amazon_tr"
+
     def test_unsupported(self):
-        assert detect_platform("https://www.amazon.com.tr/x") is None
+        assert detect_platform("https://www.amazon.com/dp/x") is None
         assert detect_platform("https://example.com") is None
 
     def test_case_insensitive(self):
@@ -65,6 +71,16 @@ class TestGetScraper:
         assert scraper is not None
         assert scraper.platform == "hepsiburada"
 
+    def test_n11_instance(self):
+        scraper = get_scraper("n11")
+        assert scraper is not None
+        assert scraper.platform == "n11"
+
+    def test_amazon_tr_instance(self):
+        scraper = get_scraper("amazon_tr")
+        assert scraper is not None
+        assert scraper.platform == "amazon_tr"
+
     def test_unknown_platform(self):
-        assert get_scraper("amazon") is None
+        assert get_scraper("ebay") is None
         assert get_scraper("") is None

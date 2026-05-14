@@ -275,8 +275,8 @@ export function ScanLauncher() {
           <span className="italic text-[var(--accent)]">yedi</span> soru.
         </h1>
         <p className="text-[14px] text-[var(--muted)] leading-relaxed max-w-xl">
-          Trendyol, Hepsiburada veya N11&apos;den herhangi bir ürün linkini
-          yapıştır — TrustLens 8 saniye içinde 7 paralel ajan çalıştırıp
+          Trendyol, Hepsiburada, N11 veya Amazon TR&apos;den herhangi bir ürün
+          linkini yapıştır — TrustLens 8 saniye içinde 7 paralel ajan çalıştırıp
           gerekçeli bir karar verir.
         </p>
       </header>
@@ -718,7 +718,7 @@ function translateApiError(e: ApiError): string {
   if (e.status === 422) {
     if (detail.toLowerCase().includes("desteklenmiyor")) return detail;
     if (detail.toLowerCase().includes("platform")) return detail;
-    return "Geçerli bir Trendyol veya Hepsiburada ürün linki girin. (https:// ile başlamalı)";
+    return "Geçerli bir Trendyol, Hepsiburada, N11 veya Amazon TR ürün linki girin. (https:// ile başlamalı)";
   }
 
   // 404 — ürün / URL bulunamadı

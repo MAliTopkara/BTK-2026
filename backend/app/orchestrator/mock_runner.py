@@ -39,7 +39,7 @@ async def run_mock_scan(url: str, force_refresh: bool = False) -> ScanResult:
     if not detect_platform(url):
         raise ValueError(
             "Bu URL desteklenen bir platforma eşleşmiyor. "
-            "Desteklenen siteler: trendyol.com, hepsiburada.com"
+            "Desteklenen siteler: trendyol.com, hepsiburada.com, n11.com, amazon.com.tr"
         )
 
     if force_refresh:

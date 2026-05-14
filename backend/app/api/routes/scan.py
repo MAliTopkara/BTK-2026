@@ -12,8 +12,13 @@ router = APIRouter(tags=["scan"])
 _phishing_agent = PhishingAgent()
 
 # Desteklenen platformlar — kullanıcı mesajı için
-_SUPPORTED_PLATFORMS = {"trendyol.com", "hepsiburada.com"}
-_PLATFORM_NAMES = "Trendyol veya Hepsiburada"
+_SUPPORTED_PLATFORMS = {
+    "trendyol.com",
+    "hepsiburada.com",
+    "n11.com",
+    "amazon.com.tr",
+}
+_PLATFORM_NAMES = "Trendyol, Hepsiburada, N11 veya Amazon TR"
 
 
 @router.post("/scan", response_model=ScanResult)
@@ -33,7 +38,7 @@ async def scan_product(request: ScanRequest) -> ScanResult:
     if platform is None:
         # Bilinen ama desteklenmeyen domain'ler için özel mesaj
         url_lower = request.url.lower()
-        if any(d in url_lower for d in ("amazon.com", "n11.com", "gittigidiyor", "ciceksepeti", "boyner", "zara")):
+        if any(d in url_lower for d in ("gittigidiyor", "ciceksepeti", "boyner", "zara", "amazon.com/", "amazon.de")):
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail=(
