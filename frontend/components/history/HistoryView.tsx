@@ -268,9 +268,9 @@ function EmptyState({
   hasAnyScans: boolean;
 }) {
   const message =
-    !hasAnyScans
-      ? "Henüz tarama yapmamışsın. Dashboard'tan başla."
-      : `Bu filtreyle eşleşen tarama yok (${FILTER_LABELS[filter]}).`;
+    hasAnyScans
+      ? `Bu filtreyle eşleşen tarama yok (${FILTER_LABELS[filter]}).`
+      : "Henüz tarama yapmamışsın. Dashboard'tan başla.";
   return (
     <div className="corner-frame relative bg-[var(--surface)]/30 border border-[var(--border-strong)] p-10 lg:p-14">
       <span className="c-tr" />

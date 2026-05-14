@@ -59,12 +59,37 @@ _SEL_SELLER_NAME = (
 )
 
 _DEFAULT_HEADERS = {
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Accept-Language": "tr-TR,tr;q=0.9,en;q=0.8",
-    "Cache-Control": "no-cache",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+    "Accept-Language": "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Cache-Control": "max-age=0",
+    "Upgrade-Insecure-Requests": "1",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+    "Sec-Fetch-User": "?1",
+    "Sec-Ch-Ua": '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
+    "Sec-Ch-Ua-Mobile": "?0",
+    "Sec-Ch-Ua-Platform": '"Windows"',
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
         "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+    ),
+}
+
+# Mobil fallback headers — Akamai bazı durumlarda mobil UA'ya daha toleranslı
+_MOBILE_HEADERS = {
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "tr-TR,tr;q=0.9,en;q=0.8",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Cache-Control": "no-cache",
+    "Upgrade-Insecure-Requests": "1",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+    "User-Agent": (
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) "
+        "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1"
     ),
 }
 
@@ -92,16 +117,32 @@ class TrendyolScraper(BaseScraper):
 
         return await super().scrape(url)
 
+    @staticmethod
+    async def _fetch_html(url: str, headers: dict) -> str | None:
+        """httpx ile HTML sayfasını çeker. 200 dışında veya hata varsa None döner."""
+        try:
+            async with httpx.AsyncClient(
+                timeout=_HTML_TIMEOUT_SEC, follow_redirects=True
+            ) as client:
+                resp = await client.get(url, headers=headers)
+                if resp.status_code != 200:
+                    logger.debug("[trendyol] HTTP %d: %s", resp.status_code, url)
+                    return None
+                return resp.text
+        except httpx.RequestError as exc:
+            logger.debug("[trendyol] HTTP isteği hatası: %s", exc)
+            return None
+
     async def _scrape_via_html(self, url: str) -> ProductData | None:
         """www.trendyol.com sayfasını çek, JSON-LD'den ProductData üret."""
-        async with httpx.AsyncClient(
-            timeout=_HTML_TIMEOUT_SEC, follow_redirects=True
-        ) as client:
-            resp = await client.get(url, headers=_DEFAULT_HEADERS)
-            if resp.status_code != 200:
-                logger.debug("[trendyol] HTML status %d: %s", resp.status_code, url)
-                return None
-            html = resp.text
+        # Desktop Chrome ile dene
+        html = await self._fetch_html(url, _DEFAULT_HEADERS)
+        if html is None:
+            # Fallback: mobil Safari UA (Akamai daha toleranslı)
+            logger.debug("[trendyol] desktop başarısız, mobil UA deneniyor")
+            html = await self._fetch_html(url, _MOBILE_HEADERS)
+        if html is None:
+            return None
 
         # Anti-bot challenge tespiti
         if _looks_like_challenge(html):
@@ -428,12 +469,30 @@ _CHALLENGE_MARKERS = (
     "captcha",
     "access denied",
     "hepsiburada | güvenlik",
+    # Akamai Bot Manager
+    "ak_bmsc",
+    "akamaibotmanager",
+    "_abck",
+    "sensor_data",
+    # Trendyol güvenlik sayfaları
+    "bu sayfaya erişim engellendi",
+    "erişiminiz engellendi",
+    "güvenlik doğrulaması",
+    "security check",
+    "robot değilim",
+    "i'm not a robot",
+    # Cloudflare
+    "cf-browser-verification",
+    "cloudflare ray id",
+    # Genel bot engeli
+    "403 forbidden",
+    "blocked",
 )
 
 
 def _looks_like_challenge(html: str) -> bool:
     """Cloudflare / Datadome / Akamai challenge sayfası tespiti (case-insensitive)."""
-    head = html[:3000].lower()
+    head = html[:5000].lower()
     return any(marker in head for marker in _CHALLENGE_MARKERS)
 
 

@@ -64,8 +64,9 @@ async def scan_product(request: ScanRequest) -> ScanResult:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=(
                     "Bu ürün şu an analiz edilemiyor. "
-                    "Lütfen URL'nin doğru olduğundan emin olun ve birazdan tekrar deneyin. "
-                    f"({err_msg.split(chr(10))[0]})"
+                    "Sayfa bot koruması, anti-scraping veya ağ engeli nedeniyle "
+                    "erişilemiyor olabilir. "
+                    "Aşağıdaki demo URL'lerinden birini veya farklı bir ürün bağlantısını deneyin."
                 ),
             ) from exc
         raise HTTPException(
