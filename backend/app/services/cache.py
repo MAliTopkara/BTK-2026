@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-_TTL_DEFAULT: int = 86400  # 24 saat
+_TTL_DEFAULT: int = 604800  # 7 gün — demo öncesi pre-warm cache'in dolu kalması için
 
 
 # ---------------------------------------------------------------------------
