@@ -5,7 +5,7 @@ from fastapi import APIRouter, File, HTTPException, UploadFile, status
 from app.agents.phishing_agent import PhishingAgent
 from app.models.scan import LayerResult, ScanRequest, ScanResult
 from app.orchestrator.mock_runner import run_mock_scan
-from app.scrapers import detect_platform
+from app.scrapers import detect_platform, get_scraper
 
 router = APIRouter(tags=["scan"])
 
@@ -88,6 +88,46 @@ async def scan_product(request: ScanRequest) -> ScanResult:
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Tarama sırasında beklenmedik bir hata oluştu: {err_msg[:200]}",
         ) from exc
+
+
+@router.get("/scan/debug/scrape")
+async def debug_scrape(url: str) -> dict:
+    """Scraper'ı izole çalıştırır, exception sebebini response'a sızdırır (geçici diagnostic)."""
+    import traceback  # noqa: PLC0415
+
+    platform = detect_platform(url)
+    if platform is None:
+        return {"success": False, "reason": "unsupported_platform", "url": url}
+
+    scraper = get_scraper(platform)
+    if scraper is None:
+        return {"success": False, "reason": "no_scraper_registered", "platform": platform}
+
+    try:
+        product = await scraper.scrape(url)
+        if product is None:
+            return {
+                "success": False,
+                "platform": platform,
+                "reason": "scraper_returned_none",
+            }
+        return {
+            "success": True,
+            "platform": platform,
+            "title": product.title[:80],
+            "price": product.price_current,
+            "image_count": len(product.images) if product.images else 0,
+            "review_count": len(product.reviews) if product.reviews else 0,
+        }
+    except Exception as exc:  # noqa: BLE001 — diagnostic
+        return {
+            "success": False,
+            "platform": platform,
+            "reason": "scraper_exception",
+            "exception_type": type(exc).__name__,
+            "exception_msg": str(exc)[:500],
+            "traceback_tail": traceback.format_exc().splitlines()[-12:],
+        }
 
 
 @router.get("/scan/debug/akakce")
