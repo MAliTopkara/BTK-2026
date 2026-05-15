@@ -92,16 +92,49 @@ async def scan_product(request: ScanRequest) -> ScanResult:
 
 @router.get("/scan/debug/scrape")
 async def debug_scrape(url: str) -> dict:
-    """Scraper'ı izole çalıştırır, exception sebebini response'a sızdırır (geçici diagnostic)."""
+    """Scraper'ı izole çalıştırır + raw httpx fetch diagnostic (geçici)."""
+    import re  # noqa: PLC0415
     import traceback  # noqa: PLC0415
+
+    import httpx  # noqa: PLC0415
 
     platform = detect_platform(url)
     if platform is None:
         return {"success": False, "reason": "unsupported_platform", "url": url}
 
+    # Raw fetch diagnostic — scraper'dan bağımsız HTTP davranışını gör
+    raw: dict = {}
+    desktop_ua = (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
+    )
+    mobile_ua = (
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) "
+        "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1"
+    )
+    for label, ua in (("desktop", desktop_ua), ("mobile", mobile_ua)):
+        try:
+            async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
+                resp = await client.get(url, headers={"User-Agent": ua, "Accept-Language": "tr-TR,tr;q=0.9"})
+            body = resp.text
+            jsonld_count = len(re.findall(r'<script[^>]+type=["\']application/ld\+json["\']', body, re.I))
+            challenge = any(
+                m in body.lower()
+                for m in ("captcha", "akamai", "are you human", "challenge", "bot detection", "robot kontrol")
+            )
+            raw[label] = {
+                "status": resp.status_code,
+                "size": len(body),
+                "jsonld_blocks": jsonld_count,
+                "challenge_markers": challenge,
+                "final_url": str(resp.url),
+            }
+        except Exception as exc:  # noqa: BLE001
+            raw[label] = {"error": f"{type(exc).__name__}: {str(exc)[:200]}"}
+
     scraper = get_scraper(platform)
     if scraper is None:
-        return {"success": False, "reason": "no_scraper_registered", "platform": platform}
+        return {"success": False, "reason": "no_scraper_registered", "platform": platform, "raw_fetch": raw}
 
     try:
         product = await scraper.scrape(url)
@@ -110,6 +143,7 @@ async def debug_scrape(url: str) -> dict:
                 "success": False,
                 "platform": platform,
                 "reason": "scraper_returned_none",
+                "raw_fetch": raw,
             }
         return {
             "success": True,
@@ -118,6 +152,7 @@ async def debug_scrape(url: str) -> dict:
             "price": product.price_current,
             "image_count": len(product.images) if product.images else 0,
             "review_count": len(product.reviews) if product.reviews else 0,
+            "raw_fetch": raw,
         }
     except Exception as exc:  # noqa: BLE001 — diagnostic
         return {
@@ -127,6 +162,7 @@ async def debug_scrape(url: str) -> dict:
             "exception_type": type(exc).__name__,
             "exception_msg": str(exc)[:500],
             "traceback_tail": traceback.format_exc().splitlines()[-12:],
+            "raw_fetch": raw,
         }
 
 
