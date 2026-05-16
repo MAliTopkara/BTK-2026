@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -93,11 +93,18 @@ const VERDICT_TONE: Record<Verdict, string> = {
   AVOID: "text-[var(--red)]",
 };
 
-export function ScanLauncher() {
+export function ScanLauncher({ initialUrl }: { initialUrl?: string } = {}) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const inputId = useId();
 
-  const [url, setUrl] = useState("");
+  const [url, setUrl] = useState(initialUrl ?? "");
+
+  // searchParams'tan "url" parametresi varsa input'u doldur (landing'den prefill)
+  useEffect(() => {
+    const param = searchParams.get("url");
+    if (param) setUrl(decodeURIComponent(param));
+  }, [searchParams]);
   const [phase, setPhase] = useState<Phase>("idle");
   const [layers, setLayers] = useState<LayerSlot[]>(INITIAL_LAYERS);
   const [elapsed, setElapsed] = useState(0);

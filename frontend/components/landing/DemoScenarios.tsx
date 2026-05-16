@@ -97,6 +97,74 @@ const verdictStyles = {
   },
 };
 
+type CachedProduct = {
+  title: string;
+  platform: "Trendyol" | "Amazon TR";
+  score: number;
+  verdict: "BUY" | "CAUTION" | "AVOID";
+  url: string;
+};
+
+const cachedProducts: CachedProduct[] = [
+  {
+    title: "Apple iPhone 15 256GB Mavi",
+    platform: "Trendyol",
+    score: 86,
+    verdict: "BUY",
+    url: "https://www.trendyol.com/apple/iphone-15-256-gb-mavi-p-762254862?boutiqueId=689770&merchantId=968",
+  },
+  {
+    title: "JBL Tune 520BT Kablosuz Kulaklık",
+    platform: "Trendyol",
+    score: 86,
+    verdict: "BUY",
+    url: "https://www.trendyol.com/jbl/tune-520bt-multi-connect-wireless-blue-p-702008926?boutiqueId=61&merchantId=624588",
+  },
+  {
+    title: "Vestel 32\" HD Smart TV",
+    platform: "Trendyol",
+    score: 86,
+    verdict: "BUY",
+    url: "https://www.trendyol.com/vestel/32ht9150-32-inc-hd-smart-tv-p-1032347897?boutiqueId=61&merchantId=289170",
+  },
+  {
+    title: "SEG 40\" Smart TiVo TV",
+    platform: "Trendyol",
+    score: 86,
+    verdict: "BUY",
+    url: "https://www.trendyol.com/seg/40srb900-40-smart-tivo-tv-p-901540714?boutiqueId=61&merchantId=154954",
+  },
+  {
+    title: "Coverzone 18W Şarj Kılıfı",
+    platform: "Amazon TR",
+    score: 65,
+    verdict: "CAUTION",
+    url: "https://www.amazon.com.tr/Coverzone-18W-Uyumlu-%C5%9Earj-K%C4%B1l%C4%B1f%C4%B1/dp/B0GP16RLHS/",
+  },
+];
+
+function MiniScoreRing({ score, color }: { score: number; color: string }) {
+  const r = 18;
+  const c = 2 * Math.PI * r;
+  const offset = c - (score / 100) * c;
+  return (
+    <svg viewBox="0 0 48 48" className="w-12 h-12 -rotate-90 shrink-0">
+      <circle cx="24" cy="24" r={r} fill="none" stroke="var(--border-strong)" strokeWidth="3" />
+      <circle
+        cx="24"
+        cy="24"
+        r={r}
+        fill="none"
+        stroke={color}
+        strokeWidth="3"
+        strokeDasharray={c}
+        strokeDashoffset={offset}
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 const statusColors = {
   RISK: "text-[var(--red)]",
   WARN: "text-[var(--yellow)]",
@@ -251,6 +319,83 @@ export function DemoScenarios() {
             Kendi linkinle dene
             <span className="font-sans">→</span>
           </a>
+        </div>
+
+        {/* ── Cached Real URLs ── */}
+        <div className="mt-20 border-t border-[var(--border)] pt-16">
+          <div className="grid lg:grid-cols-12 gap-8 mb-10 items-end">
+            <div className="lg:col-span-7">
+              <div className="font-mono text-[10px] tracking-[0.32em] uppercase text-[var(--muted)] mb-5 flex items-center gap-3">
+                <span className="h-px w-8 bg-[var(--accent)]" />
+                <span>05 / Gerçek_Taramalar</span>
+              </div>
+              <h2 className="font-serif text-[clamp(1.8rem,3.5vw,3rem)] leading-[1.0] tracking-[-0.015em] text-[var(--foreground)]">
+                Gerçek ürünler,{" "}
+                <span className="italic text-[var(--muted)]">cache&apos;lenmiş sonuçlar.</span>
+              </h2>
+            </div>
+            <div className="lg:col-span-5">
+              <p className="text-[13px] leading-relaxed text-[var(--muted)] max-w-sm">
+                Aşağıdaki URL&apos;ler önceden tarandı ve cache&apos;lendi.
+                Karta tıkla → dashboard&apos;da URL dolup{" "}
+                <span className="text-[var(--foreground)]">&lt;1 sn</span> içinde sonuç gelir.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {cachedProducts.map((p) => {
+              const v = verdictStyles[p.verdict];
+              const dashboardHref = `/dashboard?url=${encodeURIComponent(p.url)}`;
+              return (
+                <a
+                  key={p.url}
+                  href={dashboardHref}
+                  className={`group corner-frame relative ${v.bg} border ${v.border} p-5 flex items-center gap-4 hover:opacity-90 transition-opacity cursor-pointer`}
+                >
+                  <span className="c-tr" />
+                  <span className="c-bl" />
+
+                  {/* Mini score ring */}
+                  <div className="relative shrink-0">
+                    <MiniScoreRing score={p.score} color={v.ringStroke} />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className={`font-serif italic text-[13px] tabular-nums ${v.text}`}>
+                        {p.score}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span
+                        className={`inline-flex items-center gap-1.5 border ${v.border} px-2 py-0.5 font-mono text-[9px] tracking-[0.2em] uppercase ${v.text}`}
+                      >
+                        <span className={`status-dot ${v.dot}`} />
+                        {p.verdict === "BUY" ? "AL" : p.verdict === "CAUTION" ? "DİKKATLİ OL" : "ALMA"}
+                      </span>
+                      <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-[var(--muted-2)]">
+                        {p.platform}
+                      </span>
+                    </div>
+                    <p className="font-serif italic text-[15px] leading-tight text-[var(--foreground)] truncate">
+                      {p.title}
+                    </p>
+                  </div>
+
+                  {/* Arrow */}
+                  <span className={`${v.text} font-sans text-[14px] shrink-0 opacity-0 group-hover:opacity-100 transition-opacity`}>
+                    →
+                  </span>
+                </a>
+              );
+            })}
+          </div>
+
+          <div className="mt-6 font-mono text-[10px] tracking-[0.22em] uppercase text-[var(--muted-2)]">
+            5 ürün · 4 Trendyol · 1 Amazon TR · cache hit &lt;1s · giriş gereksiz
+          </div>
         </div>
       </div>
     </section>

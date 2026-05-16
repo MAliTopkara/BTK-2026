@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
 import { ScanLauncher } from "@/components/dashboard/ScanLauncher";
 
@@ -8,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function DashboardPage() {
-  return <ScanLauncher />;
+  return (
+    <Suspense fallback={<ScanLauncher />}>
+      <ScanLauncher />
+    </Suspense>
+  );
 }
