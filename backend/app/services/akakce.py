@@ -155,6 +155,34 @@ def _cache_lookup(query: str) -> AkakceResult | None:
                 )
                 return result
 
+    # 4. Bag-of-words overlap (kelime sırası farklıysa son çare)
+    # Cache key'in tokenlarının %70'i agent query'sinde geçiyorsa match.
+    # Örn: cache="vestel 32ht9150 smart tv", query="vestel 32ht9150 32 inc hd smart tv"
+    # → cache tokens {vestel,32ht9150,smart,tv} ⊂ query tokens → overlap 1.0 → match.
+    q_tokens = set(key.split())
+    best_match: dict | None = None
+    best_overlap = 0.0
+    best_cache_key = ""
+    for cache_key, cache_val in cache.items():
+        if not isinstance(cache_val, dict):
+            continue
+        c_tokens = set(cache_key.split())
+        if not c_tokens:
+            continue
+        overlap = len(c_tokens & q_tokens) / len(c_tokens)
+        if overlap >= 0.7 and overlap > best_overlap:
+            best_overlap = overlap
+            best_match = cache_val
+            best_cache_key = cache_key
+    if best_match is not None:
+        result = _parse_cache_entry(best_match)
+        if result is not None:
+            logger.info(
+                "[akakce] bag overlap match: %r ↔ %r (%.0f%%)",
+                key, best_cache_key, best_overlap * 100,
+            )
+            return result
+
     return None
 
 
