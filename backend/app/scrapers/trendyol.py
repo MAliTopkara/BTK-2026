@@ -197,13 +197,26 @@ class TrendyolScraper(BaseScraper):
         # ─── BİRİNCİL: inline JSON + meta extraction ───
         product = _parse_inline_html(html, url)
         if product is not None:
-            # Reviews ayrı API çağrısıyla tamamla (HTML'de yok)
-            product_id = _extract_product_id(url)
-            if product_id and not product.reviews:
-                reviews = await _fetch_trendyol_reviews(product_id)
-                if reviews:
-                    logger.info("[trendyol] %d yorum API'den alındı", len(reviews))
-                    product = product.model_copy(update={"reviews": reviews})
+            # Yorumlar boşsa önce JSON-LD'den dene (Trendyol Mayıs 2026'da
+            # ProductGroup içinde 20 yorum SSR ediyor — ekstra HTTP yok),
+            # JSON-LD'de de yoksa eski reviews API'ye fallback.
+            if not product.reviews:
+                jsonld_reviews = _extract_jsonld_reviews(html)
+                if jsonld_reviews:
+                    logger.info(
+                        "[trendyol] %d yorum JSON-LD'den alındı", len(jsonld_reviews)
+                    )
+                    product = product.model_copy(update={"reviews": jsonld_reviews})
+                else:
+                    product_id = _extract_product_id(url)
+                    if product_id:
+                        api_reviews = await _fetch_trendyol_reviews(product_id)
+                        if api_reviews:
+                            logger.info(
+                                "[trendyol] %d yorum API'den alındı (JSON-LD boştu)",
+                                len(api_reviews),
+                            )
+                            product = product.model_copy(update={"reviews": api_reviews})
             return product
 
         # ─── İKİNCİL: eski JSON-LD yolu (Trendyol JSON-LD'yi geri getirirse) ───
@@ -557,10 +570,15 @@ def _safe_loads(raw: str) -> Any:
         return None
 
 
+# Mayıs 2026: Trendyol "Product" yerine "ProductGroup" kullanmaya başladı.
+# İkisi de aynı şemada (name, offers, aggregateRating, review) — ikisini de yakala.
+_PRODUCT_TYPES = ("Product", "ProductGroup")
+
+
 def _walk_for_product(obj: Any) -> dict[str, Any] | None:
-    """Bir JSON-LD bloğu içinde @type='Product' olan dict'i bul."""
+    """Bir JSON-LD bloğu içinde @type='Product' VEYA 'ProductGroup' olan dict'i bul."""
     if isinstance(obj, dict):
-        if obj.get("@type") == "Product":
+        if obj.get("@type") in _PRODUCT_TYPES:
             return obj
         graph = obj.get("@graph")
         if isinstance(graph, list):
@@ -577,7 +595,7 @@ def _walk_for_product(obj: Any) -> dict[str, Any] | None:
 
 
 def _find_product_jsonld(html: str) -> dict[str, Any] | None:
-    """HTML içindeki tüm <script type=ld+json> bloklarından ilk Product'ı döner."""
+    """HTML içindeki tüm <script type=ld+json> bloklarından ilk Product/ProductGroup'u döner."""
     for match in _JSONLD_RE.finditer(html):
         parsed = _safe_loads(match.group(1))
         if parsed is None:
@@ -586,6 +604,59 @@ def _find_product_jsonld(html: str) -> dict[str, Any] | None:
         if found is not None:
             return found
     return None
+
+
+def _extract_jsonld_reviews(html: str) -> list[ReviewData]:
+    """
+    HTML içindeki Product/ProductGroup JSON-LD'sinden review listesini çıkarır.
+    inline parse yolu için yardımcı — inline parse review döndürmüyor, bu doldurur.
+    Kayıp/eksik yapıda boş liste döner.
+    """
+    product = _find_product_jsonld(html)
+    if product is None:
+        return []
+    raw = product.get("review")
+    if not isinstance(raw, list):
+        return []
+
+    out: list[ReviewData] = []
+    for entry in raw[:50]:
+        if not isinstance(entry, dict):
+            continue
+        body = entry.get("reviewBody") or entry.get("description") or ""
+        if not isinstance(body, str) or not body.strip():
+            continue
+        author = entry.get("author")
+        author_name: str | None = None
+        if isinstance(author, dict):
+            author_name = author.get("name")
+        elif isinstance(author, str):
+            author_name = author
+        rating_val = 5
+        rr = entry.get("reviewRating")
+        if isinstance(rr, dict):
+            try:
+                rating_val = int(float(rr.get("ratingValue", 5)))
+            except (TypeError, ValueError):
+                rating_val = 5
+        date_str = entry.get("datePublished")
+        date_val: datetime | None = None
+        if isinstance(date_str, str):
+            try:
+                date_val = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
+            except ValueError:
+                date_val = None
+        out.append(
+            ReviewData(
+                text=body.strip()[:500],
+                rating=max(1, min(5, rating_val)),
+                author_name=author_name,
+                date=date_val,
+                has_image=False,
+                verified_purchase=False,
+            )
+        )
+    return out
 
 
 # ---------------------------------------------------------------------------

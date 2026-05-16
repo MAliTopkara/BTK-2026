@@ -27,11 +27,22 @@ _WEIGHTS: dict[str, float] = {
 }
 
 
+# Veri kalitesi eşiği: skor üreten katman (RISK/WARN/OK) sayısı bu sayının
+# altındaysa BUY verdict'i CAUTION'a indirilir. Sebep: scraper bazı sitelerde
+# yorum/fiyat geçmişi/urgency çekemeyince agent'lar INFO döner, kalan az sayıda
+# OK üzerinden hesaplanan ortalama "yanıltıcı pozitif" üretir. Bu guard demoda
+# ve gerçek kullanımda "veri yok ama BUY" hatasını engeller.
+_MIN_SCORING_LAYERS_FOR_BUY = 4
+
+
 async def run_decision(
     layer_results: dict[str, LayerResult],
 ) -> tuple[int, Literal["BUY", "CAUTION", "AVOID"], list[ReasoningStep], str]:
     """
     7 katman sonucunu birleştirip karar üretir.
+
+    Veri kalitesi guard: yeterli sayıda katman skor üretmediyse (4'ten az)
+    BUY otomatik olarak CAUTION'a düşürülür — yanıltıcı pozitif önlemi.
 
     Returns:
         (overall_score, verdict, reasoning_steps, final_explanation)
@@ -39,9 +50,37 @@ async def run_decision(
     overall_score = _compute_overall_score(layer_results)
     verdict = _score_to_verdict(overall_score)
 
+    # Skor üreten katmanları say (crossplatform hariç, çünkü fırsat katmanı)
+    scoring_layers = [
+        r for lid, r in layer_results.items()
+        if r.score is not None and lid != "crossplatform"
+    ]
+    insufficient_data = len(scoring_layers) < _MIN_SCORING_LAYERS_FOR_BUY
+
+    if verdict == "BUY" and insufficient_data:
+        logger.info(
+            "Veri kalitesi guard: BUY -> CAUTION (sadece %d katman skor üretti)",
+            len(scoring_layers),
+        )
+        verdict = "CAUTION"
+        # Skoru da 50 ile bantla — "yetersiz veri" işareti
+        overall_score = min(overall_score, 55)
+
     reasoning_steps, final_explanation = await _gemini_reasoning(
         layer_results, overall_score, verdict
     )
+
+    # Guard tetiklenmişse reasoning'in başına bir uyarı ekle
+    if verdict == "CAUTION" and insufficient_data:
+        warning_step = ReasoningStep(
+            step=0,
+            content=(
+                f"⚠️ Veri kalitesi düşük: yalnızca {len(scoring_layers)}/6 katman "
+                "skor üretebildi (yorum, fiyat geçmişi veya manipülasyon sinyali "
+                "çekilemedi). Bu yüzden 'AL' yerine 'DİKKATLİ OL' diyorum."
+            ),
+        )
+        reasoning_steps = [warning_step, *reasoning_steps]
 
     return overall_score, verdict, reasoning_steps, final_explanation
 
