@@ -85,13 +85,8 @@ def _load_cache() -> dict[str, dict]:
         return {}
 
 
-def _cache_lookup(query: str) -> AkakceResult | None:
-    """Normalize edilmiş query ile cache'te eşleşme ara."""
-    cache = _load_cache()
-    key = _normalize_query(query)
-    raw = cache.get(key)
-    if not raw or not isinstance(raw, dict):
-        return None
+def _parse_cache_entry(raw: dict) -> AkakceResult | None:
+    """Cache'teki dict'i AkakceResult'a çevir; bozuksa None."""
     try:
         return AkakceResult(
             product_url=str(raw["product_url"]),
@@ -103,6 +98,64 @@ def _cache_lookup(query: str) -> AkakceResult | None:
     except (KeyError, TypeError, ValueError) as exc:
         logger.debug("[akakce] cache entry bozuk: %s", exc)
         return None
+
+
+def _cache_lookup(query: str) -> AkakceResult | None:
+    """
+    Normalize edilmiş query ile cache'te eşleşme ara.
+
+    Eşleşme stratejisi (sırayla):
+      1. Tam match: normalize(query)
+      2. Prefix shrink: query'nin ilk N kelimesini sırayla küçülterek dene.
+         "jbl tune 520bt multi connect wireless blue" → cache'te yok
+         → "jbl tune 520bt multi connect wireless" → yok
+         → ... → "jbl tune 520bt" → BULDU (min 2 kelime).
+      3. Substring match (son çare): herhangi bir cache key,
+         normalize edilmiş query'de geçiyor mu.
+
+    Bu sayede agent'ın Gemini ile ürettiği farklı uzunluktaki "core query"
+    pre-warm'da kullanılan basit query ile eşleşir.
+    """
+    cache = _load_cache()
+    if not cache:
+        return None
+
+    key = _normalize_query(query)
+    if not key:
+        return None
+
+    # 1. Tam match
+    raw = cache.get(key)
+    if isinstance(raw, dict):
+        result = _parse_cache_entry(raw)
+        if result is not None:
+            return result
+
+    # 2. Prefix shrink — agent uzun query üretmiş olabilir
+    words = key.split()
+    if len(words) > 2:
+        for i in range(len(words) - 1, 1, -1):
+            prefix_key = " ".join(words[:i])
+            raw = cache.get(prefix_key)
+            if isinstance(raw, dict):
+                result = _parse_cache_entry(raw)
+                if result is not None:
+                    logger.info(
+                        "[akakce] prefix match: %r → %r", key, prefix_key
+                    )
+                    return result
+
+    # 3. Substring match — agent pre-warm key'ini içeren bir query üretmiş olabilir
+    for cache_key, cache_val in cache.items():
+        if cache_key and cache_key in key and isinstance(cache_val, dict):
+            result = _parse_cache_entry(cache_val)
+            if result is not None:
+                logger.info(
+                    "[akakce] substring match: %r contains %r", key, cache_key
+                )
+                return result
+
+    return None
 
 
 def save_to_cache(query: str, result: AkakceResult) -> None:
