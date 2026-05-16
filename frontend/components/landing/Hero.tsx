@@ -14,7 +14,7 @@ export function Hero() {
             <span>01 / Hipotez</span>
           </div>
 
-          <h1 className="font-serif text-[clamp(3rem,7vw,6.5rem)] leading-[0.92] tracking-[-0.02em] text-[var(--foreground)]">
+          <h1 className="font-serif text-[clamp(2rem,7vw,6.5rem)] leading-[0.92] tracking-[-0.02em] text-[var(--foreground)] break-words">
             Bu ürün{" "}
             <span className="italic text-[var(--muted)]">gerçekten</span>
             <br />

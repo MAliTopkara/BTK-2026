@@ -61,9 +61,9 @@ export function LiveScanDemo() {
         </div>
       </div>
 
-      {/* Layer table */}
-      <div className="px-4 py-3">
-        <div className="grid grid-cols-[24px_1fr_64px_44px] gap-3 pb-2 mb-1 border-b border-[var(--border)] text-[9px] tracking-[0.22em] uppercase text-[var(--muted-2)]">
+      {/* Layer table — mobile'da daha sıkı kolonlar (375px viewport) */}
+      <div className="px-3 sm:px-4 py-3">
+        <div className="grid grid-cols-[18px_minmax(0,1fr)_50px_36px] sm:grid-cols-[24px_1fr_64px_44px] gap-2 sm:gap-3 pb-2 mb-1 border-b border-[var(--border)] text-[9px] tracking-[0.22em] uppercase text-[var(--muted-2)]">
           <span>#</span>
           <span>Agent</span>
           <span className="text-right">Status</span>
@@ -75,18 +75,18 @@ export function LiveScanDemo() {
           return (
             <div
               key={l.id}
-              className="layer-reveal grid grid-cols-[24px_1fr_64px_44px] gap-3 py-[7px] items-center border-b border-[var(--border)]/60 last:border-b-0"
+              className="layer-reveal grid grid-cols-[18px_minmax(0,1fr)_50px_36px] sm:grid-cols-[24px_1fr_64px_44px] gap-2 sm:gap-3 py-[7px] items-center border-b border-[var(--border)]/60 last:border-b-0"
               style={{ animationDelay: l.delay }}
             >
               <span className="text-[var(--muted-2)] text-[10px]">{l.id}</span>
-              <span className="text-[var(--foreground)] text-[11.5px]">
+              <span className="text-[var(--foreground)] text-[10.5px] sm:text-[11.5px] truncate min-w-0">
                 {l.name}
               </span>
-              <span className={`text-right text-[10px] tracking-[0.16em] uppercase ${s.text}`}>
-                <span className={`status-dot ${s.dot} mr-1.5`} />
+              <span className={`text-right text-[9.5px] sm:text-[10px] tracking-[0.14em] sm:tracking-[0.16em] uppercase ${s.text} whitespace-nowrap`}>
+                <span className={`status-dot ${s.dot} mr-1 sm:mr-1.5`} />
                 {l.status}
               </span>
-              <span className={`text-right tabular-nums ${s.text}`}>
+              <span className={`text-right tabular-nums text-[11px] sm:text-[13px] ${s.text}`}>
                 {l.score}
               </span>
             </div>

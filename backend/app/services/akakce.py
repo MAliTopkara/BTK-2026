@@ -13,11 +13,14 @@ DiscountAgent için yeterli sinyal: synthetic 2 noktalık history
 
 from __future__ import annotations
 
+import json
 import logging
 import random
 import re
-from dataclasses import dataclass
+import unicodedata
+from dataclasses import asdict, dataclass
 from datetime import date, timedelta
+from pathlib import Path
 from typing import TYPE_CHECKING
 from urllib.parse import quote_plus
 
@@ -29,6 +32,12 @@ logger = logging.getLogger(__name__)
 _AKAKCE_BASE = "https://www.akakce.com"
 _NAV_TIMEOUT_MS = 25_000
 _PRICE_LIMIT = 30  # ilk N fiyatı işle, daha fazlasını gözardı et
+
+# ─── Pre-warm dosya cache (Mayıs 2026) ──────────────────────────────────────
+# Railway IP'leri Akakçe tarafından bloklanıyor (403). Lokal TR IP'den
+# `scripts/prewarm_akakce.py` çalıştırılıp sonuçlar bu JSON'a yazılıyor; backend
+# scrape'den önce burayı kontrol eder. Cache hit → 0 sn, scrape gerek yok.
+_CACHE_FILE = Path(__file__).resolve().parents[2] / "data" / "akakce_cache.json"
 
 # Stable selector — Akakçe arama sonuçları ürün URL şeması: /<kat>/en-ucuz-...-fiyati,<id>.html
 _SEL_PRODUCT_LINK = 'a[href*="-fiyati,"][href*=".html"]'
@@ -49,6 +58,65 @@ class AkakceResult:
     min_price: float
     max_price: float
     avg_price: float
+
+
+# ─── File cache yardımcıları ────────────────────────────────────────────────
+
+def _normalize_query(query: str) -> str:
+    """
+    Cache key için query'i normalize et:
+    lowercase + diakritik kaldır + non-alnum → space + tek boşluk.
+    "Apple iPhone 15 256 GB Mavi" ve "apple iphone 15 256gb mavi" aynı key olur.
+    """
+    text = unicodedata.normalize("NFKD", query.lower())
+    text = "".join(c for c in text if not unicodedata.combining(c))
+    text = re.sub(r"[^a-z0-9]+", " ", text)
+    return " ".join(text.split())
+
+
+def _load_cache() -> dict[str, dict]:
+    """Akakçe cache JSON'unu oku; yoksa boş dict döner."""
+    try:
+        if not _CACHE_FILE.exists():
+            return {}
+        return json.loads(_CACHE_FILE.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        logger.warning("[akakce] cache okunamadı: %s", exc)
+        return {}
+
+
+def _cache_lookup(query: str) -> AkakceResult | None:
+    """Normalize edilmiş query ile cache'te eşleşme ara."""
+    cache = _load_cache()
+    key = _normalize_query(query)
+    raw = cache.get(key)
+    if not raw or not isinstance(raw, dict):
+        return None
+    try:
+        return AkakceResult(
+            product_url=str(raw["product_url"]),
+            seller_count=int(raw["seller_count"]),
+            min_price=float(raw["min_price"]),
+            max_price=float(raw["max_price"]),
+            avg_price=float(raw["avg_price"]),
+        )
+    except (KeyError, TypeError, ValueError) as exc:
+        logger.debug("[akakce] cache entry bozuk: %s", exc)
+        return None
+
+
+def save_to_cache(query: str, result: AkakceResult) -> None:
+    """
+    Pre-warm script tarafından çağrılır — query+sonucu cache file'ına yazar.
+    Backend'de kullanım için tasarlanmamış (Railway disk read-only).
+    """
+    _CACHE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    cache = _load_cache()
+    cache[_normalize_query(query)] = asdict(result)
+    _CACHE_FILE.write_text(
+        json.dumps(cache, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
+    logger.info("[akakce] cache yazıldı: %s -> %d satıcı", query, result.seller_count)
 
 
 # Akakçe ürün sayfaları bazen aksesuar/farklı varyantları da listeler.
@@ -75,6 +143,16 @@ async def fetch_akakce_summary(
     Returns:
         AkakceResult ya da None (eşleşme yok, sayfa açılmadı, vb.)
     """
+    # ─── 1. File cache lookup (lokal pre-warm sonuçları) ──────────────────
+    cached = _cache_lookup(query)
+    if cached is not None:
+        logger.info(
+            "[akakce] cache hit: %s -> %d satıcı, min=%.0f",
+            query, cached.seller_count, cached.min_price,
+        )
+        return cached
+
+    # ─── 2. Cache miss — gerçek scrape ────────────────────────────────────
     from playwright.async_api import async_playwright  # noqa: PLC0415
 
     def _fail(reason: str) -> None:

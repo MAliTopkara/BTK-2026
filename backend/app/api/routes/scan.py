@@ -5,7 +5,7 @@ from fastapi import APIRouter, File, HTTPException, UploadFile, status
 from app.agents.phishing_agent import PhishingAgent
 from app.models.scan import LayerResult, ScanRequest, ScanResult
 from app.orchestrator.mock_runner import run_mock_scan
-from app.scrapers import detect_platform, get_scraper
+from app.scrapers import detect_platform
 
 router = APIRouter(tags=["scan"])
 
@@ -88,102 +88,6 @@ async def scan_product(request: ScanRequest) -> ScanResult:
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Tarama sırasında beklenmedik bir hata oluştu: {err_msg[:200]}",
         ) from exc
-
-
-@router.get("/scan/debug/scrape")
-async def debug_scrape(url: str) -> dict:
-    """Scraper'ı izole çalıştırır + raw httpx fetch diagnostic (geçici)."""
-    import re  # noqa: PLC0415
-    import traceback  # noqa: PLC0415
-
-    import httpx  # noqa: PLC0415
-
-    platform = detect_platform(url)
-    if platform is None:
-        return {"success": False, "reason": "unsupported_platform", "url": url}
-
-    # Raw fetch diagnostic — scraper'dan bağımsız HTTP davranışını gör
-    raw: dict = {}
-    desktop_ua = (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-        "(KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
-    )
-    mobile_ua = (
-        "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) "
-        "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1"
-    )
-    for label, ua in (("desktop", desktop_ua), ("mobile", mobile_ua)):
-        try:
-            async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
-                resp = await client.get(url, headers={"User-Agent": ua, "Accept-Language": "tr-TR,tr;q=0.9"})
-            body = resp.text
-            jsonld_count = len(re.findall(r'<script[^>]+type=["\']application/ld\+json["\']', body, re.I))
-            challenge = any(
-                m in body.lower()
-                for m in ("captcha", "akamai", "are you human", "challenge", "bot detection", "robot kontrol")
-            )
-            raw[label] = {
-                "status": resp.status_code,
-                "size": len(body),
-                "jsonld_blocks": jsonld_count,
-                "challenge_markers": challenge,
-                "final_url": str(resp.url),
-            }
-        except Exception as exc:  # noqa: BLE001
-            raw[label] = {"error": f"{type(exc).__name__}: {str(exc)[:200]}"}
-
-    scraper = get_scraper(platform)
-    if scraper is None:
-        return {"success": False, "reason": "no_scraper_registered", "platform": platform, "raw_fetch": raw}
-
-    try:
-        product = await scraper.scrape(url)
-        if product is None:
-            return {
-                "success": False,
-                "platform": platform,
-                "reason": "scraper_returned_none",
-                "raw_fetch": raw,
-            }
-        return {
-            "success": True,
-            "platform": platform,
-            "title": product.title[:80],
-            "price": product.price_current,
-            "image_count": len(product.images) if product.images else 0,
-            "review_count": len(product.reviews) if product.reviews else 0,
-            "raw_fetch": raw,
-        }
-    except Exception as exc:  # noqa: BLE001 — diagnostic
-        return {
-            "success": False,
-            "platform": platform,
-            "reason": "scraper_exception",
-            "exception_type": type(exc).__name__,
-            "exception_msg": str(exc)[:500],
-            "traceback_tail": traceback.format_exc().splitlines()[-12:],
-            "raw_fetch": raw,
-        }
-
-
-@router.get("/scan/debug/akakce")
-async def debug_akakce(q: str = "Apple iPhone 15 128 GB") -> dict:
-    """Akakçe servisini scraper'dan bağımsız test eder (geçici diagnostic endpoint)."""
-    from app.services.akakce import fetch_akakce_summary  # noqa: PLC0415
-
-    diagnostics: dict = {}
-    result = await fetch_akakce_summary(q, diagnostics=diagnostics)
-    if result:
-        return {
-            "success": True,
-            "seller_count": result.seller_count,
-            "min_price": result.min_price,
-            "max_price": result.max_price,
-            "avg_price": round(result.avg_price, 2),
-            "product_url": result.product_url,
-            "diagnostics": diagnostics,
-        }
-    return {"success": False, "diagnostics": diagnostics}
 
 
 @router.post("/scan/phishing", response_model=LayerResult)
