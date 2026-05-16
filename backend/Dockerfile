@@ -23,6 +23,11 @@ COPY app/ ./app/
 # (TASK-35) yedek olarak kalmalı.
 COPY mock_data/ ./mock_data/
 
+# Pre-warm cache — Akakce file cache (scripts/prewarm_akakce.py tarafindan
+# lokal TR IP'den uretilir). Railway IP Akakce'den 403 aldigi icin bu dosya
+# olmadan crossplatform agent alternative uretemez.
+COPY data/ ./data/
+
 # Port
 EXPOSE 8000
 
