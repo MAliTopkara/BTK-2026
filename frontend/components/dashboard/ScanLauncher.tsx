@@ -35,6 +35,24 @@ type LayerSlot = {
 // PENDING_BUILD = bu katman normal ürün taramasında çalışmaz.
 // Phishing ayrı endpoint (/api/scan/phishing) — görsel yükleme gerekir;
 // /phishing sayfasında aktif (TASK-31 hayata geçti). Burada bilgi amaçlı listelenir.
+const CACHED_FALLBACK_URLS: { label: string; verdict: "BUY" | "CAUTION"; url: string }[] = [
+  {
+    label: "Apple iPhone 15 256GB",
+    verdict: "BUY",
+    url: "https://www.trendyol.com/apple/iphone-15-256-gb-mavi-p-762254862?boutiqueId=689770&merchantId=968",
+  },
+  {
+    label: "JBL Tune 520BT",
+    verdict: "BUY",
+    url: "https://www.trendyol.com/jbl/tune-520bt-multi-connect-wireless-blue-p-702008926?boutiqueId=61&merchantId=624588",
+  },
+  {
+    label: "Coverzone Şarj Kılıfı",
+    verdict: "CAUTION",
+    url: "https://www.amazon.com.tr/Coverzone-18W-Uyumlu-%C5%9Earj-K%C4%B1l%C4%B1f%C4%B1/dp/B0GP16RLHS",
+  },
+];
+
 const INITIAL_LAYERS: LayerSlot[] = [
   { id: "review", code: "01", name: "Sahte Yorum Tespiti", status: "QUEUED", score: null, finding: "" },
   { id: "discount", code: "02", name: "Sahte İndirim", status: "QUEUED", score: null, finding: "" },
@@ -291,6 +309,7 @@ export function ScanLauncher({ initialUrl }: { initialUrl?: string } = {}) {
       {/* URL form */}
       <form
         onSubmit={handleSubmit}
+        data-scan-form
         className="corner-frame relative bg-[var(--surface)] border border-[var(--border-strong)] font-mono"
       >
         <span className="c-tr" />
@@ -349,22 +368,65 @@ export function ScanLauncher({ initialUrl }: { initialUrl?: string } = {}) {
           </div>
 
           {error && (
-            <div className="border border-[var(--red)]/50 bg-[var(--red)]/[0.08] px-4 py-3 flex items-start gap-3">
-              <span className="status-dot status-dot-risk mt-1.5 shrink-0" />
-              <div className="flex-1 min-w-0">
-                <div className="text-[10px] tracking-[0.22em] uppercase text-[var(--red)] mb-1">
-                  Tarama başarısız
+            <div className="border border-[var(--red)]/50 bg-[var(--red)]/[0.08] px-4 py-4 space-y-4">
+              {/* Hata başlığı + tekrar dene */}
+              <div className="flex items-start gap-3">
+                <span className="status-dot status-dot-risk mt-1.5 shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <div className="text-[10px] tracking-[0.22em] uppercase text-[var(--red)] mb-1">
+                    Tarama başarısız
+                  </div>
+                  <p className="font-sans text-[13px] text-[var(--foreground)]/90">
+                    {error}
+                  </p>
                 </div>
-                <p className="font-sans text-[13px] text-[var(--foreground)]/90">
-                  {error}
-                </p>
+                <button
+                  type="submit"
+                  className="shrink-0 font-mono text-[10px] tracking-[0.22em] uppercase text-[var(--accent)] border border-[var(--accent)]/40 hover:bg-[var(--accent)]/10 px-3 py-1.5 transition-colors whitespace-nowrap"
+                >
+                  Tekrar dene ↺
+                </button>
               </div>
-              <button
-                type="submit"
-                className="shrink-0 font-mono text-[10px] tracking-[0.22em] uppercase text-[var(--accent)] border border-[var(--accent)]/40 hover:bg-[var(--accent)]/10 px-3 py-1.5 transition-colors whitespace-nowrap"
-              >
-                Tekrar dene ↺
-              </button>
+
+              {/* Cached URL fallback'leri */}
+              <div className="border-l-2 border-[var(--red)]/30 pl-4 space-y-2">
+                <div className="font-mono text-[9px] tracking-[0.24em] uppercase text-[var(--muted)] mb-3">
+                  Bu URL&apos;leri dene · cache&apos;lendi · &lt;1s
+                </div>
+                {CACHED_FALLBACK_URLS.map((item) => (
+                  <button
+                    key={item.url}
+                    type="button"
+                    onClick={() => {
+                      setUrl(item.url);
+                      setError(null);
+                      setPhase("idle");
+                      // Kısa gecikmeyle auto-submit
+                      setTimeout(() => {
+                        const form = document.querySelector<HTMLFormElement>("form[data-scan-form]");
+                        form?.requestSubmit();
+                      }, 80);
+                    }}
+                    className="w-full text-left flex items-center gap-3 px-3 py-2 border border-[var(--border)] hover:border-[var(--accent)]/40 hover:bg-[var(--accent)]/[0.04] transition-colors group"
+                  >
+                    <span
+                      className={`font-mono text-[9px] tracking-[0.2em] uppercase px-1.5 py-0.5 border shrink-0 ${
+                        item.verdict === "BUY"
+                          ? "text-[var(--accent)] border-[var(--accent)]/40"
+                          : "text-[var(--yellow)] border-[var(--yellow)]/40"
+                      }`}
+                    >
+                      {item.verdict === "BUY" ? "AL" : "DİKKATLİ OL"}
+                    </span>
+                    <span className="font-mono text-[11px] text-[var(--foreground)]/80 truncate flex-1">
+                      {item.label}
+                    </span>
+                    <span className="text-[var(--accent)] text-[12px] opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                      →
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 
@@ -731,9 +793,9 @@ function translateApiError(e: ApiError): string {
   // 404 — ürün / URL bulunamadı
   if (e.status === 404) {
     if (detail.toLowerCase().includes("analiz edilemiyor")) {
-      return "Bu ürün şu an analiz edilemiyor. Lütfen birazdan tekrar deneyin veya farklı bir URL dene.";
+      return "Bu URL bot koruması nedeniyle şu an taranamıyor. Aşağıdaki hazır örnekleri dene veya farklı bir Trendyol ürünü gir.";
     }
-    return "Bu URL hiçbir demo senaryoya eşleşmiyor — önerilen senaryolardan birini dene.";
+    return "Bu URL hiçbir demo senaryoya eşleşmiyor — aşağıdaki hazır örneklerden birini dene.";
   }
 
   // 503 — AI servisi geçici arıza
