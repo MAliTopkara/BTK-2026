@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 import type { ReasoningStep, Verdict } from "@/lib/api";
@@ -48,6 +48,8 @@ export function ReasoningPanel({
 }: Props) {
   const isThinking = variant === "thinking";
   const isLive = variant === "live";
+  // Static modda steps default kapalı; live modda animasyon için açık başlamalı.
+  const [stepsOpen, setStepsOpen] = useState(variant !== "static");
 
   // Compute cumulative start times for each step (live variant)
   const stepStartTimes = steps.reduce<number[]>((acc, step, i) => {
@@ -92,55 +94,28 @@ export function ReasoningPanel({
         </div>
       </div>
 
-      {/* Editorial header */}
-      <header className="px-6 lg:px-10 pt-8 lg:pt-12 pb-4">
-        <div className="font-mono text-[10px] tracking-[0.32em] uppercase text-[var(--muted)] mb-5 flex items-center gap-3">
-          <span className="h-px w-8 bg-[var(--accent)]" />
-          <span>akıl_yürütme</span>
-        </div>
-
-        <h2 className="font-serif text-[clamp(1.6rem,3vw,2.4rem)] leading-[1.05] tracking-[-0.01em] text-[var(--foreground)] max-w-2xl">
-          {isThinking ? (
-            <>
+      {/* Thinking placeholder (only during live thinking mode) */}
+      {isThinking && (
+        <>
+          <header className="px-6 lg:px-10 pt-8 lg:pt-12 pb-4">
+            <div className="font-mono text-[10px] tracking-[0.32em] uppercase text-[var(--muted)] mb-5 flex items-center gap-3">
+              <span className="h-px w-8 bg-[var(--accent)]" />
+              <span>akıl_yürütme</span>
+            </div>
+            <h2 className="font-serif text-[clamp(1.6rem,3vw,2.4rem)] leading-[1.05] tracking-[-0.01em] text-[var(--foreground)] max-w-2xl">
               Yedi katmanı{" "}
               <span className="italic text-[var(--muted)]">tartıyor</span>
               <span className="cursor" />
-            </>
-          ) : (
-            <>
-              Hangi sinyali{" "}
-              <span className="italic text-[var(--muted)]">neye göre</span>{" "}
-              tarttığı, adım adım.
-            </>
-          )}
-        </h2>
-      </header>
+            </h2>
+          </header>
 
-      {/* Reasoning steps */}
-      <ol className="px-6 lg:px-10 py-8 space-y-7 lg:space-y-9">
-        {isThinking ? (
-          <ThinkingPlaceholder count={5} />
-        ) : (
-          steps.map((step, i) => (
-            <StepRow
-              key={step.step}
-              step={step}
-              index={i}
-              variant={variant}
-              startAtMs={stepStartTimes[i] ?? 0}
-            />
-          ))
-        )}
-      </ol>
-
-      {/* Divider */}
-      {!isThinking && (
-        <div className="px-6 lg:px-10">
-          <div className="border-t border-[var(--border-strong)]" />
-        </div>
+          <ol className="px-6 lg:px-10 py-8 space-y-7 lg:space-y-9">
+            <ThinkingPlaceholder count={5} />
+          </ol>
+        </>
       )}
 
-      {/* Final explanation callout */}
+      {/* Final explanation callout — ÖNCE bu görünür (özet) */}
       {!isThinking && (
         <FinalCallout
           text={finalExplanation}
@@ -148,6 +123,54 @@ export function ReasoningPanel({
           startAtMs={isLive ? finalStartMs : 0}
           isLive={isLive}
         />
+      )}
+
+      {/* Reasoning steps — düşünce zinciri toggle altında */}
+      {!isThinking && steps.length > 0 && (
+        <div className="border-t border-[var(--border-strong)]">
+          <button
+            type="button"
+            onClick={() => setStepsOpen((v) => !v)}
+            className="w-full flex items-center justify-between px-6 lg:px-10 py-4 font-mono text-[10px] tracking-[0.22em] uppercase text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
+            aria-expanded={stepsOpen}
+          >
+            <span className="flex items-center gap-2">
+              <span className="text-[var(--accent)]">
+                {stepsOpen ? "▾" : "▸"}
+              </span>
+              <span>
+                {stepsOpen ? "düşünce zincirini gizle" : "düşünce zincirini gör"}
+              </span>
+            </span>
+            <span className="text-[var(--muted-2)] tabular-nums">
+              {steps.length} adım
+            </span>
+          </button>
+
+          <AnimatePresence initial={false}>
+            {stepsOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+                className="overflow-hidden border-t border-[var(--border)]"
+              >
+                <ol className="px-6 lg:px-10 py-8 space-y-7 lg:space-y-9">
+                  {steps.map((step, i) => (
+                    <StepRow
+                      key={step.step}
+                      step={step}
+                      index={i}
+                      variant={variant}
+                      startAtMs={stepStartTimes[i] ?? 0}
+                    />
+                  ))}
+                </ol>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       )}
 
       {/* Footer */}

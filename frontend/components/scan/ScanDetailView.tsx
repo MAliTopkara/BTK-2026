@@ -1,14 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 
 import type { Alternative, LayerResult, ScanResult, Verdict } from "@/lib/api";
 import { downloadPNG, downloadSVG } from "@/lib/score-ring-export";
 import { ScoreRing } from "@/components/ui/ScoreRing";
 import { EthicsPanel } from "./EthicsPanel";
-import { FinancialFitPanel } from "./FinancialFitPanel";
 import { LayerCard } from "./LayerCard";
 import { ReasoningPanel } from "./ReasoningPanel";
 import { PetitionModal } from "./PetitionModal";
@@ -43,6 +42,7 @@ export function ScanDetailView({ scan }: Props) {
   const counts = countByStatus(sortedLayers);
   const [showPetitionModal, setShowPetitionModal] = useState(false);
   const [showShareSheet, setShowShareSheet] = useState(false);
+  const [showEthics, setShowEthics] = useState(false);
   const lowDataNotice = scan.product.review_count_total === 0;
 
   return (
@@ -217,18 +217,7 @@ export function ScanDetailView({ scan }: Props) {
         </motion.div>
       </section>
 
-      {/* ───────────────── FINANCIAL FIT (TASK-37) ───────────────── */}
-      {scan.product?.price_current ? (
-        <FinancialFitPanel
-          price={scan.product.price_current}
-          trustScore={scan.overall_score}
-        />
-      ) : null}
-
-      {/* ───────────────── ETHICS SCORE (TASK-40) ───────────────── */}
-      <EthicsPanel product={scan.product} />
-
-      {/* ───────────────── REASONING ───────────────── */}
+      {/* ───────────────── REASONING (özet öne) ───────────────── */}
       {scan.reasoning_steps && scan.reasoning_steps.length > 0 ? (
         <ReasoningPanel
           steps={scan.reasoning_steps}
@@ -357,6 +346,46 @@ export function ScanDetailView({ scan }: Props) {
             </span>
           </Link>
         </div>
+      </section>
+
+      {/* ───────────────── ETHICS SCORE (sona alındı, toggle altında) ───────────────── */}
+      <section className="border-t border-[var(--border-strong)] pt-8">
+        <button
+          type="button"
+          onClick={() => setShowEthics((v) => !v)}
+          className="w-full flex items-center justify-between font-mono text-[11px] tracking-[0.24em] uppercase text-[var(--muted)] hover:text-[var(--foreground)] transition-colors py-2"
+          aria-expanded={showEthics}
+        >
+          <span className="flex items-center gap-3">
+            <span style={{ color: "var(--olive)" }}>{showEthics ? "▾" : "▸"}</span>
+            <span>Etik skor</span>
+            <span
+              className="border px-1.5 py-0.5 text-[8px] tracking-[0.3em] uppercase"
+              style={{ borderColor: "var(--olive)", color: "var(--olive)" }}
+            >
+              beta
+            </span>
+          </span>
+          <span className="text-[var(--muted-2)]">
+            {showEthics ? "gizle" : "ek analiz"}
+          </span>
+        </button>
+
+        <AnimatePresence initial={false}>
+          {showEthics && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+              className="overflow-hidden"
+            >
+              <div className="pt-8">
+                <EthicsPanel product={scan.product} />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </section>
 
       {/* Diagnostic footer */}
