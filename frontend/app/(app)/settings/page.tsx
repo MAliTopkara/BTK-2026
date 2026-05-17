@@ -90,7 +90,7 @@ export default function SettingsPage() {
           />
         </section>
 
-      {/* Section 02: Finansal Profil */}}
+      {/* Section 02: Finansal Profil */}
       <header className="space-y-4">
         <div className="font-mono text-[10px] tracking-[0.32em] uppercase text-[var(--muted)] flex items-center gap-3">
           <span className="h-px w-8" style={{ background: "var(--blue)" }} />
