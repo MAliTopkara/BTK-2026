@@ -3,6 +3,7 @@ import { Suspense } from "react";
 
 import { AuthForm } from "@/components/auth/AuthForm";
 import { AuthShell } from "@/components/auth/AuthShell";
+import { WelcomeName } from "@/components/auth/WelcomeName";
 
 export const metadata: Metadata = {
   title: "Giriş Yap — TrustLens AI",
@@ -16,8 +17,7 @@ export default function LoginPage() {
       eyebrow="Erişim"
       title={
         <>
-          Tekrar{" "}
-          <span className="italic text-[var(--accent)]">hoş geldin</span>.
+          Tekrar <WelcomeName />.
         </>
       }
       intro={

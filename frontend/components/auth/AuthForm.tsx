@@ -65,6 +65,14 @@ export function AuthForm({ mode }: Props) {
           password,
         });
         if (err) throw err;
+        // İsmi sidebar + login sayfası karşılaması için sakla
+        const { data: { user } } = await supabase.auth.getUser();
+        const meta = user?.user_metadata ?? {};
+        const name =
+          (meta.first_name as string | undefined) ??
+          (meta.full_name as string | undefined)?.split(" ")[0] ??
+          (meta.name as string | undefined)?.split(" ")[0] ?? "";
+        if (name) localStorage.setItem("tl_display_name", name);
       } else {
         if (password.length < 8) {
           throw new Error("Şifre en az 8 karakter olmalı.");
@@ -82,6 +90,7 @@ export function AuthForm({ mode }: Props) {
           },
         });
         if (err) throw err;
+        if (firstName.trim()) localStorage.setItem("tl_display_name", firstName.trim());
       }
       setSuccess(true);
       router.refresh();
