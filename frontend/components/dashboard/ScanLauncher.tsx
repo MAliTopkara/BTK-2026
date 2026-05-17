@@ -13,6 +13,7 @@ import {
   type ScanResult,
   type Verdict,
 } from "@/lib/api";
+import { loadProfile } from "@/lib/behavior-profile";
 import {
   getRecentScans,
   saveScanToCache,
@@ -34,56 +35,21 @@ type LayerSlot = {
 // PENDING_BUILD = bu katman normal ürün taramasında çalışmaz.
 // Phishing ayrı endpoint (/api/scan/phishing) — görsel yükleme gerekir;
 // /phishing sayfasında aktif (TASK-31 hayata geçti). Burada bilgi amaçlı listelenir.
-type CachedProduct = {
-  label: string;
-  verdict: "BUY" | "CAUTION";
-  score: number;
-  platform: "Trendyol" | "Amazon TR";
-  url: string;
-};
-
-const CACHED_FALLBACK_URLS: CachedProduct[] = [
+const CACHED_FALLBACK_URLS: { label: string; verdict: "BUY" | "CAUTION"; url: string }[] = [
   {
-    label: "Apple iPhone 15 256GB Mavi",
+    label: "Apple iPhone 15 256GB",
     verdict: "BUY",
-    score: 88,
-    platform: "Trendyol",
     url: "https://www.trendyol.com/apple/iphone-15-256-gb-mavi-p-762254862?boutiqueId=689770&merchantId=968",
   },
   {
     label: "JBL Tune 520BT",
     verdict: "BUY",
-    score: 85,
-    platform: "Trendyol",
     url: "https://www.trendyol.com/jbl/tune-520bt-multi-connect-wireless-blue-p-702008926?boutiqueId=61&merchantId=624588",
   },
   {
-    label: "Coverzone 18W Şarj Kılıfı",
+    label: "Coverzone Şarj Kılıfı",
     verdict: "CAUTION",
-    score: 65,
-    platform: "Amazon TR",
     url: "https://www.amazon.com.tr/Coverzone-18W-Uyumlu-%C5%9Earj-K%C4%B1l%C4%B1f%C4%B1/dp/B0GP16RLHS",
-  },
-  {
-    label: "Vestel 32\" HD Smart TV",
-    verdict: "CAUTION",
-    score: 55,
-    platform: "Trendyol",
-    url: "https://www.trendyol.com/vestel/32ht9150-32-inc-hd-smart-tv-p-1032347897?boutiqueId=61&merchantId=289170",
-  },
-  {
-    label: "SEG 40\" Smart TiVo TV",
-    verdict: "CAUTION",
-    score: 55,
-    platform: "Trendyol",
-    url: "https://www.trendyol.com/seg/40srb900-40-smart-tivo-tv-p-901540714?boutiqueId=61&merchantId=154954",
-  },
-  {
-    label: "Coverzone Samsung Tab Kılıfı",
-    verdict: "CAUTION",
-    score: 55,
-    platform: "Amazon TR",
-    url: "https://www.amazon.com.tr/Coverzone-Samsung-%C5%9Eekillerde-se%C3%A7ene%C4%9Fi-Attractive/dp/B0GWMNZTQ3/",
   },
 ];
 
@@ -163,6 +129,7 @@ export function ScanLauncher({ initialUrl }: { initialUrl?: string } = {}) {
   const [result, setResult] = useState<ScanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [recentScans, setRecentScans] = useState<RecentScanEntry[]>([]);
+  const [hasProfile, setHasProfile] = useState<boolean | null>(null);
 
   const tickerRef = useRef<NodeJS.Timeout | null>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -171,6 +138,11 @@ export function ScanLauncher({ initialUrl }: { initialUrl?: string } = {}) {
   useEffect(() => {
     setRecentScans(getRecentScans(3));
   }, [phase]);
+
+  // Finansal profil var mı? (TASK-37 — banner için)
+  useEffect(() => {
+    setHasProfile(loadProfile() !== null);
+  }, []);
 
   // Elapsed timer + progressive layer reveal during scan
   useEffect(() => {
@@ -268,20 +240,6 @@ export function ScanLauncher({ initialUrl }: { initialUrl?: string } = {}) {
     setElapsed(0);
   }
 
-  function openDemoScenario(scenarioId: string) {
-    router.push(`/demo/${scenarioId}`);
-  }
-
-  function pickCached(cachedUrl: string) {
-    setUrl(cachedUrl);
-    setError(null);
-    setPhase("idle");
-    setTimeout(() => {
-      const form = document.querySelector<HTMLFormElement>("form[data-scan-form]");
-      form?.requestSubmit();
-    }, 80);
-  }
-
   // ─────────── Render ───────────
   if (phase === "scanning" || phase === "complete") {
     return (
@@ -297,6 +255,38 @@ export function ScanLauncher({ initialUrl }: { initialUrl?: string } = {}) {
 
   return (
     <div className="space-y-10">
+      {/* Profil banner — TASK-37 */}
+      {hasProfile === false && (
+        <div className="border border-dashed border-[var(--blue)]/40 bg-[var(--blue)]/[0.04] px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 min-w-0">
+            <div className="flex items-center gap-2 shrink-0">
+              <span
+                className="status-dot"
+                style={{
+                  background: "var(--blue)",
+                  boxShadow: "0 0 8px rgba(90, 169, 255, 0.4)",
+                }}
+              />
+              <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-[var(--blue)]">
+                cüzdan_perspektifi
+              </span>
+            </div>
+            <span className="font-sans text-[12px] text-[var(--muted)] leading-snug">
+              Finansal profil eksik — tarama sonuçları cüzdanına göre
+              kişiselleştirilemiyor.
+            </span>
+          </div>
+          <Link
+            href="/settings"
+            className="font-mono text-[10px] tracking-[0.22em] uppercase hover:opacity-80 inline-flex items-center gap-2 shrink-0"
+            style={{ color: "var(--blue)" }}
+          >
+            <span>profil_oluştur</span>
+            <span className="font-sans">→</span>
+          </Link>
+        </div>
+      )}
+
       {/* Hero */}
       <header className="space-y-6 max-w-3xl">
         <div className="font-mono text-[10px] tracking-[0.32em] uppercase text-[var(--muted)] flex items-center gap-3">
@@ -334,20 +324,6 @@ export function ScanLauncher({ initialUrl }: { initialUrl?: string } = {}) {
         </div>
 
         <div className="p-6 lg:p-8 space-y-6">
-          {/* Jüri / ilk kullanıcı yönlendirme bandı */}
-          <div className="border-l-2 border-[var(--accent)]/50 bg-[var(--accent)]/[0.04] px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-            <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-[var(--accent)] shrink-0 inline-flex items-center gap-2">
-              <span className="status-dot status-dot-ok" />
-              İpucu
-            </span>
-            <span className="text-[12px] leading-relaxed text-[var(--foreground)]/80">
-              Hızlı denemek için aşağıdaki{" "}
-              <span className="text-[var(--accent)]">hazır ürünlerden</span>{" "}
-              birine tıkla — cache hit, ~1 sn. Kendi URL&apos;ini de
-              girebilirsin; bazı siteler bot koruması nedeniyle taranamayabilir.
-            </span>
-          </div>
-
           <div>
             <label
               htmlFor={inputId}
@@ -373,7 +349,7 @@ export function ScanLauncher({ initialUrl }: { initialUrl?: string } = {}) {
                 autoFocus
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
-                placeholder="Trendyol veya Amazon TR ürün linki — ya da aşağıdaki örneklerden birini dene"
+                placeholder="https://www.trendyol.com/…"
                 className="w-full bg-transparent outline-none text-[16px] py-3 text-[var(--foreground)] placeholder:text-[var(--muted-2)] font-mono caret-[var(--accent)]"
               />
               {url && (
@@ -415,11 +391,20 @@ export function ScanLauncher({ initialUrl }: { initialUrl?: string } = {}) {
                 <div className="font-mono text-[9px] tracking-[0.24em] uppercase text-[var(--muted)] mb-3">
                   Bu URL&apos;leri dene · cache&apos;lendi · &lt;1s
                 </div>
-                {CACHED_FALLBACK_URLS.slice(0, 3).map((item) => (
+                {CACHED_FALLBACK_URLS.map((item) => (
                   <button
                     key={item.url}
                     type="button"
-                    onClick={() => pickCached(item.url)}
+                    onClick={() => {
+                      setUrl(item.url);
+                      setError(null);
+                      setPhase("idle");
+                      // Kısa gecikmeyle auto-submit
+                      setTimeout(() => {
+                        const form = document.querySelector<HTMLFormElement>("form[data-scan-form]");
+                        form?.requestSubmit();
+                      }, 80);
+                    }}
                     className="w-full text-left flex items-center gap-3 px-3 py-2 border border-[var(--border)] hover:border-[var(--accent)]/40 hover:bg-[var(--accent)]/[0.04] transition-colors group"
                   >
                     <span
@@ -461,62 +446,6 @@ export function ScanLauncher({ initialUrl }: { initialUrl?: string } = {}) {
         </div>
       </form>
 
-      {/* Cached gerçek taramalar — tek tık ile cache hit */}
-      {phase === "idle" && (
-        <div>
-          <div className="flex items-baseline justify-between mb-4">
-            <div className="font-mono text-[10px] tracking-[0.28em] uppercase text-[var(--muted-2)]">
-              Gerçek_taranmış ürünler
-            </div>
-            <div className="font-mono text-[10px] tracking-[0.18em] uppercase text-[var(--muted-2)]">
-              {CACHED_FALLBACK_URLS.length} · cache hit &lt;1s
-            </div>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-            {CACHED_FALLBACK_URLS.map((p) => {
-              const isBuy = p.verdict === "BUY";
-              const tone = isBuy ? "text-[var(--accent)]" : "text-[var(--yellow)]";
-              const border = isBuy ? "border-[var(--accent)]/40" : "border-[var(--yellow)]/40";
-              const hoverBg = isBuy
-                ? "hover:bg-[var(--accent)]/[0.06]"
-                : "hover:bg-[var(--yellow)]/[0.06]";
-              const dot = isBuy ? "status-dot-ok" : "status-dot-warn";
-              return (
-                <button
-                  key={p.url}
-                  type="button"
-                  onClick={() => pickCached(p.url)}
-                  className={`group text-left bg-[var(--surface)]/40 border ${border} ${hoverBg} p-3 transition-colors`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span
-                      className={`font-mono text-[9px] tracking-[0.22em] uppercase ${tone} inline-flex items-center gap-1.5`}
-                    >
-                      <span className={`status-dot ${dot}`} />
-                      <span>{isBuy ? "AL" : "DİKKATLİ OL"}</span>
-                      <span className="tabular-nums opacity-80">{p.score}</span>
-                    </span>
-                    <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-[var(--muted-2)]">
-                      {p.platform}
-                    </span>
-                  </div>
-                  <div className="font-serif italic text-[14px] leading-tight text-[var(--foreground)] truncate">
-                    {p.label}
-                  </div>
-                  <div className="mt-2 font-mono text-[10px] text-[var(--muted-2)] flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span className={`${tone} group-hover:translate-x-0.5 transition-transform`}>
-                      →
-                    </span>
-                    Cache&apos;den dene
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
       {/* Demo suggestions */}
       <div>
         <div className="flex items-baseline justify-between mb-4">
@@ -541,11 +470,10 @@ export function ScanLauncher({ initialUrl }: { initialUrl?: string } = {}) {
               green: "status-dot-ok",
             } as const;
             return (
-              <button
+              <Link
                 key={s.id}
-                type="button"
-                onClick={() => openDemoScenario(s.id)}
-                className={`group text-left bg-[var(--surface)]/40 border ${colorMap[s.color]} p-4 transition-colors`}
+                href={`/demo/${s.id}`}
+                className={`group text-left bg-[var(--surface)]/40 border ${colorMap[s.color]} p-4 transition-colors block`}
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-[var(--muted)]">
@@ -566,9 +494,9 @@ export function ScanLauncher({ initialUrl }: { initialUrl?: string } = {}) {
                   <span className="text-[var(--accent)] group-hover:translate-x-0.5 transition-transform">
                     →
                   </span>
-                  Demo&apos;yu aç
+                  Demo&apos;yu gör
                 </div>
-              </button>
+              </Link>
             );
           })}
         </div>

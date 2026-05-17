@@ -59,9 +59,8 @@ export default function SettingsPage() {
           .
         </h1>
         <p className="text-[14px] text-[var(--muted)] leading-relaxed max-w-xl">
-          TrustLens ürünün güvenilir olup olmadığını söyler — ama satın alımın
-          aylık bütçene uyup uymadığını söyleyemez. Profilini doldur, her tarama
-          sonucunda finansal uyum analizi de göreceksin.
+          Finansal profilini buradan yönet. Veriler yalnızca tarayıcının
+          localStorage&apos;ında saklanır, sunucuya gönderilmez.
         </p>
       </header>
 
