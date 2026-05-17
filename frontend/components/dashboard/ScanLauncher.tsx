@@ -371,6 +371,20 @@ export function ScanLauncher({ initialUrl }: { initialUrl?: string } = {}) {
         </div>
 
         <div className="p-6 lg:p-8 space-y-6">
+          {/* Jüri / ilk kullanıcı yönlendirme bandı */}
+          <div className="border-l-2 border-[var(--accent)]/50 bg-[var(--accent)]/[0.04] px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+            <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-[var(--accent)] shrink-0 inline-flex items-center gap-2">
+              <span className="status-dot status-dot-ok" />
+              İpucu
+            </span>
+            <span className="text-[12px] leading-relaxed text-[var(--foreground)]/80">
+              Hızlı denemek için aşağıdaki{" "}
+              <span className="text-[var(--accent)]">hazır ürünlerden</span>{" "}
+              birine tıkla — cache hit, ~1 sn. Kendi URL&apos;ini de
+              girebilirsin; bazı siteler bot koruması nedeniyle taranamayabilir.
+            </span>
+          </div>
+
           <div>
             <label
               htmlFor={inputId}
@@ -396,7 +410,7 @@ export function ScanLauncher({ initialUrl }: { initialUrl?: string } = {}) {
                 autoFocus
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
-                placeholder="https://www.trendyol.com/…"
+                placeholder="Trendyol veya Amazon TR ürün linki — ya da aşağıdaki örneklerden birini dene"
                 className="w-full bg-transparent outline-none text-[16px] py-3 text-[var(--foreground)] placeholder:text-[var(--muted-2)] font-mono caret-[var(--accent)]"
               />
               {url && (
