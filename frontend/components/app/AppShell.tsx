@@ -44,6 +44,25 @@ export function AppShell({ user, children }: Props) {
       ? `${user.email.slice(0, 19)}…`
       : user.email ?? "—";
 
+  // Supabase user_metadata: Google OAuth => full_name/name, e-posta kayıt => first_name+last_name
+  const meta = user.user_metadata ?? {};
+  const displayName: string | null =
+    (meta.full_name as string | undefined) ??
+    (meta.first_name && meta.last_name
+      ? `${meta.first_name as string} ${meta.last_name as string}`
+      : null) ??
+    (meta.first_name as string | undefined) ??
+    (meta.name as string | undefined) ??
+    null;
+  const avatarLetter = displayName
+    ? displayName[0].toUpperCase()
+    : initial;
+  const shortName = displayName
+    ? displayName.length > 22
+      ? `${displayName.slice(0, 19)}…`
+      : displayName
+    : shortEmail;
+
   const activeItem = NAV.find((n) => pathname?.startsWith(n.href)) ?? NAV[0];
   const breadcrumb = t(activeItem.labelKey).toLowerCase();
 
@@ -131,16 +150,23 @@ export function AppShell({ user, children }: Props) {
           {/* User card */}
           <div className="border-t border-[var(--border)] p-4 space-y-3">
             <div className="font-mono text-[9px] tracking-[0.28em] uppercase text-[var(--muted-2)] mb-2">
-              {t("nav.operator")}
+              {displayName
+                ? `${t("nav.welcome")}, ${displayName.split(" ")[0]}`
+                : t("nav.operator")}
             </div>
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 border border-[var(--accent)]/40 bg-[var(--accent)]/10 flex items-center justify-center font-mono text-[12px] text-[var(--accent)]">
-                {initial}
+                {avatarLetter}
               </div>
               <div className="min-w-0">
                 <div className="font-mono text-[11px] text-[var(--foreground)] truncate">
-                  {shortEmail}
+                  {shortName}
                 </div>
+                {displayName && (
+                  <div className="font-mono text-[10px] text-[var(--muted)] truncate">
+                    {shortEmail}
+                  </div>
+                )}
                 <SignOutButton />
               </div>
             </div>
@@ -249,14 +275,19 @@ export function AppShell({ user, children }: Props) {
                 {/* Drawer user card */}
                 <div className="border-t border-[var(--border)] p-4 shrink-0">
                   <div className="font-mono text-[9px] tracking-[0.28em] uppercase text-[var(--muted-2)] mb-3">
-                    {t("nav.operator")}
+                    {displayName
+                      ? `${t("nav.welcome")}, ${displayName.split(" ")[0]}`
+                      : t("nav.operator")}
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 border border-[var(--accent)]/40 bg-[var(--accent)]/10 flex items-center justify-center font-mono text-[12px] text-[var(--accent)] shrink-0">
-                      {initial}
+                      {avatarLetter}
                     </div>
                     <div className="min-w-0">
-                      <div className="font-mono text-[11px] text-[var(--foreground)] truncate">{shortEmail}</div>
+                      <div className="font-mono text-[11px] text-[var(--foreground)] truncate">{shortName}</div>
+                      {displayName && (
+                        <div className="font-mono text-[10px] text-[var(--muted)] truncate">{shortEmail}</div>
+                      )}
                       <SignOutButton />
                     </div>
                   </div>

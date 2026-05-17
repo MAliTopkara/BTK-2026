@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { BehaviorProfileForm } from "@/components/settings/BehaviorProfileForm";
 import { EmailDigestSettings } from "@/components/settings/EmailDigestSettings";
 import { ProfileSummary } from "@/components/settings/ProfileSummary";
+import { UserProfileForm } from "@/components/settings/UserProfileForm";
 import {
   type BehaviorProfile,
   clearProfile,
@@ -18,6 +19,11 @@ export default function SettingsPage() {
   const [mode, setMode] = useState<Mode>("loading");
   const [profile, setProfile] = useState<BehaviorProfile | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userMeta, setUserMeta] = useState<{
+    firstName: string;
+    lastName: string;
+    email: string;
+  } | null>(null);
 
   useEffect(() => {
     const p = loadProfile();
@@ -27,7 +33,20 @@ export default function SettingsPage() {
     createClient()
       .auth.getUser()
       .then(({ data }) => {
-        if (data.user?.email) setUserEmail(data.user.email);
+        if (!data.user) return;
+        const meta = data.user.user_metadata ?? {};
+        const fullName = (meta.full_name as string | undefined) ?? (meta.name as string | undefined) ?? "";
+        const parts = fullName.split(" ");
+        setUserMeta({
+          firstName:
+            (meta.first_name as string | undefined) ??
+            (parts.length > 0 ? parts[0] : ""),
+          lastName:
+            (meta.last_name as string | undefined) ??
+            (parts.length > 1 ? parts.slice(1).join(" ") : ""),
+          email: data.user.email ?? "",
+        });
+        if (data.user.email) setUserEmail(data.user.email);
       });
   }, []);
 
@@ -45,11 +64,39 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-12 max-w-3xl">
-      {/* Hero */}
+      {/* Section 01: Hesap Bilgileri */}
+      {userMeta && (
+        <section className="space-y-6">
+          <header className="space-y-4">
+            <div className="font-mono text-[10px] tracking-[0.32em] uppercase text-[var(--muted)] flex items-center gap-3">
+              <span className="h-px w-8" style={{ background: "var(--accent)" }} />
+              <span>01 / Hesap_Bilgileri</span>
+            </div>
+            <h2 className="font-serif text-[clamp(1.8rem,4vw,3rem)] leading-[0.95] tracking-[-0.02em]">
+              Profil{" "}
+              <span className="italic" style={{ color: "var(--accent)" }}>
+                bilgilerin
+              </span>
+              .
+            </h2>
+            <p className="text-[14px] text-[var(--muted)] leading-relaxed max-w-xl">
+              Ad ve soyad bilgilerin sidebar&apos;da ve karşılama mesajında kullanılır.
+              Supabase&apos;e güvenli şekilde kaydedilir.
+            </p>
+          </header>
+          <UserProfileForm
+            initialFirstName={userMeta.firstName}
+            initialLastName={userMeta.lastName}
+            email={userMeta.email}
+          />
+        </section>
+      )}
+
+      {/* Section 02: Finansal Profil */}}
       <header className="space-y-4">
         <div className="font-mono text-[10px] tracking-[0.32em] uppercase text-[var(--muted)] flex items-center gap-3">
           <span className="h-px w-8" style={{ background: "var(--blue)" }} />
-          <span>01 / Finansal_Profil</span>
+          <span>02 / Finansal_Profil</span>
         </div>
         <h1 className="font-serif text-[clamp(2.4rem,5vw,4rem)] leading-[0.95] tracking-[-0.02em]">
           Cüzdanın için bir{" "}
@@ -96,7 +143,7 @@ export default function SettingsPage() {
           <header className="space-y-4">
             <div className="font-mono text-[10px] tracking-[0.32em] uppercase text-[var(--muted)] flex items-center gap-3">
               <span className="h-px w-8" style={{ background: "var(--accent)" }} />
-              <span>02 / E-posta_Bildirimleri</span>
+              <span>03 / E-posta_Bildirimleri</span>
             </div>
             <h2 className="font-serif text-[clamp(1.8rem,4vw,3rem)] leading-[0.95] tracking-[-0.02em]">
               Haftalık{" "}

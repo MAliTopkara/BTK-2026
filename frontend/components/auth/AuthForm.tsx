@@ -31,9 +31,13 @@ export function AuthForm({ mode }: Props) {
   const searchParams = useSearchParams();
   const emailId = useId();
   const passwordId = useId();
+  const firstNameId = useId();
+  const lastNameId = useId();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(false);
@@ -70,6 +74,11 @@ export function AuthForm({ mode }: Props) {
           password,
           options: {
             emailRedirectTo: `${window.location.origin}/auth/callback`,
+            data: {
+              first_name: firstName.trim(),
+              last_name: lastName.trim(),
+              full_name: `${firstName.trim()} ${lastName.trim()}`.trim(),
+            },
           },
         });
         if (err) throw err;
@@ -108,6 +117,9 @@ export function AuthForm({ mode }: Props) {
   const lbl = labels[mode];
   const emailFilled = email.length > 3 && email.includes("@");
   const passwordFilled = password.length >= (mode === "register" ? 8 : 1);
+  const nameFilled =
+    mode === "login" ||
+    (firstName.trim().length > 0 && lastName.trim().length > 0);
 
   return (
     <form
@@ -178,7 +190,51 @@ export function AuthForm({ mode }: Props) {
           </div>
         )}
 
-        {/* Email field */}
+        {/* Name fields — register only */}
+        {mode === "register" && (
+          <div className="grid grid-cols-2 gap-4">
+            <AuthField
+              id={firstNameId}
+              label="Ad"
+              required
+              filled={firstName.trim().length > 0}
+              focused={false}
+            >
+              <input
+                id={firstNameId}
+                type="text"
+                autoComplete="given-name"
+                required
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                disabled={loading}
+                placeholder="Mehmet"
+                className="w-full bg-transparent outline-none text-[14px] text-[var(--foreground)] placeholder:text-[var(--muted-2)] py-2.5 font-mono caret-[var(--accent)]"
+              />
+            </AuthField>
+            <AuthField
+              id={lastNameId}
+              label="Soyad"
+              required
+              filled={lastName.trim().length > 0}
+              focused={false}
+            >
+              <input
+                id={lastNameId}
+                type="text"
+                autoComplete="family-name"
+                required
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                disabled={loading}
+                placeholder="Yılmaz"
+                className="w-full bg-transparent outline-none text-[14px] text-[var(--foreground)] placeholder:text-[var(--muted-2)] py-2.5 font-mono caret-[var(--accent)]"
+              />
+            </AuthField>
+          </div>
+        )}
+
+        {/* Email field */}}
         <AuthField
           id={emailId}
           label="E-posta"
@@ -242,7 +298,7 @@ export function AuthForm({ mode }: Props) {
         {/* Submit button */}
         <button
           type="submit"
-          disabled={loading || success || !emailFilled || !passwordFilled}
+          disabled={loading || success || !emailFilled || !passwordFilled || !nameFilled}
           className="group relative w-full bg-[var(--accent)] hover:bg-[var(--accent-dim)] text-black px-5 py-4 font-mono text-[11px] tracking-[0.24em] uppercase transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between overflow-hidden"
         >
           {loading && (

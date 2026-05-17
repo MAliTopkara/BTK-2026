@@ -28,6 +28,7 @@ export const translations = {
     "nav.compare": "Karşılaştır",
     "nav.phishing": "Phishing",
     "nav.settings": "Ayarlar",
+    "nav.welcome": "Hoşgeldin",
     "nav.menu": "Menü",
     "nav.operator": "Operatör",
     "nav.soon": "yakında",
@@ -149,6 +150,15 @@ export const translations = {
     "settings.payday": "Maaş günü",
     "settings.save": "Kaydet",
 
+    // Profile
+    "profile.title": "Hesap Bilgileri",
+    "profile.first_name": "Ad",
+    "profile.last_name": "Soyad",
+    "profile.email_label": "E-posta",
+    "profile.save": "Güncelle",
+    "profile.saving": "Kaydediliyor",
+    "profile.saved": "Güncellendi ✓",
+
     // Theme
     "theme.light": "light_mode",
     "theme.dark": "dark_mode",
@@ -185,6 +195,7 @@ export const translations = {
     "nav.compare": "Compare",
     "nav.phishing": "Phishing",
     "nav.settings": "Settings",
+    "nav.welcome": "Welcome",
     "nav.menu": "Menu",
     "nav.operator": "Operator",
     "nav.soon": "soon",
@@ -305,6 +316,15 @@ export const translations = {
     "settings.budget": "Shopping budget (₺)",
     "settings.payday": "Payday",
     "settings.save": "Save",
+
+    // Profile
+    "profile.title": "Account Info",
+    "profile.first_name": "First Name",
+    "profile.last_name": "Last Name",
+    "profile.email_label": "Email",
+    "profile.save": "Update",
+    "profile.saving": "Saving",
+    "profile.saved": "Updated ✓",
 
     // Theme
     "theme.light": "light_mode",
