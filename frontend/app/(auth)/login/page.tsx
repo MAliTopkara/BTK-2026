@@ -16,8 +16,8 @@ export default function LoginPage() {
       eyebrow="Erişim"
       title={
         <>
-          Hoşgeldin{" "}
-          <span className="italic text-[var(--accent)]">geri</span>.
+          Tekrar{" "}
+          <span className="italic text-[var(--accent)]">hoş geldin</span>.
         </>
       }
       intro={

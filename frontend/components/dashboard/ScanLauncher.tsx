@@ -240,8 +240,8 @@ export function ScanLauncher({ initialUrl }: { initialUrl?: string } = {}) {
     setElapsed(0);
   }
 
-  function pickDemo(demoUrl: string) {
-    setUrl(demoUrl);
+  function openDemoScenario(scenarioId: string) {
+    router.push(`/demo/${scenarioId}`);
   }
 
   // ─────────── Render ───────────
@@ -475,7 +475,7 @@ export function ScanLauncher({ initialUrl }: { initialUrl?: string } = {}) {
               <button
                 key={s.id}
                 type="button"
-                onClick={() => pickDemo(s.url)}
+                onClick={() => openDemoScenario(s.id)}
                 className={`group text-left bg-[var(--surface)]/40 border ${colorMap[s.color]} p-4 transition-colors`}
               >
                 <div className="flex items-center justify-between mb-3">
@@ -497,7 +497,7 @@ export function ScanLauncher({ initialUrl }: { initialUrl?: string } = {}) {
                   <span className="text-[var(--accent)] group-hover:translate-x-0.5 transition-transform">
                     →
                   </span>
-                  URL&apos;yi kullan
+                  Demo&apos;yu aç
                 </div>
               </button>
             );

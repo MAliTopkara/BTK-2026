@@ -50,38 +50,6 @@ export function AuthShell({
           <div className="mt-8 max-w-md text-[14px] leading-relaxed text-[var(--muted)]">
             {intro}
           </div>
-
-          {/* Diagnostic table */}
-          <dl className="mt-14 max-w-sm grid grid-cols-[100px_1fr] gap-y-2.5 font-mono text-[11px]">
-            <dt className="text-[var(--muted-2)] tracking-[0.18em] uppercase text-[10px]">
-              endpoint
-            </dt>
-            <dd className="text-[var(--foreground)]/80 truncate">
-              api.trustlens / supabase
-            </dd>
-
-            <dt className="text-[var(--muted-2)] tracking-[0.18em] uppercase text-[10px]">
-              method
-            </dt>
-            <dd className="text-[var(--foreground)]/80">
-              tls_1.3 · bcrypt
-            </dd>
-
-            <dt className="text-[var(--muted-2)] tracking-[0.18em] uppercase text-[10px]">
-              region
-            </dt>
-            <dd className="text-[var(--foreground)]/80">
-              eu-central-1
-            </dd>
-
-            <dt className="text-[var(--muted-2)] tracking-[0.18em] uppercase text-[10px]">
-              session
-            </dt>
-            <dd className="text-[var(--yellow)] flex items-center gap-2">
-              <span className="status-dot status-dot-warn" />
-              pending_auth
-            </dd>
-          </dl>
         </section>
 
         {/* Right: form */}
