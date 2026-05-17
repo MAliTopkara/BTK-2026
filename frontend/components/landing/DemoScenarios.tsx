@@ -109,30 +109,16 @@ const cachedProducts: CachedProduct[] = [
   {
     title: "Apple iPhone 15 256GB Mavi",
     platform: "Trendyol",
-    score: 86,
+    score: 88,
     verdict: "BUY",
     url: "https://www.trendyol.com/apple/iphone-15-256-gb-mavi-p-762254862?boutiqueId=689770&merchantId=968",
   },
   {
     title: "JBL Tune 520BT Kablosuz Kulaklık",
     platform: "Trendyol",
-    score: 86,
+    score: 85,
     verdict: "BUY",
     url: "https://www.trendyol.com/jbl/tune-520bt-multi-connect-wireless-blue-p-702008926?boutiqueId=61&merchantId=624588",
-  },
-  {
-    title: "Vestel 32\" HD Smart TV",
-    platform: "Trendyol",
-    score: 86,
-    verdict: "BUY",
-    url: "https://www.trendyol.com/vestel/32ht9150-32-inc-hd-smart-tv-p-1032347897?boutiqueId=61&merchantId=289170",
-  },
-  {
-    title: "SEG 40\" Smart TiVo TV",
-    platform: "Trendyol",
-    score: 86,
-    verdict: "BUY",
-    url: "https://www.trendyol.com/seg/40srb900-40-smart-tivo-tv-p-901540714?boutiqueId=61&merchantId=154954",
   },
   {
     title: "Coverzone 18W Şarj Kılıfı",
@@ -140,6 +126,27 @@ const cachedProducts: CachedProduct[] = [
     score: 65,
     verdict: "CAUTION",
     url: "https://www.amazon.com.tr/Coverzone-18W-Uyumlu-%C5%9Earj-K%C4%B1l%C4%B1f%C4%B1/dp/B0GP16RLHS/",
+  },
+  {
+    title: "Vestel 32\" HD Smart TV",
+    platform: "Trendyol",
+    score: 55,
+    verdict: "CAUTION",
+    url: "https://www.trendyol.com/vestel/32ht9150-32-inc-hd-smart-tv-p-1032347897?boutiqueId=61&merchantId=289170",
+  },
+  {
+    title: "SEG 40\" Smart TiVo TV",
+    platform: "Trendyol",
+    score: 55,
+    verdict: "CAUTION",
+    url: "https://www.trendyol.com/seg/40srb900-40-smart-tivo-tv-p-901540714?boutiqueId=61&merchantId=154954",
+  },
+  {
+    title: "Coverzone Samsung Tab S10 Kılıfı",
+    platform: "Amazon TR",
+    score: 55,
+    verdict: "CAUTION",
+    url: "https://www.amazon.com.tr/Coverzone-Samsung-%C5%9Eekillerde-se%C3%A7ene%C4%9Fi-Attractive/dp/B0GWMNZTQ3/",
   },
 ];
 
@@ -394,7 +401,7 @@ export function DemoScenarios() {
           </div>
 
           <div className="mt-6 font-mono text-[10px] tracking-[0.22em] uppercase text-[var(--muted-2)]">
-            5 ürün · 4 Trendyol · 1 Amazon TR · cache hit &lt;1s · giriş gereksiz
+            6 ürün · 4 Trendyol · 2 Amazon TR · cache hit &lt;1s · giriş gereksiz
           </div>
         </div>
       </div>

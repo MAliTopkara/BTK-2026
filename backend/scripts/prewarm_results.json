@@ -1,0 +1,119 @@
+{
+  "ran_at": "2026-05-17T12:09:58.828146+00:00",
+  "api": "https://btk-2026-production.up.railway.app",
+  "force_refresh": true,
+  "results": [
+    {
+      "url": "https://www.trendyol.com/apple/iphone-15-256-gb-mavi-p-762254862?boutiqueId=689770&merchantId=968",
+      "ok": true,
+      "scan_id": "9eabc242-4363-40f6-87f6-85f81ff0b9f6",
+      "title": "Apple iPhone 15 256 GB Mavi",
+      "platform": "trendyol",
+      "price": 54349.0,
+      "score": 88,
+      "verdict": "BUY",
+      "cached_at": null,
+      "elapsed_s": 51.7
+    },
+    {
+      "url": "https://www.trendyol.com/jbl/tune-520bt-multi-connect-wireless-blue-p-702008926?boutiqueId=61&merchantId=624588",
+      "ok": true,
+      "scan_id": "a491f71b-99f8-45e0-970d-a3ab38d005eb",
+      "title": "JBL Tune 520bt Multı Connect Wıreless Blue",
+      "platform": "trendyol",
+      "price": 1925.0,
+      "score": 85,
+      "verdict": "BUY",
+      "cached_at": null,
+      "elapsed_s": 23.7
+    },
+    {
+      "url": "https://www.hepsiburada.com/apple-ipad-a16-11-128gb-wi-fi-tablet-gumus-md3y4tu-a-p-HBCV0000870EE8",
+      "ok": false,
+      "stage": "http",
+      "status": 404,
+      "error": "Bu ürün şu an analiz edilemiyor. Sayfa bot koruması, anti-scraping veya ağ engeli nedeniyle erişilemiyor olabilir. Aşağıdaki demo URL'lerinden birini veya farklı bir ürün bağlantısını deneyin.",
+      "elapsed_s": 5.6
+    },
+    {
+      "url": "https://www.trendyol.com/vestel/32ht9150-32-inc-hd-smart-tv-p-1032347897?boutiqueId=61&merchantId=289170",
+      "ok": true,
+      "scan_id": "ad1cda08-2c9e-4a77-af05-49a8a5383fcd",
+      "title": "VESTEL 32HT9150 32 INC HD SMART TV",
+      "platform": "trendyol",
+      "price": 9999.0,
+      "score": 55,
+      "verdict": "CAUTION",
+      "cached_at": null,
+      "elapsed_s": 50.4
+    },
+    {
+      "url": "https://www.hepsiburada.com/kochler-katlanabilir-dijital-ekranli-yuruyus-ve-kosu-bandi-pm-HBC000074FZ40",
+      "ok": false,
+      "stage": "http",
+      "status": 404,
+      "error": "Bu ürün şu an analiz edilemiyor. Sayfa bot koruması, anti-scraping veya ağ engeli nedeniyle erişilemiyor olabilir. Aşağıdaki demo URL'lerinden birini veya farklı bir ürün bağlantısını deneyin.",
+      "elapsed_s": 4.7
+    },
+    {
+      "url": "https://www.n11.com/urun/hayalini-anlat-dixit-egitsel-oyun-6076776?magaza=oyuncakhanem",
+      "ok": false,
+      "stage": "http",
+      "status": 404,
+      "error": "Bu ürün şu an analiz edilemiyor. Sayfa bot koruması, anti-scraping veya ağ engeli nedeniyle erişilemiyor olabilir. Aşağıdaki demo URL'lerinden birini veya farklı bir ürün bağlantısını deneyin.",
+      "elapsed_s": 24.2
+    },
+    {
+      "url": "https://www.amazon.com.tr/Coverzone-Samsung-%C5%9Eekillerde-se%C3%A7ene%C4%9Fi-Attractive/dp/B0GWMNZTQ3/ref=zg_bsnr_g_computers_d_sccl_3/259-0309430-6476571?psc=1",
+      "ok": true,
+      "scan_id": "06b3cfbb-2921-402e-b9cd-62a2223df735",
+      "title": "Coverzone Samsung Galaxy Tab S10 FE Plus ile Uyumlu Kılıfı SM-X620 Kalem Koyma B",
+      "platform": "amazon_tr",
+      "price": 646.7,
+      "score": 55,
+      "verdict": "CAUTION",
+      "cached_at": null,
+      "elapsed_s": 26.7
+    },
+    {
+      "url": "https://www.trendyol.com/seg/40srb900-40-smart-tivo-tv-p-901540714?boutiqueId=61&merchantId=154954",
+      "ok": true,
+      "scan_id": "96b9de66-0f8e-40ed-8af5-02db0fce16d7",
+      "title": "Seg 40SRB900 40\" Smart Tivo Tv",
+      "platform": "trendyol",
+      "price": 11999.0,
+      "score": 55,
+      "verdict": "CAUTION",
+      "cached_at": null,
+      "elapsed_s": 21.8
+    },
+    {
+      "url": "https://www.hepsiburada.com/electrolux-ew6f3411act-600-serisi-sensicare-10-kg-1400-devir-autodose-wi-fi-camasir-makinesi-pm-HBC000071XLHE",
+      "ok": false,
+      "stage": "http",
+      "status": 404,
+      "error": "Bu ürün şu an analiz edilemiyor. Sayfa bot koruması, anti-scraping veya ağ engeli nedeniyle erişilemiyor olabilir. Aşağıdaki demo URL'lerinden birini veya farklı bir ürün bağlantısını deneyin.",
+      "elapsed_s": 4.7
+    },
+    {
+      "url": "https://www.n11.com/urun/aura-cebilon-compact-ve-tum-acik-kasa-cihazlar-icin-2-yillik-set-57482543?magaza=donanmasuaritma&adBidding=true",
+      "ok": false,
+      "stage": "http",
+      "status": 404,
+      "error": "Bu ürün şu an analiz edilemiyor. Sayfa bot koruması, anti-scraping veya ağ engeli nedeniyle erişilemiyor olabilir. Aşağıdaki demo URL'lerinden birini veya farklı bir ürün bağlantısını deneyin.",
+      "elapsed_s": 15.0
+    },
+    {
+      "url": "https://www.amazon.com.tr/Coverzone-18W-Uyumlu-%C5%9Earj-K%C4%B1l%C4%B1f%C4%B1/dp/B0GP16RLHS/ref=zg_bsnr_g_electronics_d_sccl_22/259-0309430-6476571?psc=1",
+      "ok": true,
+      "scan_id": "e736a051-e517-4035-b72b-83db60870f32",
+      "title": "Coverzone 18W/20W İle Uyumlu Şarj Kılıfı – Şarj Aleti Kılıfı, Şarj Kablo Koruyuc",
+      "platform": "amazon_tr",
+      "price": 149.99,
+      "score": 65,
+      "verdict": "CAUTION",
+      "cached_at": null,
+      "elapsed_s": 49.4
+    }
+  ]
+}
