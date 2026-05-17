@@ -234,7 +234,7 @@ export function AuthForm({ mode }: Props) {
           </div>
         )}
 
-        {/* Email field */}}
+        {/* Email field */}
         <AuthField
           id={emailId}
           label="E-posta"
