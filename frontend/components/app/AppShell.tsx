@@ -25,6 +25,7 @@ const NAV: readonly NavItem[] = [
   { href: "/history", labelKey: "nav.history", code: "02" },
   { href: "/compare", labelKey: "nav.compare", code: "03" },
   { href: "/phishing", labelKey: "nav.phishing", code: "04" },
+  { href: "/settings", labelKey: "nav.settings", code: "05" },
 ] as const;
 
 type Props = {
