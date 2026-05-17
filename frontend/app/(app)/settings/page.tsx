@@ -23,7 +23,7 @@ export default function SettingsPage() {
     firstName: string;
     lastName: string;
     email: string;
-  } | null>(null);
+  }>({ firstName: "", lastName: "", email: "" });
 
   useEffect(() => {
     const p = loadProfile();
@@ -65,8 +65,7 @@ export default function SettingsPage() {
   return (
     <div className="space-y-12 max-w-3xl">
       {/* Section 01: Hesap Bilgileri */}
-      {userMeta && (
-        <section className="space-y-6">
+      <section className="space-y-6">
           <header className="space-y-4">
             <div className="font-mono text-[10px] tracking-[0.32em] uppercase text-[var(--muted)] flex items-center gap-3">
               <span className="h-px w-8" style={{ background: "var(--accent)" }} />
@@ -90,7 +89,6 @@ export default function SettingsPage() {
             email={userMeta.email}
           />
         </section>
-      )}
 
       {/* Section 02: Finansal Profil */}}
       <header className="space-y-4">
